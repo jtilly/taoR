@@ -1,0 +1,13 @@
+Package: taoR
+Type: Package
+Title: TAO bindings for R
+Version: 0.1
+Date: 2015-12-19
+Author: Jan Tilly
+Maintainer: Jan Tilly <jantilly@gmail.com>
+Description: Provides TAO bindings for R
+License: GPL-2
+LazyData: TRUE
+Imports: Rcpp
+LinkingTo: Rcpp
+SystemRequirements: petsc

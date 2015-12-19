@@ -1,0 +1,8 @@
+# define PETSC_DIR (if not already set as environmental variable)
+# PETSC_DIR=/usr/local/lib/python2.7/dist-packages/petsc
+
+# link to PETSC, lapack, blas and a few more libraries
+PKG_LIBS = -Wl,-rpath,$(PETSC_DIR)/lib -L$(PETSC_DIR)/lib  -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lm -lgfortran -lm -lquadmath -lm -lstdc++ -ldl -lgcc_s -ldl
+
+# add include directories so that the c code can find the headers
+PKG_CFLAGS = -I$(PETSC_DIR)/include -I$(PETSC_DIR)/include/petsc/mpiuni
