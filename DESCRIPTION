@@ -1,13 +1,18 @@
 Package: taoR
 Type: Package
-Title: TAO bindings for R
+Title: TAO Bindings for R
 Version: 0.1
 Date: 2015-12-19
 Author: Jan Tilly
 Maintainer: Jan Tilly <jantilly@gmail.com>
-Description: Provides TAO bindings for R
+URL: https://github.com/jtilly/taoR/
+Description: Provides Toolbox for Advanced Optimization (TAO) 
+    bindings for R using Rcpp. This package requires a working
+    installation of the Portable, Extensible Toolkit for
+    Scientific Computation (PETSc).
 License: GPL-2
 LazyData: TRUE
 Imports: Rcpp
 LinkingTo: Rcpp
 SystemRequirements: petsc
+OS_type: unix
