@@ -12,7 +12,7 @@
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
 #' ret = pounders(objfun, c(1,2), 2, 2)
 #' ret$x
-pounders <- function(objFun, startValues, k, n) {
-    .Call('taoR_pounders', PACKAGE = 'taoR', objFun, startValues, k, n)
+tao <- function(objFun, startValues, optimizer, k, n = 1L) {
+    .Call('taoR_tao', PACKAGE = 'taoR', objFun, startValues, optimizer, k, n)
 }
 

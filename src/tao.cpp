@@ -10,7 +10,8 @@ typedef struct {
 
 // Forward declarations
 PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
-PetscErrorCode EvaluateFunction(Tao, Vec, Vec, void *);
+PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
+PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
 PetscErrorCode MyMonitor(Tao, void*);
 Rcpp::NumericVector getVec(Vec, int);
 
@@ -26,7 +27,17 @@ Rcpp::NumericVector getVec(Vec, int);
 //' ret = pounders(objfun, c(1,2), 2, 2)
 //' ret$x
 // [[Rcpp::export]]
-Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
+Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n = 1) {
+
+    // check if optimizer is supported
+    if(!(optimizer == "nm" || optimizer == "pounders" || optimizer == "lmvm" || optimizer == "blmvm")) {
+        Rcpp::stop("Unsupported optimizer. Must be in c(\"nm\", \"pounders\", \"lmvm\", \"blmvm\")");
+    }
+    
+    // check if n makes sense
+    if(optimizer != "pounders" && n > 1) {
+        Rcpp::stop("You need to use optimizer=pounders if n>1");
+    }
     
     // create command line arguments
     char* dummy_args[] = {NULL};
@@ -35,6 +46,7 @@ Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int 
     
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
+    PetscReal *f0;
     Tao tao; // Tao solver context 
     PetscInt i; // iteration information 
     Problem problem; // problem-defined work context 
@@ -52,12 +64,17 @@ Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int 
     
     // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
-    ierr = TaoSetType(tao, TAOPOUNDERS); CHKERRQ(ierr);
+    ierr = TaoSetType(tao, optimizer.c_str()); CHKERRQ(ierr);
     
     // Define starting values and define functions
     ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
-    ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
+    
+    if(optimizer == "pounders") {
+        ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
+    } else {
+        ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
+    }
     
     // define monitor
     ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
@@ -74,12 +91,13 @@ Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int 
     
     Rcpp::NumericVector xVec(k);
     xVec = getVec(x, k);
-    Rcpp::NumericVector fVec(n);
-    fVec = getVec(f, n);
-    
-    // Free PETSc data structures
     ierr = VecDestroy(&x); CHKERRQ(ierr);
-    ierr = VecDestroy(&f); CHKERRQ(ierr);
+    
+    Rcpp::NumericVector fVec(n);
+    if(optimizer == "pounders") {
+        fVec = getVec(f, n);
+        ierr = VecDestroy(&f); CHKERRQ(ierr);
+    }
     
     //PetscFinalize();
     return Rcpp::List::create( 
@@ -102,8 +120,8 @@ Rcpp::NumericVector getVec(Vec X, int k) {
     return xVec;
 }
 
-// this function evaluates the objective function
-PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr) {
+// this function evaluates the separable objective function
+PetscErrorCode EvaluateSeparableFunction(Tao tao, Vec X, Vec F, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
     PetscInt i;
@@ -133,6 +151,33 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr) {
     ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
     ierr = VecRestoreArray(F, &f); CHKERRQ(ierr);
     
+    PetscFunctionReturn(0);
+}
+
+// this function evaluates the objective function
+PetscErrorCode EvaluateFunction(Tao tao, Vec X, PetscReal *f, void *ptr) {
+
+    Problem *problem = (Problem *)ptr;
+    PetscInt i;
+    PetscReal *x;
+    PetscErrorCode ierr;
+    Rcpp::Function objFun = *(problem->objFun);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    
+    Rcpp::NumericVector xVec(k);
+    Rcpp::NumericVector fVec(1);
+    
+    for (i=0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    fVec = objFun(xVec);
+    *f = fVec[0];
+    
+    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
     PetscFunctionReturn(0);
 }
 

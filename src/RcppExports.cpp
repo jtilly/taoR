@@ -5,17 +5,18 @@
 
 using namespace Rcpp;
 
-// pounders
-Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n);
-RcppExport SEXP taoR_pounders(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP kSEXP, SEXP nSEXP) {
+// tao
+Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n);
+RcppExport SEXP taoR_tao(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP optimizerSEXP, SEXP kSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP);
+    Rcpp::traits::input_parameter< std::string >::type optimizer(optimizerSEXP);
     Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    __result = Rcpp::wrap(pounders(objFun, startValues, k, n));
+    __result = Rcpp::wrap(tao(objFun, startValues, optimizer, k, n));
     return __result;
 END_RCPP
 }
