@@ -56,7 +56,7 @@ cache:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
   - mkdir -p $HOME/python
-  - pip install petsc --allow-external petsc --user --install-option="--prefix=$PREFIX_PATH"
+  - pip install petsc --allow-external petsc --install-option="--prefix=$PREFIX_PATH"
   - export PETSC_DIR=$PREFIX_PATH/lib/python2.7/site-packages/petsc
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
