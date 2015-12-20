@@ -9,17 +9,13 @@ using namespace Rcpp;
 Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n);
 RcppExport SEXP taoR_pounders(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP kSEXP, SEXP nSEXP) {
 BEGIN_RCPP
-    SEXP __sexp_result;
-    {
-        Rcpp::RNGScope __rngScope;
-        Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP );
-        Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP );
-        Rcpp::traits::input_parameter< int >::type k(kSEXP );
-        Rcpp::traits::input_parameter< int >::type n(nSEXP );
-        Rcpp::List __result = pounders(objFun, startValues, k, n);
-        PROTECT(__sexp_result = Rcpp::wrap(__result));
-    }
-    UNPROTECT(1);
-    return __sexp_result;
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP);
+    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    __result = Rcpp::wrap(pounders(objFun, startValues, k, n));
+    return __result;
 END_RCPP
 }

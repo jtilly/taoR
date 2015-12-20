@@ -8,7 +8,10 @@
 #' @param k is the number of parameters
 #' @param n is the number of elements in the objective function
 #' @return a list with the objective function and the final parameter values
-#'
+#' @examples
+#' objfun = function(x) c((x[1] - 3), (x[2] + 1))
+#' ret = pounders(objfun, c(1,2), 2, 2)
+#' ret$x
 pounders <- function(objFun, startValues, k, n) {
     .Call('taoR_pounders', PACKAGE = 'taoR', objFun, startValues, k, n)
 }

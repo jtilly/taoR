@@ -21,7 +21,10 @@ Rcpp::NumericVector getVec(Vec, int);
 //' @param k is the number of parameters
 //' @param n is the number of elements in the objective function
 //' @return a list with the objective function and the final parameter values
-//'
+//' @examples
+//' objfun = function(x) c((x[1] - 3), (x[2] + 1))
+//' ret = pounders(objfun, c(1,2), 2, 2)
+//' ret$x
 // [[Rcpp::export]]
 Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
     
