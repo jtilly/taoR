@@ -5,14 +5,14 @@
 
 using namespace Rcpp;
 
-// chwirut1
-int chwirut1();
-RcppExport SEXP taoR_chwirut1() {
+// test
+int test();
+RcppExport SEXP taoR_test() {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        int __result = chwirut1();
+        int __result = test();
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
