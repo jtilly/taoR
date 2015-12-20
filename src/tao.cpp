@@ -21,7 +21,7 @@ Rcpp::NumericVector getVec(Vec, int);
 // k: number of parameters
 
 // [[Rcpp::export]]
-Rcpp::List chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
+Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
     
     // create command line arguments
     char* dummy_args[] = {NULL};

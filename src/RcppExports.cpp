@@ -5,9 +5,9 @@
 
 using namespace Rcpp;
 
-// chwirut1
-Rcpp::List chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n);
-RcppExport SEXP taoR_chwirut1(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP kSEXP, SEXP nSEXP) {
+// pounders
+Rcpp::List pounders(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n);
+RcppExport SEXP taoR_pounders(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP kSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
@@ -16,7 +16,7 @@ BEGIN_RCPP
         Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP );
         Rcpp::traits::input_parameter< int >::type k(kSEXP );
         Rcpp::traits::input_parameter< int >::type n(nSEXP );
-        Rcpp::List __result = chwirut1(objFun, startValues, k, n);
+        Rcpp::List __result = pounders(objFun, startValues, k, n);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
