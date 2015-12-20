@@ -5,13 +5,13 @@
 
 using namespace Rcpp;
 
-// test
-int test();
-RcppExport SEXP taoR_test() {
+// chwirut1
+int chwirut1();
+RcppExport SEXP taoR_chwirut1() {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    __result = Rcpp::wrap(test());
+    __result = Rcpp::wrap(chwirut1());
     return __result;
 END_RCPP
 }
