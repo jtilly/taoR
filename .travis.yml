@@ -13,6 +13,7 @@ env:
    
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
+  - export PYTHONPATH=$HOME/python
 
 # only run for pushes to master branch
 branches:
@@ -44,17 +45,17 @@ addons:
 # cache local R libraries directory:
 cache:
   directories:
-    - ~/Rlib
+    - $HOME/Rlib
     - $HOME/texlive
     - $HOME/bin
-    - ~/petsc
+    - $HOME/python
 
 # install the package and dependencies:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
-  - mkdir -p ~/petsc
-  - pip install petsc --allow-external petsc --install-option="--prefix=~/petsc"
-  - export PETSC_DIR=~/petsc/lib/python2.7/site-packages/petsc
+  - mkdir -p $HOME/python
+  - pip install petsc --allow-external petsc --install-option="--prefix=~/python"
+  - export PETSC_DIR=~/python/lib/python2.7/site-packages/petsc
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-pandoc | bash"
