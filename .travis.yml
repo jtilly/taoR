@@ -51,9 +51,7 @@ cache:
 # install the package and dependencies:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
-  - pip install numpy
   - pip install petsc --allow-external petsc
-  - pip install petsc4py --allow-external petsc4py
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-pandoc | bash"
