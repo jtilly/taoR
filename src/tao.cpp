@@ -55,6 +55,8 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     Tao tao; // Tao solver context 
     PetscInt i; // iteration information 
     Problem problem; // problem-defined work context 
+    PetscReal fc, gnorm, cnorm, xdiff;
+    PetscInt its;
     
     PetscInitialize(&argc, &argv, (char *)0, (char *)0);
     
@@ -90,6 +92,7 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     // Perform the Solve
     ierr = TaoSolve(tao); CHKERRQ(ierr);
     ierr = TaoView(tao, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr);
+    ierr = TaoGetSolutionStatus(tao, &its, &fc, &gnorm, &cnorm, &xdiff, 0);
     
     // Free TAO data structures
     ierr = TaoDestroy(&tao); CHKERRQ(ierr);
@@ -102,12 +105,18 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     if(optimizer == "pounders") {
         fVec = getVec(f, n);
         ierr = VecDestroy(&f); CHKERRQ(ierr);
+    } else {
+        fVec[0] = fc;
     }
     
     //PetscFinalize();
     return Rcpp::List::create( 
         Rcpp::Named("x")  = xVec,
-        Rcpp::Named("f")  = fVec
+        Rcpp::Named("f")  = fVec,
+        Rcpp::Named("iterations")  = its,
+        Rcpp::Named("gnorm")  = gnorm,
+        Rcpp::Named("cnorm")  = cnorm,
+        Rcpp::Named("xdiff")  = xdiff
     );
     
 }
