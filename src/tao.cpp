@@ -1,15 +1,11 @@
 #include <Rcpp.h>
 #include <petsctao.h>
 
-using namespace Rcpp;
-
-int chwirut1(int, char**);
+int chwirut1(Rcpp::Function);
 
 // [[Rcpp::export]]
-int test() {
-    int argc;
-    char **argv;
-    chwirut1(argc, argv);
+int test(Rcpp::Function objFun) {
+    chwirut1(objFun);
     return 0;
 }
 
@@ -24,7 +20,6 @@ Concepts: TAO^Solving a system of nonlinear equations, nonlinear least squares
 Routines: TaoCreate();
 Routines: TaoSetType();
 Routines: TaoSetSeparableObjectiveRoutine();
-Routines: TaoSetJacobianRoutine();
 Routines: TaoSetInitialVector();
 Routines: TaoSetFromOptions();
 Routines: TaoSetConvergenceHistory(); TaoGetConvergenceHistory();
@@ -41,9 +36,8 @@ typedef struct {
     /* Working space */
     PetscReal t[NOBSERVATIONS];   /* array of independent variables of observation */
     PetscReal y[NOBSERVATIONS];   /* array of dependent variables */
-    PetscReal j[NOBSERVATIONS][NPARAMETERS]; /* dense jacobian matrix array*/
-    PetscInt idm[NOBSERVATIONS];  /* Matrix indices for jacobian */
     PetscInt idn[NPARAMETERS];
+    Rcpp::Function *objFun;
 } AppCtx;
 
 /* User provided Routines */
@@ -51,94 +45,78 @@ PetscErrorCode InitializeData(AppCtx *user);
 PetscErrorCode FormStartingPoint(Vec);
 PetscErrorCode EvaluateFunction(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
-PetscErrorCode EvaluateJacobian(Tao, Vec, Mat, Mat, void *);
 
-
-/*--------------------------------------------------------------------*/
-#undef __FUNCT__
-#define __FUNCT__ "chwirut1"
-int chwirut1(int argc,char **argv)
-{
+int chwirut1(Rcpp::Function objFun) {
+    
+    // create command line arguments
+    char* dummy_args[] = {NULL};
+    int argc = sizeof(dummy_args)/sizeof(dummy_args[0]) - 1;
+    char** argv = dummy_args;
+    
     PetscErrorCode ierr;           /* used to check for functions returning nonzeros */
-Vec            x, f;               /* solution, function */
-Mat            J;                  /* Jacobian matrix */
-Tao            tao;                /* Tao solver context */
-PetscInt       i;               /* iteration information */
-PetscReal      hist[100],resid[100];
-PetscInt       nhist,lits[100];
-PetscBool      printhistory;
-AppCtx         user;               /* user-defined work context */
-
-PetscInitialize(&argc,&argv,(char *)0,help);
-
-printhistory = PETSC_FALSE;
-ierr = PetscOptionsGetBool(NULL,"-printhistory",&printhistory,0);CHKERRQ(ierr);
-/* Allocate vectors */
-ierr = VecCreateSeq(MPI_COMM_SELF,NPARAMETERS,&x);CHKERRQ(ierr);
-ierr = VecCreateSeq(MPI_COMM_SELF,NOBSERVATIONS,&f);CHKERRQ(ierr);
-
-/* Create the Jacobian matrix. */
-ierr = MatCreateSeqDense(MPI_COMM_SELF,NOBSERVATIONS,NPARAMETERS,NULL,&J);CHKERRQ(ierr);
-
-for (i=0;i<NOBSERVATIONS;i++) user.idm[i] = i;
-
-for (i=0;i<NPARAMETERS;i++) user.idn[i] = i;
-
-/* Create TAO solver and set desired solution method */
-ierr = TaoCreate(PETSC_COMM_SELF,&tao);CHKERRQ(ierr);
-ierr = TaoSetType(tao,TAOPOUNDERS);CHKERRQ(ierr);
-
-/* Set the function and Jacobian routines. */
-ierr = InitializeData(&user);CHKERRQ(ierr);
-ierr = FormStartingPoint(x);CHKERRQ(ierr);
-ierr = TaoSetInitialVector(tao,x);CHKERRQ(ierr);
-ierr = TaoSetSeparableObjectiveRoutine(tao,f,EvaluateFunction,(void*)&user);CHKERRQ(ierr);
-// ierr = TaoSetJacobianRoutine(tao, J, J, EvaluateJacobian, (void*)&user);CHKERRQ(ierr);
-
-ierr = TaoSetMonitor(tao,MyMonitor,&user,NULL);CHKERRQ(ierr);
-
-/* Check for any TAO command line arguments */
-ierr = TaoSetFromOptions(tao);CHKERRQ(ierr);
-
-ierr = TaoSetConvergenceHistory(tao,hist,resid,0,lits,100,PETSC_TRUE);CHKERRQ(ierr);
-/* Perform the Solve */
-ierr = TaoSolve(tao);CHKERRQ(ierr);
-if (printhistory) {
-    ierr = TaoGetConvergenceHistory(tao,0,0,0,0,&nhist);CHKERRQ(ierr);
-    for (i=0;i<nhist;i++) {
-        ierr = PetscPrintf(PETSC_COMM_WORLD,"%g\t%g\n",(double)hist[i],(double)resid[i]);CHKERRQ(ierr);
-    }
-}
-ierr = TaoView(tao,PETSC_VIEWER_STDOUT_SELF);CHKERRQ(ierr);
-
-/* Free TAO data structures */
-ierr = TaoDestroy(&tao);CHKERRQ(ierr);
-
-/* Free PETSc data structures */
-ierr = VecDestroy(&x);CHKERRQ(ierr);
-ierr = VecDestroy(&f);CHKERRQ(ierr);
-ierr = MatDestroy(&J);CHKERRQ(ierr);
-
-PetscFinalize();
-return 0;
+    Vec            x, f;               /* solution, function */
+    Tao            tao;                /* Tao solver context */
+    PetscInt       i;               /* iteration information */
+    AppCtx         user;               /* user-defined work context */
+    
+    PetscInitialize(&argc,&argv,(char *)0,help);
+    
+    /* Allocate vectors */
+    ierr = VecCreateSeq(MPI_COMM_SELF,NPARAMETERS,&x);CHKERRQ(ierr);
+    ierr = VecCreateSeq(MPI_COMM_SELF,NOBSERVATIONS,&f);CHKERRQ(ierr);
+    
+    for (i=0;i<NPARAMETERS;i++) user.idn[i] = i;
+    user.objFun = &objFun;
+    
+    /* Create TAO solver and set desired solution method */
+    ierr = TaoCreate(PETSC_COMM_SELF,&tao);CHKERRQ(ierr);
+    ierr = TaoSetType(tao,TAOPOUNDERS);CHKERRQ(ierr);
+    
+    /* Set the function and Jacobian routines. */
+    ierr = InitializeData(&user);CHKERRQ(ierr);
+    ierr = FormStartingPoint(x);CHKERRQ(ierr);
+    ierr = TaoSetInitialVector(tao,x);CHKERRQ(ierr);
+    ierr = TaoSetSeparableObjectiveRoutine(tao,f,EvaluateFunction,(void*)&user);CHKERRQ(ierr);
+    
+    ierr = TaoSetMonitor(tao,MyMonitor,&user,NULL);CHKERRQ(ierr);
+    
+    /* Check for any TAO command line arguments */
+    ierr = TaoSetFromOptions(tao);CHKERRQ(ierr);
+    
+    /* Perform the Solve */
+    ierr = TaoSolve(tao);CHKERRQ(ierr);
+    ierr = TaoView(tao,PETSC_VIEWER_STDOUT_SELF);CHKERRQ(ierr);
+    
+    /* Free TAO data structures */
+    ierr = TaoDestroy(&tao);CHKERRQ(ierr);
+    
+    /* Free PETSc data structures */
+    ierr = VecDestroy(&x);CHKERRQ(ierr);
+    ierr = VecDestroy(&f);CHKERRQ(ierr);
+    
+    //PetscFinalize();
+    return 0;
 }
 
 /*--------------------------------------------------------------------*/
-#undef __FUNCT__
-#define __FUNCT__ "EvaluateFunction"
-PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr)
-{
+PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr) {
+    
     AppCtx         *user = (AppCtx *)ptr;
     PetscInt       i;
     PetscReal      *y=user->y,*x,*f,*t=user->t;
     PetscErrorCode ierr;
+    Rcpp::Function objFun = *(user->objFun);
     
     PetscFunctionBegin;
     ierr = VecGetArray(X,&x);CHKERRQ(ierr);
     ierr = VecGetArray(F,&f);CHKERRQ(ierr);
     
+    Rcpp::NumericVector xVec = Rcpp::NumericVector::create(1.24);
+    Rcpp::NumericVector yVec;
+    yVec = objFun(xVec);
+    
     for (i=0;i<NOBSERVATIONS;i++) {
-        f[i] = y[i] - PetscExpScalar(-x[0]*t[i])/(x[1] + x[2]*t[i]);
+        f[i] = y[i] - PetscExpScalar(-x[0]*t[i])/(x[1] + x[2]*t[i]) + yVec[0];
     }
     ierr = VecRestoreArray(X,&x);CHKERRQ(ierr);
     ierr = VecRestoreArray(F,&f);CHKERRQ(ierr);
@@ -146,43 +124,7 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr)
     PetscFunctionReturn(0);
 }
 
-/*------------------------------------------------------------*/
-/* J[i][j] = df[i]/dt[j] */
-#undef __FUNCT__
-#define __FUNCT__ "EvaluateJacobian"
-PetscErrorCode EvaluateJacobian(Tao tao, Vec X, Mat J, Mat Jpre, void *ptr)
-{
-    AppCtx         *user = (AppCtx *)ptr;
-    PetscInt       i;
-    PetscReal      *x,*t=user->t;
-    PetscReal      base;
-    PetscErrorCode ierr;
-    
-    PetscFunctionBegin;
-    ierr = VecGetArray(X,&x);CHKERRQ(ierr);
-    for (i=0;i<NOBSERVATIONS;i++) {
-        base = PetscExpScalar(-x[0]*t[i])/(x[1] + x[2]*t[i]);
-        
-        user->j[i][0] = t[i]*base;
-        user->j[i][1] = base/(x[1] + x[2]*t[i]);
-        user->j[i][2] = base*t[i]/(x[1] + x[2]*t[i]);
-    }
-    
-    /* Assemble the matrix */
-    ierr = MatSetValues(J,NOBSERVATIONS,user->idm, NPARAMETERS, user->idn,(PetscReal *)user->j,INSERT_VALUES);CHKERRQ(ierr);
-    ierr = MatAssemblyBegin(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-    ierr = MatAssemblyEnd(J,MAT_FINAL_ASSEMBLY);CHKERRQ(ierr);
-    
-    ierr = VecRestoreArray(X,&x);CHKERRQ(ierr);
-    PetscLogFlops(NOBSERVATIONS * 13);
-    PetscFunctionReturn(0);
-}
-
-/* ------------------------------------------------------------ */
-#undef __FUNCT__
-#define __FUNCT__ "FormStartingPoint"
-PetscErrorCode FormStartingPoint(Vec X)
-{
+PetscErrorCode FormStartingPoint(Vec X) {
     PetscReal      *x;
     PetscErrorCode ierr;
     
@@ -195,11 +137,7 @@ PetscErrorCode FormStartingPoint(Vec X)
     PetscFunctionReturn(0);
 }
 
-/* ---------------------------------------------------------------------- */
-#undef __FUNCT__
-#define __FUNCT__ "InitializeData"
-PetscErrorCode InitializeData(AppCtx *user)
-{
+PetscErrorCode InitializeData(AppCtx *user) {
     PetscReal *t=user->t,*y=user->y;
     PetscInt  i=0;
     
@@ -421,8 +359,7 @@ PetscErrorCode InitializeData(AppCtx *user)
     PetscFunctionReturn(0);
 }
 
-PetscErrorCode MyMonitor(Tao tao, void *ptr)
-{
+PetscErrorCode MyMonitor(Tao tao, void *ptr) {
     PetscReal      fc,gnorm;
     PetscInt       its;
     PetscViewer    viewer = PETSC_VIEWER_STDOUT_SELF;

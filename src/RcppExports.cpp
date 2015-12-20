@@ -6,13 +6,14 @@
 using namespace Rcpp;
 
 // test
-int test();
-RcppExport SEXP taoR_test() {
+int test(Rcpp::Function objFun);
+RcppExport SEXP taoR_test(SEXP objFunSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
-        int __result = test();
+        Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP );
+        int __result = test(objFun);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

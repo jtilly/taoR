@@ -5,4 +5,4 @@
 PKG_LIBS = -Wl,-rpath,$(PETSC_DIR)/lib -L$(PETSC_DIR)/lib  -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lm -lgfortran -lm -lquadmath -lm -lstdc++ -ldl -lgcc_s -ldl
 
 # add include directories so that the c code can find the headers
-PKG_CXXFLAGS = -I/usr/include/mpich -I$(PETSC_DIR)/include -I$(PETSC_DIR)/include/petsc/mpiuni
+PKG_CXXFLAGS = -I$(PETSC_DIR)/include -I$(PETSC_DIR)/include/petsc/mpiuni
