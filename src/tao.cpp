@@ -19,6 +19,8 @@ Rcpp::NumericVector getVec(Vec, int);
 //'
 //' @param objFun is an R objective function that maps k parameters into n equations.
 //' @param startValues is a vector with k elements
+//' @param optimizer is a string that determines the type of optimizer to be used. 
+//'     This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.
 //' @param k is the number of parameters
 //' @param n is the number of elements in the objective function
 //' @return a list with the objective function and the final parameter values
