@@ -1,4 +1,4 @@
-# taoR
+# taoR [![Build Status](https://travis-ci.org/jtilly/taoR.svg?branch=master)](https://travis-ci.org/jtilly/taoR)
 Toolkit for Advanced Optimization (TAO) Bindings for R
 
 This package is a proof of concept and doesn't do anything yet.
