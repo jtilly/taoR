@@ -4,25 +4,6 @@
 // This example comes straight from
 // www.mcs.anl.gov/petsc/petsc-current/src/tao/leastsquares/examples/tutorials/chwirut1.c.html
 
-static char help[]="Finds the nonlinear least-squares solution to the model \n\
-y = exp[-b1*x]/(b2+b3*x)  +  e \n";
-
-/*T
-Concepts: TAO^Solving a system of nonlinear equations, nonlinear least squares
-Routines: TaoCreate();
-Routines: TaoSetType();
-Routines: TaoSetSeparableObjectiveRoutine();
-Routines: TaoSetInitialVector();
-Routines: TaoSetFromOptions();
-Routines: TaoSetConvergenceHistory(); TaoGetConvergenceHistory();
-Routines: TaoSolve();
-Routines: TaoView(); TaoDestroy();
-Processors: 1
-T*/
-
-#define NOBSERVATIONS 214
-#define NPARAMETERS 3
-
 /* User-defined application context */
 typedef struct {
     Rcpp::Function *objFun;
@@ -34,12 +15,13 @@ typedef struct {
 PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
 PetscErrorCode EvaluateFunction(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
+Rcpp::NumericVector getVec(Vec, int);
 
 // n: number of moments
 // k: number of parameters
 
 // [[Rcpp::export]]
-int chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
+Rcpp::List chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n) {
     
     // create command line arguments
     char* dummy_args[] = {NULL};
@@ -52,9 +34,9 @@ int chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int 
     PetscInt       i;               /* iteration information */
     AppCtx         user;               /* user-defined work context */
     
-    PetscInitialize(&argc,&argv,(char *)0,help);
+    PetscInitialize(&argc,&argv,(char *)0, (char *)0);
     
-    /* Allocate vectors */
+    // allocate vectors
     ierr = VecCreateSeq(MPI_COMM_SELF, k, &x);CHKERRQ(ierr);
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f);CHKERRQ(ierr);
     
@@ -63,36 +45,57 @@ int chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int 
     user.n = n;
     user.k = k;
     
-    /* Create TAO solver and set desired solution method */
+    // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF,&tao);CHKERRQ(ierr);
     ierr = TaoSetType(tao,TAOPOUNDERS);CHKERRQ(ierr);
     
-    /* Set the function and Jacobian routines. */
+    // Define starting values and define functions
     ierr = FormStartingPoint(x, startValues);CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao,x);CHKERRQ(ierr);
     ierr = TaoSetSeparableObjectiveRoutine(tao,f,EvaluateFunction,(void*)&user);CHKERRQ(ierr);
     
+    // define monitor
     ierr = TaoSetMonitor(tao,MyMonitor,&user,NULL);CHKERRQ(ierr);
     
-    /* Check for any TAO command line arguments */
+    // Check for any TAO command line arguments 
     ierr = TaoSetFromOptions(tao);CHKERRQ(ierr);
     
-    /* Perform the Solve */
+    // Perform the Solve
     ierr = TaoSolve(tao);CHKERRQ(ierr);
     ierr = TaoView(tao,PETSC_VIEWER_STDOUT_SELF);CHKERRQ(ierr);
     
-    /* Free TAO data structures */
+    // Free TAO data structures
     ierr = TaoDestroy(&tao);CHKERRQ(ierr);
     
-    /* Free PETSc data structures */
+    Rcpp::NumericVector xVec(k);
+    xVec = getVec(x, k);
+    Rcpp::NumericVector fVec(n);
+    fVec = getVec(f, n);
+    
+    // Free PETSc data structures
     ierr = VecDestroy(&x);CHKERRQ(ierr);
     ierr = VecDestroy(&f);CHKERRQ(ierr);
     
+    
     //PetscFinalize();
-    return 0;
+    return Rcpp::List::create( 
+        Rcpp::Named("x")  = xVec,
+        Rcpp::Named("f")  = fVec
+    );
+    
 }
 
-/*--------------------------------------------------------------------*/
+Rcpp::NumericVector getVec(Vec X, int k) {
+    PetscInt       i;
+    PetscReal      *x;
+    VecGetArray(X, &x);
+    Rcpp::NumericVector xVec(k);
+    for (i=0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    return xVec;
+}
+
 PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr) {
     
     AppCtx         *user = (AppCtx *)ptr;
@@ -123,7 +126,6 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, Vec F, void *ptr) {
     ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
     ierr = VecRestoreArray(F, &f); CHKERRQ(ierr);
     
-    //PetscLogFlops(6*NOBSERVATIONS);
     PetscFunctionReturn(0);
 }
 
