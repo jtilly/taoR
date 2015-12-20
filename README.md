@@ -13,6 +13,7 @@ pip install petsc --allow-external petsc
 #### Install this package 
 ```{r}
 Sys.setenv("PETSC_DIR" = "/where/is/petsc")
+# install.packages("devtools")
 devtools::install_github("jtilly/taoR")
 ```
 
