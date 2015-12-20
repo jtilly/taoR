@@ -6,14 +6,17 @@
 using namespace Rcpp;
 
 // chwirut1
-int chwirut1(Rcpp::Function objFun);
-RcppExport SEXP taoR_chwirut1(SEXP objFunSEXP) {
+int chwirut1(Rcpp::Function objFun, Rcpp::NumericVector startValues, int k, int n);
+RcppExport SEXP taoR_chwirut1(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP kSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP );
-        int __result = chwirut1(objFun);
+        Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP );
+        Rcpp::traits::input_parameter< int >::type k(kSEXP );
+        Rcpp::traits::input_parameter< int >::type n(nSEXP );
+        int __result = chwirut1(objFun, startValues, k, n);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);
