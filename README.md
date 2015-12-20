@@ -3,13 +3,21 @@ Toolkit for Advanced Optimization (TAO) Bindings for R
 
 This package is a proof of concept.
 
-* Install [PETSc](http://www.mcs.anl.gov/petsc/): e.g. `pip install petsc --allow-external petsc`
-* Set environmental variable: `PETSC_DIR=/where/is/petsc`
-* Install this package: `devtools::install_github("jtilly/taoR")`
+* Install [PETSc](http://www.mcs.anl.gov/petsc/): 
+```{bash}
+# sudo apt-get install python-pip
+pip install petsc --allow-external petsc
+```
+* Install this package: 
+```{r}
+Sys.setenv("PETSC_DIR" = "/where/is/petsc")
+devtools::install_github("jtilly/taoR")
+```
 
 ## Example
 
 ```{r}
+library("taoR")
 # the objective function is (x[1] - 3) ^ 2 + (x[2] + 1) ^2 
 # with solution vector c(3, -1)
 
