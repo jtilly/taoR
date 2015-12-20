@@ -40,6 +40,7 @@ struct AppCtx{
 PetscErrorCode InitializeData(AppCtx *user);
 PetscErrorCode FormStartingPoint(Vec);
 PetscErrorCode EvaluateFunction(Tao, Vec, Vec, void *);
+PetscErrorCode MyMonitor(Tao, void*);
 PetscErrorCode EvaluateJacobian(Tao, Vec, Mat, Mat, void *);
 
 // [[Rcpp::export]]
@@ -97,12 +98,15 @@ int chwirut1() {
     ierr = TaoSetInitialVector(tao,x);
     CHKERRQ(ierr);
     
-    ierr = TaoSetSeparableObjectiveRoutine(tao,f,EvaluateFunction,(void*)&user);
+    ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateFunction, (void*)&user);
     CHKERRQ(ierr);
     
-    ierr = TaoSetJacobianRoutine(tao, J, J, EvaluateJacobian, (void*)&user);
-    CHKERRQ(ierr);
+    //ierr = TaoSetJacobianRoutine(tao, J, J, EvaluateJacobian, (void*)&user);
+    //CHKERRQ(ierr);
     
+    
+    ierr = TaoSetMonitor(tao,MyMonitor,&user,NULL);
+    CHKERRQ(ierr);
     
     // Check for any TAO command line arguments 
     ierr = TaoSetFromOptions(tao);
@@ -452,5 +456,26 @@ PetscErrorCode InitializeData(AppCtx *user) {
     y[i] =    10.0500;  t[i++] =   3.7500;
     y[i] =    28.9000;  t[i++] =   1.7500;
     y[i] =    28.9500;  t[i++] =   1.7500;
+    PetscFunctionReturn(0);
+}
+
+PetscErrorCode MyMonitor(Tao tao, void *ptr)
+{
+    PetscReal      fc,gnorm;
+    PetscInt       its;
+    PetscViewer    viewer = PETSC_VIEWER_STDOUT_SELF;
+    PetscErrorCode ierr;
+    
+    PetscFunctionBegin;
+    ierr = TaoGetSolutionStatus(tao,&its,&fc,&gnorm,0,0,0);
+    ierr=PetscViewerASCIIPrintf(viewer,"iter = %3D,",its);CHKERRQ(ierr);
+    ierr=PetscViewerASCIIPrintf(viewer," Function value %g,",(double)fc);CHKERRQ(ierr);
+    if (gnorm > 1.e-6) {
+        ierr=PetscViewerASCIIPrintf(viewer," Residual: %g \n",(double)gnorm);CHKERRQ(ierr);
+    } else if (gnorm > 1.e-11) {
+        ierr=PetscViewerASCIIPrintf(viewer," Residual: < 1.0e-6 \n");CHKERRQ(ierr);
+    } else {
+        ierr=PetscViewerASCIIPrintf(viewer," Residual: < 1.0e-11 \n");CHKERRQ(ierr);
+    }
     PetscFunctionReturn(0);
 }
