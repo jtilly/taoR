@@ -5,15 +5,15 @@
 
 using namespace Rcpp;
 
-// test
-int test(Rcpp::Function objFun);
-RcppExport SEXP taoR_test(SEXP objFunSEXP) {
+// chwirut1
+int chwirut1(Rcpp::Function objFun);
+RcppExport SEXP taoR_chwirut1(SEXP objFunSEXP) {
 BEGIN_RCPP
     SEXP __sexp_result;
     {
         Rcpp::RNGScope __rngScope;
         Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP );
-        int __result = test(objFun);
+        int __result = chwirut1(objFun);
         PROTECT(__sexp_result = Rcpp::wrap(__result));
     }
     UNPROTECT(1);

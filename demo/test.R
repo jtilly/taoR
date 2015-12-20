@@ -1,3 +1,3 @@
 # test.R
 objfun = function(x) -x^2
-test(objfun)
+chwirut1(objfun)

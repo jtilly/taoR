@@ -1,14 +1,6 @@
 #include <Rcpp.h>
 #include <petsctao.h>
 
-int chwirut1(Rcpp::Function);
-
-// [[Rcpp::export]]
-int test(Rcpp::Function objFun) {
-    chwirut1(objFun);
-    return 0;
-}
-
 // This example comes straight from
 // www.mcs.anl.gov/petsc/petsc-current/src/tao/leastsquares/examples/tutorials/chwirut1.c.html
 
@@ -46,6 +38,7 @@ PetscErrorCode FormStartingPoint(Vec);
 PetscErrorCode EvaluateFunction(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
 
+// [[Rcpp::export]]
 int chwirut1(Rcpp::Function objFun) {
     
     // create command line arguments
