@@ -11,3 +11,10 @@
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
+.Rproj.user
+
+# other
+.Rbuildignore
+src/*.o
+src/*.so
+*.Rproj
