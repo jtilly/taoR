@@ -23,8 +23,14 @@ Rcpp::NumericVector getVec(Vec, int);
 //' @param n is the number of elements in the objective function
 //' @return a list with the objective function and the final parameter values
 //' @examples
+//' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-//' ret = pounders(objfun, c(1,2), 2, 2)
+//' ret = tao(objfun, c(1,2), "pounders", 2, 2)
+//' ret$x
+//'     
+//' # use Nelder-Mead
+//' objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+//' ret = tao(objfun, c(1,2), "nm", 2)
 //' ret$x
 // [[Rcpp::export]]
 Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n = 1) {
@@ -46,7 +52,6 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
-    PetscReal *f0;
     Tao tao; // Tao solver context 
     PetscInt i; // iteration information 
     Problem problem; // problem-defined work context 

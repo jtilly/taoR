@@ -9,8 +9,14 @@
 #' @param n is the number of elements in the objective function
 #' @return a list with the objective function and the final parameter values
 #' @examples
+#' # use pounders
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-#' ret = pounders(objfun, c(1,2), 2, 2)
+#' ret = tao(objfun, c(1,2), "pounders", 2, 2)
+#' ret$x
+#'     
+#' # use Nelder-Mead
+#' objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+#' ret = tao(objfun, c(1,2), "nm", 2)
 #' ret$x
 tao <- function(objFun, startValues, optimizer, k, n = 1L) {
     .Call('taoR_tao', PACKAGE = 'taoR', objFun, startValues, optimizer, k, n)
