@@ -77,7 +77,7 @@ script:
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R CMD INSTALL "${PKG_FILE_NAME}"
-  - R -d valgrind --no-save < matchingR.Rcheck/matchingR-Ex.R
+  - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
 
 # send e-mails if stuff changes
 notifications:
