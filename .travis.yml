@@ -14,6 +14,8 @@ env:
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
   - export PYTHONPATH=$HOME/python
+  - export PYTHONUSERBASE=$HOME/python
+  - export PREFIX_PATH=$HOME/python
 
 # only run for pushes to master branch
 branches:
@@ -54,8 +56,8 @@ cache:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
   - mkdir -p $HOME/python
-  - pip install petsc --allow-external petsc --install-option="--prefix=~/python"
-  - export PETSC_DIR=~/python/lib/python2.7/site-packages/petsc
+  - pip install petsc --allow-external petsc --install-option="--prefix=$PREFIX_PATH"
+  - export PETSC_DIR=$PREFIX_PATH/lib/python2.7/site-packages/petsc
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-pandoc | bash"
@@ -69,12 +71,13 @@ install:
   - Rscript -e 'devtools::install_deps(pkg = ".", dependencies = TRUE)'
 
 # build, check, and install package
-# run all examples and the vignettes through valgrind
+# run all examples through valgrind
 script:
   - R CMD build . 
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R CMD INSTALL "${PKG_FILE_NAME}"
+  - R -d valgrind --no-save < matchingR.Rcheck/matchingR-Ex.R
 
 # send e-mails if stuff changes
 notifications:
