@@ -55,7 +55,7 @@ Rcpp::NumericVector getVec(Vec, int);
 //' @examples
 //' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-//' ret = tao(objfun, c(1,2), "pounders", 2, 2)
+//' ret = tao(list(objFun = objfun), c(1, 2), "pounders", 2, list(test = "yes"))
 //' ret$x
 //'     
 //' # use Nelder-Mead
@@ -71,8 +71,6 @@ Rcpp::List tao(Rcpp::List functions,
 
     Rcpp::Function objFun = functions["objFun"];
     
-    //parseCommandLineArguments(options);
-    
     // Derivative free optimizers
     if (method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm") {
         // objFun = functions[0];
@@ -85,11 +83,6 @@ Rcpp::List tao(Rcpp::List functions,
         Rcpp::stop("You need to use optimizer=pounders if n>1");
     }
     
-    // create command line arguments
-    char* dummy_args[] = {NULL};
-    int argc = sizeof(dummy_args) / sizeof(dummy_args[0]) - 1;
-    char** argv = dummy_args;
-    
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
     Tao tao; // Tao solver context 
@@ -97,7 +90,8 @@ Rcpp::List tao(Rcpp::List functions,
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
     
-    PetscInitialize(&argc, &argv, (char *)0, (char *)0);
+    // Initialize PETSc
+    petscInitialize(options);
     
     // allocate vectors
     ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
