@@ -38,3 +38,11 @@ ret$x
 ret$iterations
 #> [1] 20
 ```
+### Docker Container
+
+Docker is a lightweight virtual machine that can be run on almost any architecture. If you want to try `taoR` without installing the package and its dependencies on your machine, you can run R and `taoR` in a Docker container. The Docker container for this application is based on an Ubuntu image. For details, see the [Dockerfile](https://github.com/jtilly/taoR/blob/docker/Dockerfile) that creates the container. To run `taoR` in a Docker container, do the following:
+```{bash}
+docker run -ti jtilly/taoR
+R
+demo("test")
+```
