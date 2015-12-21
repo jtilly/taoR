@@ -30,6 +30,8 @@
 // problem structure
 typedef struct {
     Rcpp::Function *objFun;
+    Rcpp::Function *jacFun;
+    Rcpp::Function *hesFun;
     int k;
     int n;
 } Problem;
@@ -43,12 +45,13 @@ Rcpp::NumericVector getVec(Vec, int);
 
 //' Use Pounders to minimize a non-linear sum of squares problem 
 //'
-//' @param objFun is an R objective function that maps k parameters into n equations.
-//' @param startValues is a vector with k elements
-//' @param optimizer is a string that determines the type of optimizer to be used. 
+//' @param fn is an R objective function that maps k parameters into n equations.
+//' @param par is a vector with k elements
+//' @param method is a string that determines the type of optimizer to be used. 
 //'     This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.
 //' @param k is the number of parameters
 //' @param n is the number of elements in the objective function
+//' @param control is a list containing option values for the optimizer
 //' @return a list with the objective function and the final parameter values
 //' @examples
 //' # use pounders
@@ -61,15 +64,20 @@ Rcpp::NumericVector getVec(Vec, int);
 //' ret = tao(objfun, c(1,2), "nm", 2)
 //' ret$x
 // [[Rcpp::export]]
-Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n = 1) {
+Rcpp::List tao(Rcpp::NumericVector par, 
+               Rcpp::Function fn, 
+               std::string method, 
+               int k, 
+               int n = 1, 
+               Rcpp::List control = R_NilValue) {
 
     // check if optimizer is supported
-    if(!(optimizer == "nm" || optimizer == "pounders" || optimizer == "lmvm" || optimizer == "blmvm")) {
+    if(!(method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm")) {
         Rcpp::stop("Unsupported optimizer. Must be in c(\"nm\", \"pounders\", \"lmvm\", \"blmvm\")");
     }
     
     // check if n makes sense
-    if(optimizer != "pounders" && n > 1) {
+    if(method != "pounders" && n > 1) {
         Rcpp::stop("You need to use optimizer=pounders if n>1");
     }
     
@@ -92,19 +100,19 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
     
     // add objective function to problem
-    problem.objFun = &objFun;
+    problem.objFun = &fn;
     problem.n = n;
     problem.k = k;
     
     // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
-    ierr = TaoSetType(tao, optimizer.c_str()); CHKERRQ(ierr);
+    ierr = TaoSetType(tao, method.c_str()); CHKERRQ(ierr);
     
     // Define starting values and define functions
-    ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
+    ierr = FormStartingPoint(x, par); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
     
-    if(optimizer == "pounders") {
+    if(method == "pounders") {
         ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
     } else {
         ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
@@ -129,7 +137,7 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     ierr = VecDestroy(&x); CHKERRQ(ierr);
     
     Rcpp::NumericVector fVec(n);
-    if(optimizer == "pounders") {
+    if(method == "pounders") {
         fVec = getVec(f, n);
         ierr = VecDestroy(&f); CHKERRQ(ierr);
     } else {
