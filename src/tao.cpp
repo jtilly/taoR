@@ -79,35 +79,41 @@ Rcpp::List tao(Rcpp::List functions,
     // Initialize PETSc
     petscInitialize(options);
     
+    // Problem-defined work context 
+    Problem problem; 
+    
+    // Read in problem dimensions
+    problem.n = n;
+    problem.k = startValues.size();
+    
+    // Read in the objective function
+    // Add it to problem context
     Rcpp::Function objFun = functions["objFun"];
+    problem.objFun = &objFun;
     
-    // Derivative free optimizers
-    if (method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm") {
-        // objFun = functions[0];
-    } else {
-        Rcpp::stop("Unsupported optimizer " + method);
+    // Check whether we need to read in the jacobian
+    // to the problem context.
+    if (functions.containsElementNamed("jacFun")) {
+        Rcpp::Function jacFun = functions["jacFun"];
+        problem.jacFun = &jacFun;
     }
     
-    // check if n makes sense
-    if(method != "pounders" && n > 1) {
-        Rcpp::stop("You need to use optimizer=pounders if n>1");
+    // Check whether we need to read in the hessian
+    // to the problem context.
+    if (functions.containsElementNamed("hesFun")) {
+        Rcpp::Function hesFun = functions["hesFun"];
+        problem.hesFun = &hesFun;
     }
-
+    
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
     Tao tao; // Tao solver context 
-    Problem problem; // problem-defined work context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
 
     // allocate vectors
     ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
-    
-    // add objective function to problem
-    problem.objFun = &objFun;
-    problem.n = n;
-    problem.k = startValues.size();
     
     // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
@@ -117,12 +123,9 @@ Rcpp::List tao(Rcpp::List functions,
     ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
     
-    if(method == "pounders") {
-        ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
-    } else {
-        ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
-    }
-    
+    ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
+    ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
+
     // define monitor
     ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
     

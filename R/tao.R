@@ -21,9 +21,15 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("nm", "pounders", "lmvm", "blmvm"),
                      control = list()) {
     
-    ret = tao(functions = list(objFun = fn, 
-                               jacFun = gr, 
-                               hesFun = hs),
+    funclist = list(objFun = fn);
+    if (!is.null(gr)) {
+        funclist = rbind(funclist, list(jacFun = gr))
+    }
+    if (!is.null(hs)) {
+        funclist = rbind(funclist, list(hesFun = hs))
+    }
+    
+    ret = tao(functions = funclist,
               startValues = par,
               method = method,
               options = control)
