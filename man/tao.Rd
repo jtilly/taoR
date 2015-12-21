@@ -11,6 +11,9 @@ tao(objFun, startValues, optimizer, k, n = 1L)
 
 \item{startValues}{is a vector with k elements}
 
+\item{optimizer}{is a string that determines the type of optimizer to be used. 
+This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.}
+
 \item{k}{is the number of parameters}
 
 \item{n}{is the number of elements in the objective function}
