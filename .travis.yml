@@ -1,10 +1,15 @@
-# .travis.yml for matchingR using container-based infrastructure
+# .travis.yml using container-based infrastructure
 
 # use c as catch-all language
 language: c
 
 # use containers
 sudo: false
+
+# only run for pushes to master branch
+branches:
+  only:
+   - master
 
 # define environmental variables for R CMD check
 env:
@@ -16,11 +21,6 @@ before_install:
   - export PYTHONPATH=$HOME/python
   - export PYTHONUSERBASE=$HOME/python
   - export PREFIX_PATH=$HOME/python
-
-# only run for pushes to master branch
-branches:
-  only:
-   - master
 
 # install r-base-dev:
 # use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) as source
