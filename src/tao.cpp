@@ -76,6 +76,9 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::List options, 
                int n = 1) {
 
+    // Initialize PETSc
+    petscInitialize(options);
+    
     Rcpp::Function objFun = functions["objFun"];
     
     // Derivative free optimizers
@@ -89,17 +92,14 @@ Rcpp::List tao(Rcpp::List functions,
     if(method != "pounders" && n > 1) {
         Rcpp::stop("You need to use optimizer=pounders if n>1");
     }
-    
+
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
     Tao tao; // Tao solver context 
     Problem problem; // problem-defined work context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
-    
-    // Initialize PETSc
-    petscInitialize(options);
-    
+
     // allocate vectors
     ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
@@ -149,7 +149,8 @@ Rcpp::List tao(Rcpp::List functions,
         fVec[0] = fc;
     }
     
-    //PetscFinalize();
+    // PetscFinalize();
+    
     return Rcpp::List::create( 
         Rcpp::Named("x")  = xVec,
         Rcpp::Named("f")  = fVec,
