@@ -248,12 +248,14 @@ PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
     Problem *problem = (Problem *)ptr;
     PetscInt i;
     PetscReal *x;
+    PetscReal *g;
     PetscErrorCode ierr;
     Rcpp::Function graFun = *(problem->graFun);
     int k = problem->k;
     
     PetscFunctionBegin;
     ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    ierr = VecGetArray(G, &g); CHKERRQ(ierr);
     
     Rcpp::NumericVector xVec(k);
     Rcpp::NumericVector gVec(k);
@@ -262,11 +264,14 @@ PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
         xVec[i] = x[i];
     }
     
-    graFun(xVec);
+    gVec = graFun(xVec);
     
-    G = (Vec) &gVec[0];
+    for (i=0; i < k; i++) {
+        g[i] = gVec[i];
+    }
     
     ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    ierr = VecRestoreArray(G, &g); CHKERRQ(ierr);
     PetscFunctionReturn(0);
 }
 

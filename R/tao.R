@@ -27,7 +27,7 @@
 #' ret = tao.optim(c(1, 2), 
 #'                 objfun,
 #'                 gr = grafun,
-#'                 method = "nls",
+#'                 method = "lmvm",
 #'                 n = 2)
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("nm", "pounders", "lmvm", "blmvm"),
