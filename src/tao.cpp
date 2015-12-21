@@ -29,7 +29,7 @@
 // problem structure
 typedef struct {
     Rcpp::Function *objFun;
-    Rcpp::Function *jacFun;
+    Rcpp::Function *graFun;
     Rcpp::Function *hesFun;
     int k;
     int n;
@@ -39,6 +39,7 @@ typedef struct {
 PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
 PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
 PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
+PetscErrorCode EvaluateGradient(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
 Rcpp::NumericVector getVec(Vec, int);
 
@@ -63,7 +64,7 @@ Rcpp::NumericVector getVec(Vec, int);
 //'     ret$x
 //'     
 //' # use Nelder-Mead
-//'     objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+//'     objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
 //'         ret = tao(functions = list(objFun = objfun), 
 //'                   startValues = c(1, 2), 
 //'                   method = "nm", 
@@ -74,7 +75,7 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::NumericVector startValues, 
                std::string method, 
                Rcpp::List options, 
-               int n = 1) {
+               int n) {
 
     // Initialize PETSc
     petscInitialize(options);
@@ -93,9 +94,9 @@ Rcpp::List tao(Rcpp::List functions,
     
     // Check whether we need to read in the jacobian
     // to the problem context.
-    if (functions.containsElementNamed("jacFun")) {
-        Rcpp::Function jacFun = functions["jacFun"];
-        problem.jacFun = &jacFun;
+    if (functions.containsElementNamed("graFun")) {
+        Rcpp::Function grafun = functions["graFun"];
+        problem.graFun = &grafun;
     }
     
     // Check whether we need to read in the hessian
@@ -125,6 +126,7 @@ Rcpp::List tao(Rcpp::List functions,
     
     ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
     ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
+    ierr = TaoSetGradientRoutine(tao, EvaluateGradient, (void*)&problem); CHKERRQ(ierr);
 
     // define monitor
     ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
@@ -238,6 +240,36 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, PetscReal *f, void *ptr) {
     ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
     PetscFunctionReturn(0);
 }
+
+
+// this function evaluates the gradient
+PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
+    
+    Problem *problem = (Problem *)ptr;
+    PetscInt i;
+    PetscReal *x;
+    PetscErrorCode ierr;
+    Rcpp::Function graFun = *(problem->graFun);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    
+    Rcpp::NumericVector xVec(k);
+    Rcpp::NumericVector gVec(k);
+    
+    for (i=0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    graFun(xVec);
+    
+    G = (Vec) &gVec[0];
+    
+    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    PetscFunctionReturn(0);
+}
+
 
 // this function set the starting value
 PetscErrorCode FormStartingPoint(Vec X, Rcpp::NumericVector startValues) {

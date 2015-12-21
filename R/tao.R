@@ -12,26 +12,40 @@
 #' @param control A list of control parameters. See ‘Details’.
 #'
 #' @examples
+#' # Gradient-free method
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
 #' ret = tao.optim(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
-#'                 control = list(tao_pounders_delta = "0.1"))
+#'                 control = list(tao_pounders_delta = "0.1"),
+#'                 n = 2)
+#' 
+#' # Gradient-based method
+#' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+#' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
+#'     
+#' ret = tao.optim(c(1, 2), 
+#'                 objfun,
+#'                 gr = grafun,
+#'                 method = "nls",
+#'                 n = 2)
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("nm", "pounders", "lmvm", "blmvm"),
-                     control = list()) {
+                     control = list(),
+                     n = 1) {
     
     funclist = list(objFun = fn);
     if (!is.null(gr)) {
-        funclist = rbind(funclist, list(jacFun = gr))
+        funclist = c(funclist, graFun = gr)
     }
     if (!is.null(hs)) {
-        funclist = rbind(funclist, list(hesFun = hs))
+        funclist = c(funclist, hesFun = hs)
     }
     
     ret = tao(functions = funclist,
               startValues = par,
               method = method,
-              options = control)
+              options = control,
+              n)
 
 }
