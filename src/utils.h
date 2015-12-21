@@ -4,6 +4,6 @@
 #include <Rcpp.h>
 #include <petsctao.h>
 
-std::vector<char*> parseCommandLineArguments(Rcpp::List options);
+static std::vector<char*> parseCommandLineArguments(Rcpp::List options);
 
 #endif

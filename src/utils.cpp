@@ -1,6 +1,6 @@
 #include "utils.h"
 
-std::vector<char*> parseCommandLineArguments(Rcpp::List options) {
+static std::vector<char*> parseCommandLineArguments(Rcpp::List options) {
     std::vector<char*> retVal(0);
     
     Rcpp::CharacterVector names = options.names();
