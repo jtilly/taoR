@@ -4,7 +4,7 @@ void petscInitialize(Rcpp::List options) {
     
     // Values will be read into this vector
     std::vector<char*> args;
-
+    
     if(options.size() > 0) {
         
         // Get the list of the column names
@@ -29,15 +29,25 @@ void petscInitialize(Rcpp::List options) {
             argVal[val.size()] = '\0';
             args.push_back(argVal);
         }
-    
+        
     }
     
     // Read vector into char array
     int argc = args.size();
     char** argv = &args[0];
     
-    // Initialize petsc
-    PetscInitialize(&argc, &argv, (char *)0, (char *)0);
+    // Check if already initialized
+    PetscBool isInitialized;
+    PetscInitialized(&isInitialized);
+    
+    if (isInitialized == PETSC_FALSE) {
+        // Initialize PETSc
+        PetscInitialize(&argc, &argv, (char *)0, (char *)0);
+    } else {
+        // Re-set the options
+        PetscOptionsClear();
+        PetscOptionsInsert(&argc, &argv, (char *)0);
+    }
     
     // Delete command line options
     for (size_t i = 0 ; i < args.size(); i++) {
