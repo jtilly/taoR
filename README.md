@@ -5,6 +5,8 @@ TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/), which needs to be built a
 
 This package is still at the "proof of concept" stage.
 
+## Install
+
 #### Install [PETSc](http://www.mcs.anl.gov/petsc/)
 ```{bash}
 # sudo apt-get install python-pip
@@ -38,7 +40,8 @@ ret$x
 ret$iterations
 #> [1] 20
 ```
-### Docker Container
+
+## Docker Container
 
 [Docker](https://docs.docker.com/) is a lightweight virtual machine that can be run on almost any architecture. If you want to try `taoR` without installing the package and its dependencies on your machine, you can run R and `taoR` in a Docker container. The Docker container for this application is based on an Ubuntu image. For details, see the [Dockerfile](https://github.com/jtilly/taoR/blob/docker/Dockerfile) that creates the container. To run `taoR` in a Docker container, do the following:
 ```{bash}
