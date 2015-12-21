@@ -34,16 +34,9 @@ RUN apt-get install -y --no-install-recommends \
         python-dev \
         python-pip
 
-## Install numpy, petsc and pets4py
-RUN pip install numpy  \
-    && pip install petsc --allow-external petsc \
-    && pip install petsc4py --allow-external petsc4py
+## Install petsc
+RUN pip install petsc --allow-external petsc
     
-## Install git and clone tao
-RUN apt-get install git -y --no-install-recommends \
-    && cd ~ \
-    && git clone https://github.com/jtilly/tao
-
 ## Install R
 RUN apt-get install -y --no-install-recommends apt-transport-https \
     && echo "deb https://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list \ 
