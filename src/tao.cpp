@@ -1,6 +1,3 @@
-#include <Rcpp.h>
-#include <petsctao.h>
-
 // This program is based on 
 // http://www.mcs.anl.gov/petsc/petsc-current/src/tao/leastsquares/examples/tutorials/chwirut1.c.html
 //
@@ -26,6 +23,8 @@
 // ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+#include "utils.h"
 
 // problem structure
 typedef struct {
@@ -71,6 +70,8 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::List options) {
 
     Rcpp::Function objFun = functions["objFun"];
+    
+    //parseCommandLineArguments(options);
     
     // Derivative free optimizers
     if (method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm") {
