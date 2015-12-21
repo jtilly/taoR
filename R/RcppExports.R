@@ -3,13 +3,13 @@
 
 #' Use Pounders to minimize a non-linear sum of squares problem 
 #'
-#' @param fn is an R objective function that maps k parameters into n equations.
-#' @param par is a vector with k elements
-#' @param method is a string that determines the type of optimizer to be used. 
-#'     This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.
-#' @param k is the number of parameters
-#' @param n is the number of elements in the objective function
-#' @param control is a list containing option values for the optimizer
+#' @param functions is a list of Rcpp functions. The first is always the objective 
+#'        function. The second and third are optionally the Jacobian and the Hessian 
+#'        functions.
+#' @param startValues is a vector containing the starting values of the parameters.
+#' @param method is a string that determines the type of optimizer to be used.
+#' @param n is the number of elements in the objective function.
+#' @param options is a list containing option values for the optimizer
 #' @return a list with the objective function and the final parameter values
 #' @examples
 #' # use pounders
@@ -21,7 +21,7 @@
 #' objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
 #' ret = tao(objfun, c(1,2), "nm", 2)
 #' ret$x
-tao <- function(par, fn, method, k, n = 1L, control = NULL) {
-    .Call('taoR_tao', PACKAGE = 'taoR', par, fn, method, k, n, control)
+tao <- function(functions, startValues, method, n, options) {
+    .Call('taoR_tao', PACKAGE = 'taoR', functions, startValues, method, n, options)
 }
 

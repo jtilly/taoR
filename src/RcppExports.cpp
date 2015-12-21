@@ -6,18 +6,17 @@
 using namespace Rcpp;
 
 // tao
-Rcpp::List tao(Rcpp::NumericVector par, Rcpp::Function fn, std::string method, int k, int n, Rcpp::List control);
-RcppExport SEXP taoR_tao(SEXP parSEXP, SEXP fnSEXP, SEXP methodSEXP, SEXP kSEXP, SEXP nSEXP, SEXP controlSEXP) {
+Rcpp::List tao(Rcpp::List functions, Rcpp::NumericVector startValues, std::string method, int n, Rcpp::List options);
+RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP startValuesSEXP, SEXP methodSEXP, SEXP nSEXP, SEXP optionsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type par(parSEXP);
-    Rcpp::traits::input_parameter< Rcpp::Function >::type fn(fnSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type functions(functionsSEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP);
     Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    Rcpp::traits::input_parameter< Rcpp::List >::type control(controlSEXP);
-    __result = Rcpp::wrap(tao(par, fn, method, k, n, control));
+    Rcpp::traits::input_parameter< Rcpp::List >::type options(optionsSEXP);
+    __result = Rcpp::wrap(tao(functions, startValues, method, n, options));
     return __result;
 END_RCPP
 }
