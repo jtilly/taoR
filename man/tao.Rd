@@ -4,19 +4,20 @@
 \alias{tao}
 \title{Use Pounders to minimize a non-linear sum of squares problem}
 \usage{
-tao(objFun, startValues, optimizer, k, n = 1L)
+tao(functions, startValues, method, options, n = 1L)
 }
 \arguments{
-\item{objFun}{is an R objective function that maps k parameters into n equations.}
+\item{functions}{is a list of Rcpp functions. The first is always the objective 
+function. The second and third are optionally the Jacobian and the Hessian 
+functions.}
 
-\item{startValues}{is a vector with k elements}
+\item{startValues}{is a vector containing the starting values of the parameters.}
 
-\item{optimizer}{is a string that determines the type of optimizer to be used. 
-This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.}
+\item{method}{is a string that determines the type of optimizer to be used.}
 
-\item{k}{is the number of parameters}
+\item{options}{is a list containing option values for the optimizer}
 
-\item{n}{is the number of elements in the objective function}
+\item{n}{is the number of elements in the objective function.}
 }
 \value{
 a list with the objective function and the final parameter values
@@ -27,12 +28,19 @@ Use Pounders to minimize a non-linear sum of squares problem
 \examples{
 # use pounders
 objfun = function(x) c((x[1] - 3), (x[2] + 1))
-ret = tao(objfun, c(1,2), "pounders", 2, 2)
-ret$x
+    ret = tao(functions = list(objFun = objfun), 
+              startValues = c(1, 2), 
+              method = "pounders", 
+              options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"), 
+              n = 2)
+    ret$x
     
 # use Nelder-Mead
-objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-ret = tao(objfun, c(1,2), "nm", 2)
-ret$x
+    objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+        ret = tao(functions = list(objFun = objfun), 
+                  startValues = c(1, 2), 
+                  method = "nm", 
+                  options = list())
+        ret$x
 }
 

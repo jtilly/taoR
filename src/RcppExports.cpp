@@ -6,17 +6,17 @@
 using namespace Rcpp;
 
 // tao
-Rcpp::List tao(Rcpp::List functions, Rcpp::NumericVector startValues, std::string method, int n, Rcpp::List options);
-RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP startValuesSEXP, SEXP methodSEXP, SEXP nSEXP, SEXP optionsSEXP) {
+Rcpp::List tao(Rcpp::List functions, Rcpp::NumericVector startValues, std::string method, Rcpp::List options, int n);
+RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP startValuesSEXP, SEXP methodSEXP, SEXP optionsSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
     Rcpp::traits::input_parameter< Rcpp::List >::type functions(functionsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP);
     Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
-    Rcpp::traits::input_parameter< int >::type n(nSEXP);
     Rcpp::traits::input_parameter< Rcpp::List >::type options(optionsSEXP);
-    __result = Rcpp::wrap(tao(functions, startValues, method, n, options));
+    Rcpp::traits::input_parameter< int >::type n(nSEXP);
+    __result = Rcpp::wrap(tao(functions, startValues, method, options, n));
     return __result;
 END_RCPP
 }

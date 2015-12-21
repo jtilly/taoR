@@ -8,20 +8,27 @@
 #'        functions.
 #' @param startValues is a vector containing the starting values of the parameters.
 #' @param method is a string that determines the type of optimizer to be used.
-#' @param n is the number of elements in the objective function.
 #' @param options is a list containing option values for the optimizer
+#' @param n is the number of elements in the objective function.
 #' @return a list with the objective function and the final parameter values
 #' @examples
 #' # use pounders
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-#' ret = tao(list(objFun = objfun), c(1, 2), "pounders", 2, list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"))
-#' ret$x
+#'     ret = tao(functions = list(objFun = objfun), 
+#'               startValues = c(1, 2), 
+#'               method = "pounders", 
+#'               options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"), 
+#'               n = 2)
+#'     ret$x
 #'     
 #' # use Nelder-Mead
-#' objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-#' ret = tao(objfun, c(1,2), "nm", 2)
-#' ret$x
-tao <- function(functions, startValues, method, n, options) {
-    .Call('taoR_tao', PACKAGE = 'taoR', functions, startValues, method, n, options)
+#'     objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+#'         ret = tao(functions = list(objFun = objfun), 
+#'                   startValues = c(1, 2), 
+#'                   method = "nm", 
+#'                   options = list())
+#'         ret$x
+tao <- function(functions, startValues, method, options, n = 1L) {
+    .Call('taoR_tao', PACKAGE = 'taoR', functions, startValues, method, options, n)
 }
 
