@@ -25,21 +25,32 @@ We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respec
 ```{r}
 library("taoR")
 
-# use Pounders
-objfun = function(x) c((x[1] - 3), (x[2] + 1))
-ret = tao(objfun, startValues = c(1, 2), optimizer = "pounders", k = 2, n = 2)
-ret$x
-#> [1]  3 -1
-ret$iterations
-#> [1] 6
+# the objective function is (x[1] - 3) ^ 2 + (x[2] + 1) ^2 
+# with solution vector c(3, -1)
 
+# use pounders
+objfun = function(x) c((x[1] - 3), (x[2] + 1))
+ret = tao(functions = list(objFun = objfun), 
+          startValues = c(1, 2), 
+          method = "pounders", 
+          options = list(tao_pounders_delta = "0.2"), 
+          n = 2)
+ret$x
+# [1]  3 -1
+ret$iterations
+# [1] 5
+
+    
 # use Nelder-Mead
 objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-ret = tao(objfun, startValues = c(1, 2), optimizer = "nm", k = 2)
+ret = tao(functions = list(objFun = objfun), 
+          startValues = c(1, 2), 
+          method = "nm", 
+          options = list())
 ret$x
-#> [1]  3.005468 -1.004479
+# [1]  3.005468 -1.004479
 ret$iterations
-#> [1] 20
+# [1] 20
 ```
 
 ## Docker Container
