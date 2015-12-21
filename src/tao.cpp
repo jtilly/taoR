@@ -55,7 +55,6 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
     Tao tao; // Tao solver context 
-    PetscInt i; // iteration information 
     Problem problem; // problem-defined work context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
