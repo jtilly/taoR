@@ -40,9 +40,7 @@ void petscInitialize(Rcpp::List options) {
     PetscInitialize(&argc, &argv, (char *)0, (char *)0);
     
     // Delete command line options
-    Rcpp::Rcout << argc << "\n";
     for (size_t i = 0 ; i < args.size(); i++) {
-        Rcpp::Rcout << argv[i] << "\n";
         delete[] args[i];
     }
 }
