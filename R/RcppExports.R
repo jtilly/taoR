@@ -14,7 +14,7 @@
 #' @examples
 #' # use pounders
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-#' ret = tao(list(objFun = objfun), c(1, 2), "pounders", 2, list(test = "yes"))
+#' ret = tao(list(objFun = objfun), c(1, 2), "pounders", 2, list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"))
 #' ret$x
 #'     
 #' # use Nelder-Mead

@@ -8,6 +8,11 @@ void petscInitialize(Rcpp::List options) {
     // Get the list of the column names
     Rcpp::CharacterVector names = options.names();
     
+    // Read in the name
+    char *name = new char[1];
+    name[0] = '\0';
+    args.push_back(name);
+    
     // Read List into vector of char arrays
     for (int i = 0; i < names.size(); ++i) {
         std::string flag = "-" + names[i];
@@ -22,17 +27,18 @@ void petscInitialize(Rcpp::List options) {
         argVal[val.size()] = '\0';
         args.push_back(argVal);
     }
-    args.push_back(0);
     
     // Read vector into char array
-    int argc = args.size() - 1;
+    int argc = args.size();
     char** argv = &args[0];
     
     // Initialize petsc
     PetscInitialize(&argc, &argv, (char *)0, (char *)0);
     
     // Delete command line options
+    Rcpp::Rcout << argc << "\n";
     for (size_t i = 0 ; i < args.size(); i++) {
+        Rcpp::Rcout << argv[i] << "\n";
         delete[] args[i];
     }
 }
