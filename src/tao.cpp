@@ -1,6 +1,3 @@
-#include <Rcpp.h>
-#include <petsctao.h>
-
 // This program is based on 
 // http://www.mcs.anl.gov/petsc/petsc-current/src/tao/leastsquares/examples/tutorials/chwirut1.c.html
 //
@@ -27,9 +24,13 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include "utils.h"
+
 // problem structure
 typedef struct {
     Rcpp::Function *objFun;
+    Rcpp::Function *jacFun;
+    Rcpp::Function *hesFun;
     int k;
     int n;
 } Problem;
@@ -43,40 +44,51 @@ Rcpp::NumericVector getVec(Vec, int);
 
 //' Use Pounders to minimize a non-linear sum of squares problem 
 //'
-//' @param objFun is an R objective function that maps k parameters into n equations.
-//' @param startValues is a vector with k elements
-//' @param optimizer is a string that determines the type of optimizer to be used. 
-//'     This needs to be one of \code{nm}, \code{pounders}, \code{lmvm}, \code{blmvm}.
-//' @param k is the number of parameters
-//' @param n is the number of elements in the objective function
+//' @param functions is a list of Rcpp functions. The first is always the objective 
+//'        function. The second and third are optionally the Jacobian and the Hessian 
+//'        functions.
+//' @param startValues is a vector containing the starting values of the parameters.
+//' @param method is a string that determines the type of optimizer to be used.
+//' @param options is a list containing option values for the optimizer
+//' @param n is the number of elements in the objective function.
 //' @return a list with the objective function and the final parameter values
 //' @examples
 //' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-//' ret = tao(objfun, c(1,2), "pounders", 2, 2)
-//' ret$x
+//'     ret = tao(functions = list(objFun = objfun), 
+//'               startValues = c(1, 2), 
+//'               method = "pounders", 
+//'               options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"), 
+//'               n = 2)
+//'     ret$x
 //'     
 //' # use Nelder-Mead
-//' objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-//' ret = tao(objfun, c(1,2), "nm", 2)
-//' ret$x
+//'     objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
+//'         ret = tao(functions = list(objFun = objfun), 
+//'                   startValues = c(1, 2), 
+//'                   method = "nm", 
+//'                   options = list())
+//'         ret$x
 // [[Rcpp::export]]
-Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n = 1) {
+Rcpp::List tao(Rcpp::List functions,
+               Rcpp::NumericVector startValues, 
+               std::string method, 
+               Rcpp::List options, 
+               int n = 1) {
 
-    // check if optimizer is supported
-    if(!(optimizer == "nm" || optimizer == "pounders" || optimizer == "lmvm" || optimizer == "blmvm")) {
-        Rcpp::stop("Unsupported optimizer. Must be in c(\"nm\", \"pounders\", \"lmvm\", \"blmvm\")");
+    Rcpp::Function objFun = functions["objFun"];
+    
+    // Derivative free optimizers
+    if (method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm") {
+        // objFun = functions[0];
+    } else {
+        Rcpp::stop("Unsupported optimizer " + method);
     }
     
     // check if n makes sense
-    if(optimizer != "pounders" && n > 1) {
+    if(method != "pounders" && n > 1) {
         Rcpp::stop("You need to use optimizer=pounders if n>1");
     }
-    
-    // create command line arguments
-    char* dummy_args[] = {NULL};
-    int argc = sizeof(dummy_args) / sizeof(dummy_args[0]) - 1;
-    char** argv = dummy_args;
     
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
@@ -85,26 +97,27 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
     
-    PetscInitialize(&argc, &argv, (char *)0, (char *)0);
+    // Initialize PETSc
+    petscInitialize(options);
     
     // allocate vectors
-    ierr = VecCreateSeq(MPI_COMM_SELF, k, &x); CHKERRQ(ierr);
+    ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
     
     // add objective function to problem
     problem.objFun = &objFun;
     problem.n = n;
-    problem.k = k;
+    problem.k = startValues.size();
     
     // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
-    ierr = TaoSetType(tao, optimizer.c_str()); CHKERRQ(ierr);
+    ierr = TaoSetType(tao, method.c_str()); CHKERRQ(ierr);
     
     // Define starting values and define functions
     ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
     
-    if(optimizer == "pounders") {
+    if(method == "pounders") {
         ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
     } else {
         ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
@@ -124,12 +137,12 @@ Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::stri
     // Free TAO data structures
     ierr = TaoDestroy(&tao); CHKERRQ(ierr);
     
-    Rcpp::NumericVector xVec(k);
-    xVec = getVec(x, k);
+    Rcpp::NumericVector xVec(startValues.size());
+    xVec = getVec(x, startValues.size());
     ierr = VecDestroy(&x); CHKERRQ(ierr);
     
     Rcpp::NumericVector fVec(n);
-    if(optimizer == "pounders") {
+    if(method == "pounders") {
         fVec = getVec(f, n);
         ierr = VecDestroy(&f); CHKERRQ(ierr);
     } else {

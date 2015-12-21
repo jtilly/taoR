@@ -3,7 +3,7 @@
 # MPI_INCLUDE=/usr/include/mpich
 
 ifeq ($(MPI_INCLUDE), )
-	MPI_INCLUDE = -I$(PETSC_DIR)/include/petsc/mpiuni	
+	MPI_INCLUDE = $(PETSC_DIR)/include/petsc/mpiuni
 endif
 
 ifeq ($(PETSC_ARCH), )
@@ -18,4 +18,4 @@ endif
 PKG_LIBS = -Wl,-rpath,$(PETSC_LIB) -L$(PETSC_LIB)  -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lquadmath -lstdc++ -ldl
 
 # add include directories so that the c code can find the headers
-PKG_CXXFLAGS = $(PETSC_INCLUDE) $(MPI_INCLUDE)
+PKG_CXXFLAGS = $(PETSC_INCLUDE) -I$(MPI_INCLUDE)

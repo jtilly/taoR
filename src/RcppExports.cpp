@@ -6,17 +6,17 @@
 using namespace Rcpp;
 
 // tao
-Rcpp::List tao(Rcpp::Function objFun, Rcpp::NumericVector startValues, std::string optimizer, int k, int n);
-RcppExport SEXP taoR_tao(SEXP objFunSEXP, SEXP startValuesSEXP, SEXP optimizerSEXP, SEXP kSEXP, SEXP nSEXP) {
+Rcpp::List tao(Rcpp::List functions, Rcpp::NumericVector startValues, std::string method, Rcpp::List options, int n);
+RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP startValuesSEXP, SEXP methodSEXP, SEXP optionsSEXP, SEXP nSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
-    Rcpp::traits::input_parameter< Rcpp::Function >::type objFun(objFunSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type functions(functionsSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type startValues(startValuesSEXP);
-    Rcpp::traits::input_parameter< std::string >::type optimizer(optimizerSEXP);
-    Rcpp::traits::input_parameter< int >::type k(kSEXP);
+    Rcpp::traits::input_parameter< std::string >::type method(methodSEXP);
+    Rcpp::traits::input_parameter< Rcpp::List >::type options(optionsSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    __result = Rcpp::wrap(tao(objFun, startValues, optimizer, k, n));
+    __result = Rcpp::wrap(tao(functions, startValues, method, options, n));
     return __result;
 END_RCPP
 }
