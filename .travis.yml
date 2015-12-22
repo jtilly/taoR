@@ -78,6 +78,7 @@ script:
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R CMD INSTALL "${PKG_FILE_NAME}"
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
+  - R -d valgrind --no-save < demo/test.R
 
 # send e-mails if stuff changes
 notifications:
