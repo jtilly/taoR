@@ -16,6 +16,6 @@ Imports:
     Rcpp
 LinkingTo: Rcpp
 Suggests: testthat
-SystemRequirements: petsc
+SystemRequirements: petsc, GNU Make
 OS_type: unix
 RoxygenNote: 5.0.1
