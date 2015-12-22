@@ -4,14 +4,14 @@
 \alias{tao}
 \title{Use TAO to minimize an objective function}
 \usage{
-tao(functions, startValues, method, options, n = 1L)
+tao(functions, start_values, method, options, n = 1L)
 }
 \arguments{
 \item{functions}{is a list of Rcpp functions. The first is always the objective
 function. The second and third are optionally the Jacobian and the Hessian
 functions.}
 
-\item{startValues}{is a vector containing the starting values of the parameters.}
+\item{start_values}{is a vector containing the starting values of the parameters.}
 
 \item{method}{is a string that determines the type of optimizer to be used.}
 
@@ -29,7 +29,7 @@ Use TAO to minimize an objective function
 # use pounders
 objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(functions = list(objfun = objfun),
-              startValues = c(1, 2),
+              start_values = c(1, 2),
               method = "pounders",
               options = list(),
               n = 2)
@@ -38,7 +38,7 @@ ret$x
 # use Nelder-Mead
 objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
 ret = tao(functions = list(objfun = objfun),
-                  startValues = c(1, 2),
+                  start_values = c(1, 2),
                   method = "nm",
                   options = list())
 ret$x
