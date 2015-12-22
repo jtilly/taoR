@@ -1,15 +1,19 @@
 #include "utils.h"
 
+//' Initialize TAO
+//' 
+//' This function is called automatically when the package is loaded.
 // [[Rcpp::export]]
-int tao_init() {
+void tao_init() {
     initialize(Rcpp::List::create());
-    return 0;
 }
 
+//' Finalize TAO
+//' 
+//' This function is called automatically when the package is unloaded.
 // [[Rcpp::export]]
-int tao_finalize() {
+void tao_finalize() {
     PetscFinalize();
-    return 0; 
 }
 
 void initialize(Rcpp::List options) {
