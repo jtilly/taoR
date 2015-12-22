@@ -52,7 +52,9 @@ void petscInitialize(Rcpp::List options) {
     }
     
     // Delete command line options
-    for (size_t i = 0 ; i < args.size(); i++) {
-        delete[] args[i];
+    if(options.size() > 0) {
+        for (size_t i = 0 ; i < args.size(); i++) {
+            delete[] args[i];
+        }
     }
 }
