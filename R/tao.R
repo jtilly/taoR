@@ -27,7 +27,7 @@
 #' @param gr A function to return the gradient, if using a gradient-based
 #'        optimization method.
 #' @param hs A function to return the hessian, if using an algorithm which
-#'        uses the hessian
+#'        uses the hessian.
 #' @param method The method to be used. See 'Details'.
 #' @param control A list of control parameters. See 'Details'.
 #' @param n The number of elements of objfun.
@@ -42,6 +42,7 @@
 #'                 method = "pounders",
 #'                 control = list(tao_pounders_delta="0.1"),
 #'                 n = 2)
+#' ret$x
 #' 
 #' # Gradient-based method
 #' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
@@ -51,6 +52,20 @@
 #'                 objfun,
 #'                 gr = grafun,
 #'                 method = "lmvm")
+#' ret$x
+#' 
+#' # Hessian
+#' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
+#' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
+#' hesfun = function(x) matrix(c(2, 0, 0, 2), nrow = 2, ncol = 2)
+#'     
+#' ret = tao.optim(c(1, 2), 
+#'                 objfun,
+#'                 gr = grafun,
+#'                 hs = hesfun,
+#'                 method = "ntr")
+#' ret$x
+
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("lmvm", "cg", "blmvm", "nm", "pounders"),
                      control = list(),

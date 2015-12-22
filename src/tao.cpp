@@ -40,6 +40,7 @@ PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
 PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
 PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
 PetscErrorCode EvaluateGradient(Tao, Vec, Vec, void *);
+PetscErrorCode EvaluateHessian(Tao, Vec, Mat, Mat, void*);
 PetscErrorCode MyMonitor(Tao, void*);
 PetscErrorCode PrintToRcout(FILE*, const char*, va_list);
 Rcpp::NumericVector getVec(Vec, int);
@@ -137,10 +138,17 @@ Rcpp::List tao(Rcpp::List functions,
     ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
     
+    // Create a matrix to hold hessians
+    Mat H;
+    MatCreate(PETSC_COMM_WORLD, &H);
+    MatSetSizes(H, PETSC_DECIDE, PETSC_DECIDE, problem.k, problem.k);
+    MatSetUp(H);
+    
     // Define objective functions and gradients
     ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
     ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
     ierr = TaoSetGradientRoutine(tao, EvaluateGradient, (void*)&problem); CHKERRQ(ierr);
+    ierr = TaoSetHessianRoutine(tao, H, H, EvaluateHessian, (void*)&problem); CHKERRQ(ierr);
 
     // Define monitor
     ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
@@ -290,6 +298,44 @@ PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
     ierr = VecRestoreArray(G, &g); CHKERRQ(ierr);
     PetscFunctionReturn(0);
 }
+
+// this function evaluates the hessian
+PetscErrorCode EvaluateHessian(Tao tao, Vec X, Mat H, Mat Hpre, void *ptr) {
+    
+    Problem *problem = (Problem *)ptr;
+    PetscInt i;
+    PetscReal *x;
+    PetscErrorCode ierr;
+    Rcpp::Function hesfun = *(problem->hesfun);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    
+    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+
+    Rcpp::NumericVector xVec(k);
+    Rcpp::NumericMatrix hMat(k, k);
+    
+    for (i=0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    hMat = hesfun(xVec);
+    
+    // Assemble the matrix
+    for (int row = 0; row < k; ++row) {
+        for (int col = 0; col < k; ++col) {
+            MatSetValues(H, 1, &row, 1, &col, &(hMat(row, col)), INSERT_VALUES);
+        }
+    }
+    
+    ierr =  MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+    ierr =  MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
+    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+
+    PetscFunctionReturn(0);
+}
+
 
 // this function set the starting value
 PetscErrorCode FormStartingPoint(Vec X, Rcpp::NumericVector startValues) {

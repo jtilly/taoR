@@ -46,6 +46,7 @@ ret = tao.optim(c(1, 2),
 expect_equal(objfun(ret$x) < 0.01, TRUE)
 
 # POUNDers
+objfun = function(x) c(x[1] - 3, x[2] + 1)
 ret = tao.optim(c(1, 2), 
                 objfun,
                 method = "pounders",
