@@ -10,16 +10,23 @@ This package is still at the "proof of concept" stage.
 ## Install
 
 #### Install [PETSc](http://www.mcs.anl.gov/petsc/)
+Our preferred way of installing PETSc is `python-pip`, which works on both Linux and Mac OS:
 ```{bash}
-# sudo apt-get install python-pip
 pip install petsc --allow-external petsc
 ```
-#### Install this package 
-```{r}
-Sys.setenv("PETSC_DIR" = "/where/is/petsc")
-# install.packages("devtools")
-devtools::install_github("jtilly/taoR")
+Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.gov/petsc/documentation/installation.html) or use your system's package manager. On Debian-based systems, you can use `apt-get` and install from [sid] (https://packages.debian.org/sid/libpetsc3.6). On Mac OS, you can use [homebrew](http://brew.sh/): `brew install petsc`.
+
+#### Install this package
+You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
 ```
+# install.packages("devtools")
+install_github("jtilly/taoR")
+```
+There are three environmental variables that ensure that R can find your installation of PETSc. You may have to set some of them by hand, *before* running `install_github()`.
+* **PETSC_DIR**: This variable points to your PETSc installation. To change it, run `Sys.setenv("PETSC_DIR"="/where/is/petsc")`
+* **PETSC_ARCH**: In case you compiled PETSc by hand, then this is the name of the directory where all the PETSc binaries are installed. To change it, run `Sys.setenv("PETSC_ARCH"="linux-debug-c")`
+* **MPI_INCLUDE**: If you have an MPI library on your system, you may need to tell R where to look for the header file `mpi.h`. To change it, run `Sys.setenv("MPI_INCLUDE"="/where/is/mpi")`
+
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. 
