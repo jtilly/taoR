@@ -76,7 +76,7 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::NumericVector startValues, 
                std::string method, 
                Rcpp::List options, 
-               int n) {
+               int n = 1) {
 
     // Initialize PETSc
     petscInitialize(options);

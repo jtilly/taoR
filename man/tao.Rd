@@ -4,7 +4,7 @@
 \alias{tao}
 \title{Use TAO to minimize an objective function}
 \usage{
-tao(functions, startValues, method, options, n)
+tao(functions, startValues, method, options, n = 1L)
 }
 \arguments{
 \item{functions}{is a list of Rcpp functions. The first is always the objective

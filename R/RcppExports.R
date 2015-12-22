@@ -28,7 +28,7 @@
 #'                   method = "nm", 
 #'                   options = list())
 #' ret$x
-tao <- function(functions, startValues, method, options, n) {
+tao <- function(functions, startValues, method, options, n = 1L) {
     .Call('taoR_tao', PACKAGE = 'taoR', functions, startValues, method, options, n)
 }
 
