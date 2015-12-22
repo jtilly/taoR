@@ -64,5 +64,62 @@ void initialize(Rcpp::List options) {
         delete[] argv[i];
     
     delete[] argv;
+}
 
+// this function transforms a vector of type Vec to a vector of type
+// NumericVector
+NumericVector get_vec(Vec X, int k) {
+    PetscErrorCode error_code;
+    PetscReal *x;
+    VecGetArray(X, &x);
+    NumericVector xVec(k);
+    for (int i = 0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    return xVec;
+}
+
+// this function reports the progress of the optimizer
+PetscErrorCode my_monitor(Tao tao_context, void *ptr) {
+    
+    PetscReal fc, gnorm;
+    PetscInt its;
+    PetscViewer viewer = PETSC_VIEWER_STDOUT_SELF;
+    PetscErrorCode error_code;
+    
+    PetscFunctionBegin;
+    error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, 0, 0, 0);
+    error_code = PetscViewerASCIIPrintf(viewer, "iter = %3D,", its); CHKERRQ(error_code);
+    error_code = PetscViewerASCIIPrintf(viewer, " Function value %g,", (double) fc); CHKERRQ(error_code);
+    if (gnorm > 1.e-6) {
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: %g \n", (double) gnorm); CHKERRQ(error_code);
+    } else if (gnorm > 1.e-11) {
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"); CHKERRQ(error_code);
+    } else {
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"); CHKERRQ(error_code);
+    }
+    PetscFunctionReturn(0);
+}
+
+// Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
+// Overrides PetscVFPrintf.
+PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
+    PetscErrorCode error_code;
+    
+    PetscFunctionBegin;
+    if (file != stdout && file != stderr) {
+        error_code = PetscVFPrintfDefault(file, format, argp); CHKERRQ(error_code);
+    } else if (file == stdout) {
+        char buff[1024];
+        size_t length;
+        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        Rcout << buff;
+    } else if (file == stderr) {
+        char buff[1024];
+        size_t length;
+        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        Rcerr << buff;
+    }
+    PetscFunctionReturn(0);
 }
