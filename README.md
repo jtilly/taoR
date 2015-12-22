@@ -10,7 +10,7 @@ This package is still at the "proof of concept" stage.
 ## Install
 
 #### Install [PETSc](http://www.mcs.anl.gov/petsc/)
-Our preferred way of installing PETSc is `python-pip`, which works on both Linux and Mac OS:
+Our preferred way to install PETSc is `python-pip`, which works on both Linux and Mac OS:
 ```{bash}
 pip install petsc --allow-external petsc
 ```
