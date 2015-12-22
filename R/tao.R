@@ -20,7 +20,7 @@
 #' ret = tao.optim(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
-#'                 control = list(),
+#'                 control = list(tao_pounders_delta="0.1"),
 #'                 n = 2)
 #' 
 #' # Gradient-based method
