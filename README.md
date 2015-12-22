@@ -14,7 +14,7 @@ Our preferred way to install PETSc is `python-pip`, which works on both Linux an
 ```{bash}
 pip install petsc --allow-external petsc
 ```
-Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.gov/petsc/documentation/installation.html) or use your system's package manager. On Debian-based systems, you can use `apt-get` and install from [sid] (https://packages.debian.org/sid/libpetsc3.6). On Mac OS, you can use [homebrew](http://brew.sh/): `brew install petsc`.
+Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.gov/petsc/documentation/installation.html) or use your system's package manager. On Mac OS, you can use [homebrew](http://brew.sh/): `brew install petsc` (recommended). On Debian-based systems, you can use `apt-get` and install from [sid] (https://packages.debian.org/sid/libpetsc3.6) (not recommended). 
 
 #### Install this package
 You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
