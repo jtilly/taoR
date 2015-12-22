@@ -52,9 +52,7 @@
 #'                 gr = grafun,
 #'                 method = "lmvm")
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
-                     method = c("lmvm", "nls", "ntr", "ntl", "cg", "tron", "owlqn", 
-                                "bmrm", "blmvm", "bqpip", "gpcg", "nm", "pounders", 
-                                "lcl", "ssils", "ssfls", "asils", "asfls", "ipm"),
+                     method = c("lmvm", "cg", "blmvm", "nm", "pounders"),
                      control = list(),
                      n = 1) {
     
