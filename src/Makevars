@@ -1,11 +1,14 @@
-# define PETSC_DIR (if not already set as environmental variable)
-# PETSC_DIR=/usr/local/lib/python2.7/dist-packages/petsc
-# MPI_INCLUDE=/usr/include/mpich
+# define PETSC_DIR default location
+ifeq ($(PETSC_DIR), )
+	PETSC_DIR=/usr/local/lib/python2.7/dist-packages/petsc
+endif
 
+# define MPI_INCLUDE default location
 ifeq ($(MPI_INCLUDE), )
 	MPI_INCLUDE = $(PETSC_DIR)/include/petsc/mpiuni
 endif
 
+# check if PETSC_ARCH was set separately
 ifeq ($(PETSC_ARCH), )
 	PETSC_INCLUDE = -I$(PETSC_DIR)/include
 	PETSC_LIB = $(PETSC_DIR)/lib
