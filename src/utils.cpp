@@ -4,6 +4,8 @@ void petscInitialize(Rcpp::List options) {
     
     // Values will be read into this vector
     std::vector<char*> args;
+    int argc = 1;
+    char** argv;
     
     if(options.size() > 0) {
         
@@ -30,11 +32,11 @@ void petscInitialize(Rcpp::List options) {
             args.push_back(argVal);
         }
         
-    }
-    
-    // Read vector into char array
-    int argc = args.size();
-    char** argv = &args[0];
+        // Read vector into char array
+        argc = args.size();
+        argv = &args[0u];
+        
+    } 
     
     // Check if already initialized
     PetscBool isInitialized;
