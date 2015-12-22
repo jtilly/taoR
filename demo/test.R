@@ -7,7 +7,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(functions = list(objfun = objfun), 
           startValues = c(1, 2), 
           method = "pounders", 
-          options = list(), 
+          options = list(tao_pounders_delta="0.1"), 
           n = 2)
 ret$x
     
