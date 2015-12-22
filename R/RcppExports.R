@@ -32,11 +32,17 @@ tao <- function(functions, start_values, method, options, n = 1L) {
     .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n)
 }
 
+#' Initialize TAO
+#' 
+#' This function is called automatically when the package is loaded.
 tao_init <- function() {
-    .Call('taoR_tao_init', PACKAGE = 'taoR')
+    invisible(.Call('taoR_tao_init', PACKAGE = 'taoR'))
 }
 
+#' Finalize TAO
+#' 
+#' This function is called automatically when the package is unloaded.
 tao_finalize <- function() {
-    .Call('taoR_tao_finalize', PACKAGE = 'taoR')
+    invisible(.Call('taoR_tao_finalize', PACKAGE = 'taoR'))
 }
 
