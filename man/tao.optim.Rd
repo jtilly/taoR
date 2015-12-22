@@ -4,8 +4,9 @@
 \alias{tao.optim}
 \title{R bindings for the TAO optimization library.}
 \usage{
-tao.optim(par, fn, gr = NULL, hs = NULL, method = c("nm", "pounders",
-  "lmvm", "blmvm"), control = list(), n = 1)
+tao.optim(par, fn, gr = NULL, hs = NULL, method = c("lmvm", "nls", "ntr",
+  "ntl", "cg", "tron", "blmvm", "gpcg", "nm", "pounders"), control = list(),
+  n = 1)
 }
 \arguments{
 \item{par}{Initial values for the parameters to be optimized over.}
@@ -18,7 +19,7 @@ It should return a scalar result.}
 optimization method.}
 
 \item{hs}{A function to return the hessian, if using an algorithm which
-uses the hessian}
+uses the hessian.}
 
 \item{method}{The method to be used. See 'Details'.}
 
@@ -31,10 +32,8 @@ A list with final parameter values, the objective function, and
        information on why the optimizer stopped.
 }
 \description{
-Here are some more details.
-}
-\details{
-Further details.
+Various optimization routines from the TAO optimization library. See
+the TAO documentation for a complete listing.
 }
 \examples{
 # Gradient-free method
@@ -44,14 +43,28 @@ ret = tao.optim(c(1, 2),
                 method = "pounders",
                 control = list(tao_pounders_delta="0.1"),
                 n = 2)
+ret$x
 
 # Gradient-based method
-objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 
 ret = tao.optim(c(1, 2),
                 objfun,
                 gr = grafun,
                 method = "lmvm")
+ret$x
+
+# Hessian
+objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
+grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
+hesfun = function(x) matrix(c(2, 0, 0, 2), nrow = 2, ncol = 2)
+
+ret = tao.optim(c(1, 2),
+                objfun,
+                gr = grafun,
+                hs = hesfun,
+                method = "ntr")
+ret$x
 }
 
