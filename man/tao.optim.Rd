@@ -2,7 +2,7 @@
 % Please edit documentation in R/tao.R
 \name{tao.optim}
 \alias{tao.optim}
-\title{Optimize over a function using the TAO POUNDERs optimization library.}
+\title{Optimize over a function using the TAO optimization library.}
 \usage{
 tao.optim(par, fn, gr = NULL, hs = NULL, method = c("nm", "pounders",
   "lmvm", "blmvm"), control = list(), n = 1)
@@ -20,12 +20,18 @@ optimization method.}
 \item{hs}{A function to return the hessian, if using an algorithm which
 uses the hessian}
 
-\item{method}{The method to be used. See ‘Details’.}
+\item{method}{The method to be used. See 'Details'.}
 
-\item{control}{A list of control parameters. See ‘Details’.}
+\item{control}{A list of control parameters. See 'Details'.}
+
+\item{n}{The number of elements of objfun.}
+}
+\value{
+A list with final parameter values, the objective function, and
+       information on why the optimizer stopped.
 }
 \description{
-Optimize over a function using the TAO POUNDERs optimization library.
+Optimize over a function using the TAO optimization library.
 }
 \examples{
 # Gradient-free method
@@ -33,7 +39,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao.optim(c(1, 2),
                 objfun,
                 method = "pounders",
-                control = list(tao_pounders_delta = "0.1"),
+                control = list(),
                 n = 2)
 
 # Gradient-based method
@@ -43,7 +49,6 @@ grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 ret = tao.optim(c(1, 2),
                 objfun,
                 gr = grafun,
-                method = "lmvm",
-                n = 2)
+                method = "lmvm")
 }
 

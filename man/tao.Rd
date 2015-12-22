@@ -2,7 +2,7 @@
 % Please edit documentation in R/RcppExports.R
 \name{tao}
 \alias{tao}
-\title{Use Pounders to minimize a non-linear sum of squares problem}
+\title{Use TAO to minimize an objective function}
 \usage{
 tao(functions, startValues, method, options, n)
 }
@@ -23,24 +23,24 @@ functions.}
 a list with the objective function and the final parameter values
 }
 \description{
-Use Pounders to minimize a non-linear sum of squares problem
+Use TAO to minimize an objective function
 }
 \examples{
 # use pounders
 objfun = function(x) c((x[1] - 3), (x[2] + 1))
-    ret = tao(functions = list(objfun = objfun),
+ret = tao(functions = list(objfun = objfun),
               startValues = c(1, 2),
               method = "pounders",
-              options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"),
+              options = list(),
               n = 2)
-    ret$x
+ret$x
 
 # use Nelder-Mead
-    objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
-        ret = tao(functions = list(objfun = objfun),
+objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+ret = tao(functions = list(objfun = objfun),
                   startValues = c(1, 2),
                   method = "nm",
                   options = list())
-        ret$x
+ret$x
 }
 

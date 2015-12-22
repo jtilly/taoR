@@ -44,7 +44,7 @@ PetscErrorCode MyMonitor(Tao, void*);
 Rcpp::NumericVector getVec(Vec, int);
 Rcpp::Environment base("package:base");
 
-//' Use Pounders to minimize a non-linear sum of squares problem 
+//' Use TAO to minimize an objective function
 //'
 //' @param functions is a list of Rcpp functions. The first is always the objective 
 //'        function. The second and third are optionally the Jacobian and the Hessian 
@@ -57,20 +57,20 @@ Rcpp::Environment base("package:base");
 //' @examples
 //' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-//'     ret = tao(functions = list(objfun = objfun), 
+//' ret = tao(functions = list(objfun = objfun), 
 //'               startValues = c(1, 2), 
 //'               method = "pounders", 
-//'               options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"), 
+//'               options = list(), 
 //'               n = 2)
-//'     ret$x
+//' ret$x
 //'     
 //' # use Nelder-Mead
-//'     objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
-//'         ret = tao(functions = list(objfun = objfun), 
+//' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+//' ret = tao(functions = list(objfun = objfun), 
 //'                   startValues = c(1, 2), 
 //'                   method = "nm", 
 //'                   options = list())
-//'         ret$x
+//' ret$x
 // [[Rcpp::export]]
 Rcpp::List tao(Rcpp::List functions,
                Rcpp::NumericVector startValues, 

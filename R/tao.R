@@ -1,4 +1,4 @@
-#' Optimize over a function using the TAO POUNDERs optimization library.
+#' Optimize over a function using the TAO optimization library.
 #'
 #' @param par Initial values for the parameters to be optimized over.
 #' @param fn A function to be minimized (or maximized), with first argument 
@@ -8,8 +8,11 @@
 #'        optimization method.
 #' @param hs A function to return the hessian, if using an algorithm which
 #'        uses the hessian
-#' @param method The method to be used. See ‘Details’.
-#' @param control A list of control parameters. See ‘Details’.
+#' @param method The method to be used. See 'Details'.
+#' @param control A list of control parameters. See 'Details'.
+#' @param n The number of elements of objfun.
+#' @return A list with final parameter values, the objective function, and
+#'        information on why the optimizer stopped.
 #'
 #' @examples
 #' # Gradient-free method
@@ -17,7 +20,7 @@
 #' ret = tao.optim(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
-#'                 control = list(tao_pounders_delta = "0.1"),
+#'                 control = list(),
 #'                 n = 2)
 #' 
 #' # Gradient-based method
@@ -27,8 +30,7 @@
 #' ret = tao.optim(c(1, 2), 
 #'                 objfun,
 #'                 gr = grafun,
-#'                 method = "lmvm",
-#'                 n = 2)
+#'                 method = "lmvm")
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("nm", "pounders", "lmvm", "blmvm"),
                      control = list(),
