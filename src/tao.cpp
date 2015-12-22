@@ -28,9 +28,9 @@
 
 // problem structure
 typedef struct {
-    Rcpp::Function *objFun;
-    Rcpp::Function *jacFun;
-    Rcpp::Function *hesFun;
+    Rcpp::Function *objfun;
+    Rcpp::Function *grafun;
+    Rcpp::Function *hesfun;
     int k;
     int n;
 } Problem;
@@ -39,10 +39,12 @@ typedef struct {
 PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
 PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
 PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
+PetscErrorCode EvaluateGradient(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
 Rcpp::NumericVector getVec(Vec, int);
+Rcpp::Environment base("package:base");
 
-//' Use Pounders to minimize a non-linear sum of squares problem 
+//' Use TAO to minimize an objective function
 //'
 //' @param functions is a list of Rcpp functions. The first is always the objective 
 //'        function. The second and third are optionally the Jacobian and the Hessian 
@@ -55,20 +57,20 @@ Rcpp::NumericVector getVec(Vec, int);
 //' @examples
 //' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-//'     ret = tao(functions = list(objFun = objfun), 
+//' ret = tao(functions = list(objfun = objfun), 
 //'               startValues = c(1, 2), 
 //'               method = "pounders", 
-//'               options = list(tao_pounders_npmax = "1", tao_pounders_delta = "0.2"), 
+//'               options = list(), 
 //'               n = 2)
-//'     ret$x
+//' ret$x
 //'     
 //' # use Nelder-Mead
-//'     objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-//'         ret = tao(functions = list(objFun = objfun), 
+//' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+//' ret = tao(functions = list(objfun = objfun), 
 //'                   startValues = c(1, 2), 
 //'                   method = "nm", 
 //'                   options = list())
-//'         ret$x
+//' ret$x
 // [[Rcpp::export]]
 Rcpp::List tao(Rcpp::List functions,
                Rcpp::NumericVector startValues, 
@@ -76,38 +78,52 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::List options, 
                int n = 1) {
 
-    Rcpp::Function objFun = functions["objFun"];
+    // Initialize PETSc
+    petscInitialize(options);
     
-    // Derivative free optimizers
-    if (method == "nm" || method == "pounders" || method == "lmvm" || method == "blmvm") {
-        // objFun = functions[0];
-    } else {
-        Rcpp::stop("Unsupported optimizer " + method);
+    // Problem-defined work context 
+    Problem problem; 
+    
+    // Read in problem dimensions
+    problem.n = n;
+    problem.k = startValues.size();
+    
+    if(method != "pounders") {
+        if(n > 1)  {
+            Rcpp::stop("n must be equal 1 unless you are using Pounders.");
+        }
     }
     
-    // check if n makes sense
-    if(method != "pounders" && n > 1) {
-        Rcpp::stop("You need to use optimizer=pounders if n>1");
+    // Read in the objective function
+    // Add it to problem context
+    Rcpp::Function objfun = functions["objfun"];
+    problem.objfun = &objfun;
+    
+    // Check whether we need to read in the jacobian
+    // to the problem context.
+    Rcpp::Function grafun = base["identity"]; 
+    if (functions.containsElementNamed("grafun")) {
+        grafun = functions["grafun"];
+        problem.grafun = &grafun;
+    }
+    
+    // Check whether we need to read in the hessian
+    // to the problem context.
+    Rcpp::Function hesfun = base["identity"];
+    if (functions.containsElementNamed("hesfun")) {
+        hesfun = functions["hesfun"];
+        problem.hesfun = &hesfun;
     }
     
     PetscErrorCode ierr; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function 
     Tao tao; // Tao solver context 
-    Problem problem; // problem-defined work context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
-    
-    // Initialize PETSc
-    petscInitialize(options);
-    
+
     // allocate vectors
     ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
     ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
-    
-    // add objective function to problem
-    problem.objFun = &objFun;
-    problem.n = n;
-    problem.k = startValues.size();
     
     // Create TAO solver
     ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
@@ -117,13 +133,12 @@ Rcpp::List tao(Rcpp::List functions,
     ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
     ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
     
-    if(method == "pounders") {
-        ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
-    } else {
-        ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
-    }
-    
-    // define monitor
+    // Define objective functions and gradients
+    ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
+    ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
+    ierr = TaoSetGradientRoutine(tao, EvaluateGradient, (void*)&problem); CHKERRQ(ierr);
+
+    // Define monitor
     ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
     
     // Check for any TAO command line arguments 
@@ -149,7 +164,8 @@ Rcpp::List tao(Rcpp::List functions,
         fVec[0] = fc;
     }
     
-    //PetscFinalize();
+    // PetscFinalize();
+    
     return Rcpp::List::create( 
         Rcpp::Named("x")  = xVec,
         Rcpp::Named("f")  = fVec,
@@ -181,7 +197,7 @@ PetscErrorCode EvaluateSeparableFunction(Tao tao, Vec X, Vec F, void *ptr) {
     PetscInt i;
     PetscReal *x,*f;
     PetscErrorCode ierr;
-    Rcpp::Function objFun = *(problem->objFun);
+    Rcpp::Function objfun = *(problem->objfun);
     int n = problem->n;
     int k = problem->k;
     
@@ -196,7 +212,7 @@ PetscErrorCode EvaluateSeparableFunction(Tao tao, Vec X, Vec F, void *ptr) {
         xVec[i] = x[i];
     }
     
-    fVec = objFun(xVec);
+    fVec = objfun(xVec);
     
     for (i=0; i < n; i++) {
         f[i] = fVec[i];
@@ -215,7 +231,7 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, PetscReal *f, void *ptr) {
     PetscInt i;
     PetscReal *x;
     PetscErrorCode ierr;
-    Rcpp::Function objFun = *(problem->objFun);
+    Rcpp::Function objfun = *(problem->objfun);
     int k = problem->k;
     
     PetscFunctionBegin;
@@ -228,10 +244,44 @@ PetscErrorCode EvaluateFunction(Tao tao, Vec X, PetscReal *f, void *ptr) {
         xVec[i] = x[i];
     }
     
-    fVec = objFun(xVec);
+    fVec = objfun(xVec);
     *f = fVec[0];
     
     ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    PetscFunctionReturn(0);
+}
+
+
+// this function evaluates the gradient
+PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
+    
+    Problem *problem = (Problem *)ptr;
+    PetscInt i;
+    PetscReal *x;
+    PetscReal *g;
+    PetscErrorCode ierr;
+    Rcpp::Function grafun = *(problem->grafun);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    ierr = VecGetArray(G, &g); CHKERRQ(ierr);
+    
+    Rcpp::NumericVector xVec(k);
+    Rcpp::NumericVector gVec(k);
+    
+    for (i=0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    gVec = grafun(xVec);
+
+    for (i=0; i < k; i++) {
+        g[i] = gVec[i];
+    }
+    
+    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    ierr = VecRestoreArray(G, &g); CHKERRQ(ierr);
     PetscFunctionReturn(0);
 }
 
