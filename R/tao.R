@@ -34,12 +34,12 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      control = list(),
                      n = 1) {
     
-    funclist = list(objFun = fn);
+    funclist = list(objfun = fn);
     if (!is.null(gr)) {
-        funclist = c(funclist, graFun = gr)
+        funclist = c(funclist, grafun = gr)
     }
     if (!is.null(hs)) {
-        funclist = c(funclist, hesFun = hs)
+        funclist = c(funclist, hesfun = hs)
     }
     
     ret = tao(functions = funclist,
