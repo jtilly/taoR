@@ -326,8 +326,8 @@ PetscErrorCode MyMonitor(Tao tao, void *ptr) {
     PetscFunctionReturn(0);
 }
 
-//' Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
-//' Overrides PetscVFPrintf.
+// Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
+// Overrides PetscVFPrintf.
 PetscErrorCode PrintToRcout(FILE *file, const char format[], va_list argp) {
     PetscErrorCode ierr;
     
