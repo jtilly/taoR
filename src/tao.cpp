@@ -41,6 +41,7 @@ PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
 PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
 PetscErrorCode EvaluateGradient(Tao, Vec, Vec, void *);
 PetscErrorCode MyMonitor(Tao, void*);
+PetscErrorCode PrintToRcout(FILE*, const char*, va_list);
 Rcpp::NumericVector getVec(Vec, int);
 Rcpp::Environment base("package:base");
 
@@ -78,6 +79,9 @@ Rcpp::List tao(Rcpp::List functions,
                Rcpp::List options, 
                int n = 1) {
 
+    // Redirect output to the R console
+    PetscVFPrintf = PrintToRcout;
+    
     // Initialize PETSc
     petscInitialize(options);
     
@@ -318,6 +322,22 @@ PetscErrorCode MyMonitor(Tao tao, void *ptr) {
         ierr = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"); CHKERRQ(ierr);
     } else {
         ierr = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"); CHKERRQ(ierr);
+    }
+    PetscFunctionReturn(0);
+}
+
+// redirect output to R console
+PetscErrorCode PrintToRcout(FILE *file, const char format[], va_list argp) {
+    PetscErrorCode ierr;
+    
+    PetscFunctionBegin;
+    if (file != stdout && file != stderr) {
+        ierr = PetscVFPrintfDefault(file, format, argp); CHKERRQ(ierr);
+    } else {
+        char buff[1024];
+        size_t length;
+        ierr = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(ierr);
+        Rcpp::Rcout << buff;
     }
     PetscFunctionReturn(0);
 }
