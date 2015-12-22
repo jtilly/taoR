@@ -11,6 +11,6 @@ using namespace std;
 //'
 //' @param options is the list to read. The column names are the flags, the values are
 //'        passed in as strings.
-void petsc_initialize(Rcpp::List options);
+void initialize(Rcpp::List options);
 
 #endif

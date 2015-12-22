@@ -1,40 +1,47 @@
 #include "utils.h"
 
-void petsc_initialize(Rcpp::List options) {
+// [[Rcpp::export]]
+int tao_init() {
+    initialize(Rcpp::List::create());
+    return 0;
+}
+
+// [[Rcpp::export]]
+int tao_finalize() {
+    PetscFinalize();
+    return 0; 
+}
+
+void initialize(Rcpp::List options) {
     
-    // Values will be read into this vector
-    std::vector<char*> args;
+    int argc = 1 + 2 * options.size();
+    char** argv = new char*[argc];
+    
+    // Read in the name
+    std::string name = "\0";
+    argv[0] = new char[name.size() + 1];
+    strcpy(argv[0], name.c_str());
     
     if(options.size() > 0) {
         
         // Get the list of the column names
         Rcpp::CharacterVector names = options.names();
         
-        // Read in the name
-        char *name = new char[1];
-        name[0] = '\0';
-        args.push_back(name);
+        // internal counter
+        int counter = 1;
         
         // Read List into vector of char arrays
         for (int i = 0; i < names.size(); ++i) {
             std::string flag = "-" + names[i];
-            char *arg = new char[flag.size() + 1];
-            std::copy(flag.begin(), flag.end(), arg);
-            arg[flag.size()] = '\0';
-            args.push_back(arg);
+            argv[counter] = new char[flag.size() + 1];
+            strcpy(argv[counter++], flag.c_str());
             
             std::string val = options[i];
-            char *argVal = new char[val.size() + 1];
-            std::copy(val.begin(), val.end(), argVal);
-            argVal[val.size()] = '\0';
-            args.push_back(argVal);
+            argv[counter] = new char[val.size() + 1];
+            strcpy(argv[counter++], val.c_str());
         }
         
     }
-    
-    // Read vector into char array
-    int argc = args.size();
-    char** argv = &args[0u];
     
     // Check if already initialized
     PetscBool isInitialized;
@@ -42,17 +49,16 @@ void petsc_initialize(Rcpp::List options) {
     
     if (isInitialized == PETSC_FALSE) {
         // Initialize PETSc
-        PetscInitialize(&argc, &argv, (char *)0, (char *)0);
-    } else {
+        PetscInitialize(&argc, &argv, (char *)0, (char *) 0);
+    } else { 
         // Re-set the options
         PetscOptionsClear();
-        PetscOptionsInsert(&argc, &argv, (char *)0);
+        PetscOptionsInsert(&argc, &argv, (char *) 0);
     }
- 
-    // Delete command line options
-    if(options.size() > 0) {
-        for (size_t i = 0 ; i < args.size(); i++) {
-            delete[] args[i];
-        }
-    }
+    
+    for(int i = 0; i < argc; ++i)
+        delete[] argv[i];
+    
+    delete[] argv;
+
 }

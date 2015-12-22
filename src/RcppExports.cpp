@@ -20,3 +20,23 @@ BEGIN_RCPP
     return __result;
 END_RCPP
 }
+// tao_init
+int tao_init();
+RcppExport SEXP taoR_tao_init() {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    __result = Rcpp::wrap(tao_init());
+    return __result;
+END_RCPP
+}
+// tao_finalize
+int tao_finalize();
+RcppExport SEXP taoR_tao_finalize() {
+BEGIN_RCPP
+    Rcpp::RObject __result;
+    Rcpp::RNGScope __rngScope;
+    __result = Rcpp::wrap(tao_finalize());
+    return __result;
+END_RCPP
+}

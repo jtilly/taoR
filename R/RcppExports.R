@@ -32,3 +32,11 @@ tao <- function(functions, start_values, method, options, n = 1L) {
     .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n)
 }
 
+tao_init <- function() {
+    .Call('taoR_tao_init', PACKAGE = 'taoR')
+}
+
+tao_finalize <- function() {
+    .Call('taoR_tao_finalize', PACKAGE = 'taoR')
+}
+

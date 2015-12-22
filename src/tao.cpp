@@ -84,7 +84,7 @@ List tao(List functions,
     PetscVFPrintf = print_to_rcout;
     
     // Initialize PETSc
-    petsc_initialize(options);
+    initialize(options);
     
     // Problem-defined work context 
     Problem problem; 
@@ -176,8 +176,6 @@ List tao(List functions,
     } else {
         fVec[0] = fc;
     }
-    
-    // PetscFinalize();
     
     return List::create( 
         Named("x")  = xVec,
