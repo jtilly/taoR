@@ -44,7 +44,7 @@
 #'                 n = 2)
 #' 
 #' # Gradient-based method
-#' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+#' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #'     
 #' ret = tao.optim(c(1, 2), 
