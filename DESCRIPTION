@@ -15,6 +15,7 @@ LazyData: TRUE
 Imports:
     Rcpp
 LinkingTo: Rcpp
+Suggests: testthat
 SystemRequirements: petsc
 OS_type: unix
 RoxygenNote: 5.0.1
