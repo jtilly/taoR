@@ -326,18 +326,24 @@ PetscErrorCode MyMonitor(Tao tao, void *ptr) {
     PetscFunctionReturn(0);
 }
 
-// redirect output to R console
+//' Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
+//' Overrides PetscVFPrintf.
 PetscErrorCode PrintToRcout(FILE *file, const char format[], va_list argp) {
     PetscErrorCode ierr;
     
     PetscFunctionBegin;
     if (file != stdout && file != stderr) {
         ierr = PetscVFPrintfDefault(file, format, argp); CHKERRQ(ierr);
-    } else {
+    } else if (file == stdout) {
         char buff[1024];
         size_t length;
         ierr = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(ierr);
         Rcpp::Rcout << buff;
+    } else if (file == stderr) {
+        char buff[1024];
+        size_t length;
+        ierr = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(ierr);
+        Rcpp::Rcerr << buff;
     }
     PetscFunctionReturn(0);
 }
