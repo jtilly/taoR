@@ -4,8 +4,6 @@ void petscInitialize(Rcpp::List options) {
     
     // Values will be read into this vector
     std::vector<char*> args;
-    int argc = 1;
-    char** argv;
     
     if(options.size() > 0) {
         
@@ -32,11 +30,11 @@ void petscInitialize(Rcpp::List options) {
             args.push_back(argVal);
         }
         
-        // Read vector into char array
-        argc = args.size();
-        argv = &args[0u];
-        
-    } 
+    }
+    
+    // Read vector into char array
+    int argc = args.size();
+    char** argv = &args[0];
     
     // Check if already initialized
     PetscBool isInitialized;
@@ -52,9 +50,7 @@ void petscInitialize(Rcpp::List options) {
     }
     
     // Delete command line options
-    if(options.size() > 0) {
-        for (size_t i = 0 ; i < args.size(); i++) {
-            delete[] args[i];
-        }
+    for (size_t i = 0 ; i < args.size(); i++) {
+        delete[] args[i];
     }
 }
