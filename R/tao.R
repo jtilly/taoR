@@ -15,7 +15,10 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 
-#' Optimize over a function using the TAO optimization library.
+#' R bindings for the TAO optimization library.
+#' 
+#' Various optimization routines from the TAO optimization library. See
+#' the TAO documentation for a complete listing. 
 #'
 #' @param par Initial values for the parameters to be optimized over.
 #' @param fn A function to be minimized (or maximized), with first argument 
@@ -49,7 +52,9 @@
 #'                 gr = grafun,
 #'                 method = "lmvm")
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
-                     method = c("nm", "pounders", "lmvm", "blmvm"),
+                     method = c("lmvm", "nls", "ntr", "ntl", "cg", "tron", "owlqn", 
+                                "bmrm", "blmvm", "bqpip", "gpcg", "nm", "pounders", 
+                                "lcl", "ssils", "ssfls", "asils", "asfls", "ipm"),
                      control = list(),
                      n = 1) {
     

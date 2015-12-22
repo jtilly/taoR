@@ -2,7 +2,7 @@
 % Please edit documentation in R/tao.R
 \name{tao.optim}
 \alias{tao.optim}
-\title{Optimize over a function using the TAO optimization library.}
+\title{R bindings for the TAO optimization library.}
 \usage{
 tao.optim(par, fn, gr = NULL, hs = NULL, method = c("nm", "pounders",
   "lmvm", "blmvm"), control = list(), n = 1)
@@ -31,7 +31,10 @@ A list with final parameter values, the objective function, and
        information on why the optimizer stopped.
 }
 \description{
-Optimize over a function using the TAO optimization library.
+Here are some more details.
+}
+\details{
+Further details.
 }
 \examples{
 # Gradient-free method
@@ -39,7 +42,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao.optim(c(1, 2),
                 objfun,
                 method = "pounders",
-                control = list(),
+                control = list(tao_pounders_delta="0.1"),
                 n = 2)
 
 # Gradient-based method
