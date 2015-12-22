@@ -6,7 +6,7 @@
 #' @param functions is a list of Rcpp functions. The first is always the objective 
 #'        function. The second and third are optionally the Jacobian and the Hessian 
 #'        functions.
-#' @param startValues is a vector containing the starting values of the parameters.
+#' @param start_values is a vector containing the starting values of the parameters.
 #' @param method is a string that determines the type of optimizer to be used.
 #' @param options is a list containing option values for the optimizer
 #' @param n is the number of elements in the objective function.
@@ -15,7 +15,7 @@
 #' # use pounders
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
 #' ret = tao(functions = list(objfun = objfun), 
-#'               startValues = c(1, 2), 
+#'               start_values = c(1, 2), 
 #'               method = "pounders", 
 #'               options = list(), 
 #'               n = 2)
@@ -24,11 +24,11 @@
 #' # use Nelder-Mead
 #' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
 #' ret = tao(functions = list(objfun = objfun), 
-#'                   startValues = c(1, 2), 
+#'                   start_values = c(1, 2), 
 #'                   method = "nm", 
 #'                   options = list())
 #' ret$x
-tao <- function(functions, startValues, method, options, n = 1L) {
-    .Call('taoR_tao', PACKAGE = 'taoR', functions, startValues, method, options, n)
+tao <- function(functions, start_values, method, options, n = 1L) {
+    .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n)
 }
 

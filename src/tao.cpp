@@ -28,30 +28,30 @@
 
 // problem structure
 typedef struct {
-    Rcpp::Function *objfun;
-    Rcpp::Function *grafun;
-    Rcpp::Function *hesfun;
+    Function *objfun;
+    Function *grafun;
+    Function *hesfun;
     int k;
     int n;
 } Problem;
 
 // Forward declarations
-PetscErrorCode FormStartingPoint(Vec, Rcpp::NumericVector);
-PetscErrorCode EvaluateSeparableFunction(Tao, Vec, Vec, void *);
-PetscErrorCode EvaluateFunction(Tao, Vec, PetscReal*, void *);
-PetscErrorCode EvaluateGradient(Tao, Vec, Vec, void *);
-PetscErrorCode EvaluateHessian(Tao, Vec, Mat, Mat, void*);
-PetscErrorCode MyMonitor(Tao, void*);
-PetscErrorCode PrintToRcout(FILE*, const char*, va_list);
-Rcpp::NumericVector getVec(Vec, int);
-Rcpp::Environment base("package:base");
+PetscErrorCode form_starting_point(Vec, NumericVector);
+PetscErrorCode evaluate_objective_separable(Tao, Vec, Vec, void *);
+PetscErrorCode evaluate_objective(Tao, Vec, PetscReal*, void *);
+PetscErrorCode evaluate_gradient(Tao, Vec, Vec, void *);
+PetscErrorCode evaluate_hessian(Tao, Vec, Mat, Mat, void*);
+PetscErrorCode my_monitor(Tao, void*);
+PetscErrorCode print_to_rcout(FILE*, const char*, va_list);
+NumericVector get_vec(Vec, int);
+Environment base("package:base");
 
 //' Use TAO to minimize an objective function
 //'
 //' @param functions is a list of Rcpp functions. The first is always the objective 
 //'        function. The second and third are optionally the Jacobian and the Hessian 
 //'        functions.
-//' @param startValues is a vector containing the starting values of the parameters.
+//' @param start_values is a vector containing the starting values of the parameters.
 //' @param method is a string that determines the type of optimizer to be used.
 //' @param options is a list containing option values for the optimizer
 //' @param n is the number of elements in the objective function.
@@ -60,7 +60,7 @@ Rcpp::Environment base("package:base");
 //' # use pounders
 //' objfun = function(x) c((x[1] - 3), (x[2] + 1))
 //' ret = tao(functions = list(objfun = objfun), 
-//'               startValues = c(1, 2), 
+//'               start_values = c(1, 2), 
 //'               method = "pounders", 
 //'               options = list(), 
 //'               n = 2)
@@ -69,44 +69,44 @@ Rcpp::Environment base("package:base");
 //' # use Nelder-Mead
 //' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
 //' ret = tao(functions = list(objfun = objfun), 
-//'                   startValues = c(1, 2), 
+//'                   start_values = c(1, 2), 
 //'                   method = "nm", 
 //'                   options = list())
 //' ret$x
 // [[Rcpp::export]]
-Rcpp::List tao(Rcpp::List functions,
-               Rcpp::NumericVector startValues, 
-               std::string method, 
-               Rcpp::List options, 
+List tao(List functions,
+               NumericVector start_values, 
+               String method, 
+               List options, 
                int n = 1) {
 
     // Redirect output to the R console
-    PetscVFPrintf = PrintToRcout;
+    PetscVFPrintf = print_to_rcout;
     
     // Initialize PETSc
-    petscInitialize(options);
+    petsc_initialize(options);
     
     // Problem-defined work context 
     Problem problem; 
     
     // Read in problem dimensions
     problem.n = n;
-    problem.k = startValues.size();
+    problem.k = start_values.size();
     
     if(method != "pounders") {
         if(n > 1)  {
-            Rcpp::stop("n must be equal 1 unless you are using Pounders.");
+            stop("n must be equal 1 unless you are using Pounders.");
         }
     }
     
     // Read in the objective function
     // Add it to problem context
-    Rcpp::Function objfun = functions["objfun"];
+    Function objfun = functions["objfun"];
     problem.objfun = &objfun;
     
     // Check whether we need to read in the jacobian
     // to the problem context.
-    Rcpp::Function grafun = base["identity"]; 
+    Function grafun = base["identity"]; 
     if (functions.containsElementNamed("grafun")) {
         grafun = functions["grafun"];
         problem.grafun = &grafun;
@@ -114,29 +114,29 @@ Rcpp::List tao(Rcpp::List functions,
     
     // Check whether we need to read in the hessian
     // to the problem context.
-    Rcpp::Function hesfun = base["identity"];
+    Function hesfun = base["identity"];
     if (functions.containsElementNamed("hesfun")) {
         hesfun = functions["hesfun"];
         problem.hesfun = &hesfun;
     }
     
-    PetscErrorCode ierr; // used to check for functions returning nonzeros 
-    Vec x, f; // solution, function 
-    Tao tao; // Tao solver context 
+    PetscErrorCode error_code; // used to check for functions returning nonzeros 
+    Vec x, f; // solution, function
+    Tao tao_context; // Tao solver context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
 
-    // allocate vectors
-    ierr = VecCreateSeq(MPI_COMM_SELF, startValues.size(), &x); CHKERRQ(ierr);
-    ierr = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(ierr);
+    // Allocate vectors
+    error_code = VecCreateSeq(MPI_COMM_SELF, start_values.size(), &x); CHKERRQ(error_code);
+    error_code = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(error_code);
     
     // Create TAO solver
-    ierr = TaoCreate(PETSC_COMM_SELF, &tao); CHKERRQ(ierr);
-    ierr = TaoSetType(tao, method.c_str()); CHKERRQ(ierr);
+    error_code = TaoCreate(PETSC_COMM_SELF, &tao_context); CHKERRQ(error_code);
+    error_code = TaoSetType(tao_context, method.get_cstring()); CHKERRQ(error_code);
     
     // Define starting values and define functions
-    ierr = FormStartingPoint(x, startValues); CHKERRQ(ierr);
-    ierr = TaoSetInitialVector(tao, x); CHKERRQ(ierr);
+    error_code = form_starting_point(x, start_values); CHKERRQ(error_code);
+    error_code = TaoSetInitialVector(tao_context, x); CHKERRQ(error_code);
     
     // Create a matrix to hold hessians
     Mat H;
@@ -145,178 +145,173 @@ Rcpp::List tao(Rcpp::List functions,
     MatSetUp(H);
     
     // Define objective functions and gradients
-    ierr = TaoSetSeparableObjectiveRoutine(tao, f, EvaluateSeparableFunction, (void*)&problem); CHKERRQ(ierr);
-    ierr = TaoSetObjectiveRoutine(tao, EvaluateFunction, (void*)&problem); CHKERRQ(ierr);
-    ierr = TaoSetGradientRoutine(tao, EvaluateGradient, (void*)&problem); CHKERRQ(ierr);
-    ierr = TaoSetHessianRoutine(tao, H, H, EvaluateHessian, (void*)&problem); CHKERRQ(ierr);
+    error_code = TaoSetSeparableObjectiveRoutine(tao_context, f, evaluate_objective_separable, (void*)&problem); CHKERRQ(error_code);
+    error_code = TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem); CHKERRQ(error_code);
+    error_code = TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem); CHKERRQ(error_code);
+    error_code = TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem); CHKERRQ(error_code);
 
     // Define monitor
-    ierr = TaoSetMonitor(tao, MyMonitor, &problem, NULL); CHKERRQ(ierr);
+    error_code = TaoSetMonitor(tao_context, my_monitor, &problem, NULL); CHKERRQ(error_code);
     
     // Check for any TAO command line arguments 
-    ierr = TaoSetFromOptions(tao); CHKERRQ(ierr);
+    error_code = TaoSetFromOptions(tao_context); CHKERRQ(error_code);
     
     // Perform the Solve
     // The Solve is here
     // Yes yes here is the Solve rejoice!
-    ierr = TaoSolve(tao); CHKERRQ(ierr);
-    ierr = TaoView(tao, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr);
-    ierr = TaoGetSolutionStatus(tao, &its, &fc, &gnorm, &cnorm, &xdiff, 0);
+    error_code = TaoSolve(tao_context); CHKERRQ(error_code);
+    error_code = TaoView(tao_context, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(error_code);
+    error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, &cnorm, &xdiff, 0);
     
     // Free TAO data structures
-    ierr = TaoDestroy(&tao); CHKERRQ(ierr);
+    error_code = TaoDestroy(&tao_context); CHKERRQ(error_code);
+    NumericVector xVec(start_values.size());
+    xVec = get_vec(x, start_values.size());
+    error_code = VecDestroy(&x); CHKERRQ(error_code);
     
-    Rcpp::NumericVector xVec(startValues.size());
-    xVec = getVec(x, startValues.size());
-    ierr = VecDestroy(&x); CHKERRQ(ierr);
-    
-    Rcpp::NumericVector fVec(n);
+    NumericVector fVec(n);
     if(method == "pounders") {
-        fVec = getVec(f, n);
-        ierr = VecDestroy(&f); CHKERRQ(ierr);
+        fVec = get_vec(f, n);
+        error_code = VecDestroy(&f); CHKERRQ(error_code);
     } else {
         fVec[0] = fc;
     }
     
     // PetscFinalize();
     
-    return Rcpp::List::create( 
-        Rcpp::Named("x")  = xVec,
-        Rcpp::Named("f")  = fVec,
-        Rcpp::Named("iterations")  = its,
-        Rcpp::Named("gnorm")  = gnorm,
-        Rcpp::Named("cnorm")  = cnorm,
-        Rcpp::Named("xdiff")  = xdiff
+    return List::create( 
+        Named("x")  = xVec,
+        Named("f")  = fVec,
+        Named("iterations")  = its,
+        Named("gnorm")  = gnorm,
+        Named("cnorm")  = cnorm,
+        Named("xdiff")  = xdiff
     );
     
 }
 
 // this function transforms a vector of type Vec to a vector of type
-// Rcpp::NumericVector
-Rcpp::NumericVector getVec(Vec X, int k) {
-    PetscInt i;
+// NumericVector
+NumericVector get_vec(Vec X, int k) {
+    PetscErrorCode error_code;
     PetscReal *x;
     VecGetArray(X, &x);
-    Rcpp::NumericVector xVec(k);
-    for (i=0; i < k; i++) {
+    NumericVector xVec(k);
+    for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
     return xVec;
 }
 
 // this function evaluates the separable objective function
-PetscErrorCode EvaluateSeparableFunction(Tao tao, Vec X, Vec F, void *ptr) {
-    
+PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void *ptr) {
     Problem *problem = (Problem *)ptr;
-    PetscInt i;
     PetscReal *x,*f;
-    PetscErrorCode ierr;
-    Rcpp::Function objfun = *(problem->objfun);
+    PetscErrorCode error_code;
+    Function objfun = *(problem->objfun);
     int n = problem->n;
     int k = problem->k;
     
     PetscFunctionBegin;
-    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
-    ierr = VecGetArray(F, &f); CHKERRQ(ierr);
+    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
+    error_code = VecGetArray(F, &f); CHKERRQ(error_code);
     
-    Rcpp::NumericVector xVec(k);
-    Rcpp::NumericVector fVec(n);
+    NumericVector xVec(k);
+    NumericVector fVec(n);
     
-    for (i=0; i < k; i++) {
+    for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
     
     fVec = objfun(xVec);
     
-    for (i=0; i < n; i++) {
+    for (int i = 0; i < n; i++) {
         f[i] = fVec[i];
     }
     
-    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
-    ierr = VecRestoreArray(F, &f); CHKERRQ(ierr);
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    error_code = VecRestoreArray(F, &f); CHKERRQ(error_code);
     
     PetscFunctionReturn(0);
 }
 
 // this function evaluates the objective function
-PetscErrorCode EvaluateFunction(Tao tao, Vec X, PetscReal *f, void *ptr) {
+PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *ptr) {
 
     Problem *problem = (Problem *)ptr;
-    PetscInt i;
     PetscReal *x;
-    PetscErrorCode ierr;
-    Rcpp::Function objfun = *(problem->objfun);
+    PetscErrorCode error_code;
+    Function objfun = *(problem->objfun);
     int k = problem->k;
     
     PetscFunctionBegin;
-    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
     
-    Rcpp::NumericVector xVec(k);
-    Rcpp::NumericVector fVec(1);
+    NumericVector xVec = get_vec(X, k);
+    NumericVector fVec(1);
     
-    for (i=0; i < k; i++) {
+    for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
     
     fVec = objfun(xVec);
     *f = fVec[0];
     
-    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
     PetscFunctionReturn(0);
 }
 
 
 // this function evaluates the gradient
-PetscErrorCode EvaluateGradient(Tao tao, Vec X, Vec G, void *ptr) {
+PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
-    PetscInt i;
     PetscReal *x;
     PetscReal *g;
-    PetscErrorCode ierr;
-    Rcpp::Function grafun = *(problem->grafun);
+    PetscErrorCode error_code;
+    Function grafun = *(problem->grafun);
     int k = problem->k;
     
     PetscFunctionBegin;
-    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
-    ierr = VecGetArray(G, &g); CHKERRQ(ierr);
+    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
+    error_code = VecGetArray(G, &g); CHKERRQ(error_code);
     
-    Rcpp::NumericVector xVec(k);
-    Rcpp::NumericVector gVec(k);
+    NumericVector xVec(k);
+    NumericVector gVec(k);
     
-    for (i=0; i < k; i++) {
+    for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
     
     gVec = grafun(xVec);
 
-    for (i=0; i < k; i++) {
+    for (int i = 0; i < k; i++) {
         g[i] = gVec[i];
     }
     
-    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
-    ierr = VecRestoreArray(G, &g); CHKERRQ(ierr);
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    error_code = VecRestoreArray(G, &g); CHKERRQ(error_code);
     PetscFunctionReturn(0);
 }
 
 // this function evaluates the hessian
-PetscErrorCode EvaluateHessian(Tao tao, Vec X, Mat H, Mat Hpre, void *ptr) {
+PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
-    PetscInt i;
     PetscReal *x;
-    PetscErrorCode ierr;
-    Rcpp::Function hesfun = *(problem->hesfun);
+    PetscErrorCode error_code;
+    Function hesfun = *(problem->hesfun);
     int k = problem->k;
     
     PetscFunctionBegin;
     
-    ierr = VecGetArray(X, &x); CHKERRQ(ierr);
+    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
 
-    Rcpp::NumericVector xVec(k);
-    Rcpp::NumericMatrix hMat(k, k);
+    NumericVector xVec(k);
+    NumericMatrix hMat(k, k);
     
-    for (i=0; i < k; i++) {
+    for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
     
@@ -329,69 +324,69 @@ PetscErrorCode EvaluateHessian(Tao tao, Vec X, Mat H, Mat Hpre, void *ptr) {
         }
     }
     
-    ierr =  MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-    ierr =  MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY); CHKERRQ(ierr);
-    ierr = VecRestoreArray(X, &x); CHKERRQ(ierr);
+    error_code =  MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY); CHKERRQ(error_code);
+    error_code =  MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY); CHKERRQ(error_code);
+    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
 
     PetscFunctionReturn(0);
 }
 
 
 // this function set the starting value
-PetscErrorCode FormStartingPoint(Vec X, Rcpp::NumericVector startValues) {
+PetscErrorCode form_starting_point(Vec X, NumericVector start_values) {
     
     PetscReal *x;
-    PetscErrorCode ierr;
+    PetscErrorCode error_code;
     
     PetscFunctionBegin;
-    ierr = VecGetArray(X,&x); CHKERRQ(ierr);
-    for(int iX=0; iX<startValues.size(); iX++) {
-        x[iX] = startValues[iX];
+    error_code = VecGetArray(X,&x); CHKERRQ(error_code);
+    for(int iX=0; iX<start_values.size(); iX++) {
+        x[iX] = start_values[iX];
     }
-    VecRestoreArray(X,&x); CHKERRQ(ierr);
+    VecRestoreArray(X,&x); CHKERRQ(error_code);
     PetscFunctionReturn(0);
 }
 
 // this function reports the progress of the optimizer
-PetscErrorCode MyMonitor(Tao tao, void *ptr) {
+PetscErrorCode my_monitor(Tao tao_context, void *ptr) {
     
     PetscReal fc, gnorm;
     PetscInt its;
     PetscViewer viewer = PETSC_VIEWER_STDOUT_SELF;
-    PetscErrorCode ierr;
+    PetscErrorCode error_code;
     
     PetscFunctionBegin;
-    ierr = TaoGetSolutionStatus(tao, &its, &fc, &gnorm, 0, 0, 0);
-    ierr = PetscViewerASCIIPrintf(viewer, "iter = %3D,", its); CHKERRQ(ierr);
-    ierr = PetscViewerASCIIPrintf(viewer, " Function value %g,", (double) fc); CHKERRQ(ierr);
+    error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, 0, 0, 0);
+    error_code = PetscViewerASCIIPrintf(viewer, "iter = %3D,", its); CHKERRQ(error_code);
+    error_code = PetscViewerASCIIPrintf(viewer, " Function value %g,", (double) fc); CHKERRQ(error_code);
     if (gnorm > 1.e-6) {
-        ierr = PetscViewerASCIIPrintf(viewer, " Residual: %g \n", (double) gnorm); CHKERRQ(ierr);
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: %g \n", (double) gnorm); CHKERRQ(error_code);
     } else if (gnorm > 1.e-11) {
-        ierr = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"); CHKERRQ(ierr);
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"); CHKERRQ(error_code);
     } else {
-        ierr = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"); CHKERRQ(ierr);
+        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"); CHKERRQ(error_code);
     }
     PetscFunctionReturn(0);
 }
 
 // Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
 // Overrides PetscVFPrintf.
-PetscErrorCode PrintToRcout(FILE *file, const char format[], va_list argp) {
-    PetscErrorCode ierr;
+PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
+    PetscErrorCode error_code;
     
     PetscFunctionBegin;
     if (file != stdout && file != stderr) {
-        ierr = PetscVFPrintfDefault(file, format, argp); CHKERRQ(ierr);
+        error_code = PetscVFPrintfDefault(file, format, argp); CHKERRQ(error_code);
     } else if (file == stdout) {
         char buff[1024];
         size_t length;
-        ierr = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(ierr);
-        Rcpp::Rcout << buff;
+        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        Rcout << buff;
     } else if (file == stderr) {
         char buff[1024];
         size_t length;
-        ierr = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(ierr);
-        Rcpp::Rcerr << buff;
+        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        Rcerr << buff;
     }
     PetscFunctionReturn(0);
 }

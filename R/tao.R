@@ -82,7 +82,7 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
     }
     
     ret = tao(functions = funclist,
-              startValues = par,
+              start_values = par,
               method = method,
               options = control,
               n)
