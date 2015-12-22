@@ -15,7 +15,10 @@
 #  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #  GNU General Public License for more details.
 
-#' Optimize over a function using the TAO optimization library.
+#' R bindings for the TAO optimization library.
+#' 
+#' Various optimization routines from the TAO optimization library. See
+#' the TAO documentation for a complete listing. 
 #'
 #' @param par Initial values for the parameters to be optimized over.
 #' @param fn A function to be minimized (or maximized), with first argument 
@@ -41,7 +44,7 @@
 #'                 n = 2)
 #' 
 #' # Gradient-based method
-#' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
+#' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #'     
 #' ret = tao.optim(c(1, 2), 
@@ -49,7 +52,7 @@
 #'                 gr = grafun,
 #'                 method = "lmvm")
 tao.optim = function(par, fn, gr = NULL, hs = NULL,
-                     method = c("nm", "pounders", "lmvm", "blmvm"),
+                     method = c("lmvm", "cg", "blmvm", "nm", "pounders"),
                      control = list(),
                      n = 1) {
     

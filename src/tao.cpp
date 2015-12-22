@@ -149,6 +149,8 @@ Rcpp::List tao(Rcpp::List functions,
     ierr = TaoSetFromOptions(tao); CHKERRQ(ierr);
     
     // Perform the Solve
+    // The Solve is here
+    // Yes yes here is the Solve rejoice!
     ierr = TaoSolve(tao); CHKERRQ(ierr);
     ierr = TaoView(tao, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(ierr);
     ierr = TaoGetSolutionStatus(tao, &its, &fc, &gnorm, &cnorm, &xdiff, 0);
