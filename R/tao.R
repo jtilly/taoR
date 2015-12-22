@@ -74,11 +74,40 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      n = 1) {
     
     funclist = list(objfun = fn);
+    
     if (!is.null(gr)) {
         funclist = c(funclist, grafun = gr)
     }
+    
     if (!is.null(hs)) {
         funclist = c(funclist, hesfun = hs)
+    }
+    
+
+    # if method requires gradient and none was provided, make sure
+    # that tao_fd_gradient is set, i.e. that finite differences are
+    # computed
+    if (is.null(gr) && method %in% c("lmvm", "nls", "ntr", "ntl", 
+                                     "cg", "tron", "blmvm", "gpcg")) {
+        if(!("tao_fd_gradient" %in% names(control))) {
+            control = c(control, list("tao_fd_gradient"="true"))
+        }
+    }
+    
+    # if method doesn't use gradient, but one was provided, throw warning
+    if (!is.null(gr) && !(method %in% c("lmvm", "nls", "ntr", "ntl", 
+                                        "cg", "tron", "blmvm", "gpcg"))) {
+        warning("method ", method, " does not make use of user-defined gradient.")
+    }
+    
+    # if method requires hessian and none was provided, use finite differences
+    if (is.null(hs) && method %in% c("nls", "ntr", "ntl", "tron", "gpcg")) {
+        stop("method ", method, " requires user-defined hessian, but non was provided.")
+    }
+    
+    # if method doesn't use hessian, but one was provided, throw warning
+    if (!is.null(hs) && !(method %in% c("nls", "ntr", "ntl", "tron", "gpcg"))) {
+        warning("method ", method, " does not make use user-defined hessian.")
     }
     
     ret = tao(functions = funclist,
