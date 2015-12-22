@@ -60,3 +60,16 @@ ret$x
 ret$iterations
 # [1] 20
 ```
+
+## Available Optimization Algorithms
+The parameter `method` can be set to one of the following optimizers.
+* `nls`: Newton's method with line search for unconstrained minimization
+* `ntr`: Newton's method with trust region for unconstrained minimization
+* `ntl`: Newton's method with trust region, line search for unconstrained minimization
+* `lmvm`: Limited memory variable metric method for unconstrained minimization
+* `cg`: Nonlinear conjugate gradient method for unconstrained minimization
+* `nm`: Nelder-Mead algorithm for derivate-free unconstrained minimization
+* `tron`: Newton Trust Region method for bound constrained minimization
+* `gpcg`: Newton Trust Region method for quadratic bound constrained minimization
+* `blmvm`: Limited memory variable metric method for bound constrained minimization
+* `pounders`: Derivate-free model-based algorithm for nonlinear least squares
