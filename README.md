@@ -18,7 +18,7 @@ Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.
 
 #### Install this package
 You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
-```
+```{r}
 # install.packages("devtools")
 install_github("jtilly/taoR")
 ```
