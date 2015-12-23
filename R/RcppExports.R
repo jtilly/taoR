@@ -28,7 +28,8 @@
 #' ret = tao(functions = list(objfun = objfun), 
 #'                   start_values = c(1, 2), 
 #'                   method = "nm", 
-#'                   options = list())
+#'                   options = list(),
+#'                   n = 1)
 #' ret$x
 tao <- function(functions, start_values, method, options, n, lower_bounds, upper_bounds) {
     .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n, lower_bounds, upper_bounds)

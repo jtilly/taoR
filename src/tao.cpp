@@ -77,7 +77,8 @@ NumericVector get_vec(Vec, int);
 //' ret = tao(functions = list(objfun = objfun), 
 //'                   start_values = c(1, 2), 
 //'                   method = "nm", 
-//'                   options = list())
+//'                   options = list(),
+//'                   n = 1)
 //' ret$x
 // [[Rcpp::export]]
 List tao(List functions,
