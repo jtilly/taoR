@@ -81,7 +81,7 @@
 #'                 method = "ntr")
 #' ret$x
 
-tao.optim = function(par, fn, gr = NULL, hs = NULL, inequal = NULL,
+tao.optim = function(par, fn, gr = NULL, hs = NULL,
                      method = c("lmvm", "nls", "ntr", "ntl", 
                                 "cg", "tron", "blmvm", "gpcg",
                                 "nm", "pounders"),
