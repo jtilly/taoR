@@ -123,6 +123,10 @@ PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
 }
 
 PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
+    return evaluate_function(X, Y, f, k, k);
+}
+
+PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k, int n) {
   
     PetscReal *x;
     PetscReal *y;
@@ -139,7 +143,7 @@ PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
     
     // Write back into array
     
-    for (int i = 0; i < k; ++i) {
+    for (int i = 0; i < n; ++i) {
       y[i] = yVec[i];
     }
     
@@ -150,6 +154,10 @@ PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
 }
 
 PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k) {
+    return evaluate_function(X, Y, f, k, k);
+}
+
+PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k, int n) {
   
     PetscReal *x;
     
@@ -163,8 +171,8 @@ PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k) {
     NumericMatrix yMat = (*f)(xVec);
     
     // Assemble the matrix
-    for (int row = 0; row < k; ++row) {
-        for (int col = 0; col < k; ++col) {
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < n; ++col) {
             MatSetValues(Y, 1, &row, 1, &col, &(yMat(row, col)), INSERT_VALUES);
         }
     }
