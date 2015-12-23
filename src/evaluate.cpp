@@ -105,12 +105,11 @@ PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *pt
 
 // this function evaluates the gradient
 PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
     Function grafun = *(problem->grafun);
     int k = problem->k;
     
-    evaluate_function(X, G, grafun, k);
+    return evaluate_function(X, G, &grafun, k);
 }
 
 // this function evaluates the hessian
