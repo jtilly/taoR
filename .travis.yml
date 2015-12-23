@@ -80,6 +80,10 @@ script:
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
 
+# report coverage rate to coveralls
+after_success:
+  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp"))'
+
 # send e-mails if stuff changes
 notifications:
   email:
