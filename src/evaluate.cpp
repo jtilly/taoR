@@ -49,32 +49,11 @@
 // this function evaluates the separable objective function
 PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void *ptr) {
     Problem *problem = (Problem *)ptr;
-    PetscReal *x,*f;
     Function objfun = *(problem->objfun);
     int n = problem->n;
     int k = problem->k;
     
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(F, &f));
-    
-    NumericVector xVec(k);
-    NumericVector fVec(n);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    fVec = objfun(xVec);
-    
-    for (int i = 0; i < n; i++) {
-        f[i] = fVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(F, &f));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, F, &objfun, k, n);
 }
 
 // this function evaluates the objective function
@@ -107,71 +86,21 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
 
 // this function evaluates the vector of inequalities
 PetscErrorCode evaluate_inequalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
-  
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *ci;
     Function inequal = *(problem->inequal);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(Ci, &ci));
-    
-    NumericVector xVec(k);
-    NumericVector ubVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    ubVec = inequal(xVec);
-    
-    // Assemble the vector
-    for (int i = 0; i < k; i++) {
-        ci[i] = ubVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(Ci, &ci));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, Ci, &inequal, k);
 }
 
 
 // this function evaluates the vector of equalities
 PetscErrorCode evaluate_equalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *ci;
     Function equal = *(problem->equal);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(Ci, &ci));
-    
-    NumericVector xVec(k);
-    NumericVector ubVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    ubVec = equal(xVec);
-    
-    // Assemble the vector
-    for (int i = 0; i < k; i++) {
-        ci[i] = ubVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(Ci, &ci));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, Ci, &equal, k);
 }
 
 // this function set the starting value

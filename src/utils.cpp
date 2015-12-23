@@ -135,7 +135,7 @@ PetscErrorCode evaluate_function(Vec X, PetscReal *y, Function *f, int k) {
     NumericVector xVec = get_vec(X, k);
     NumericVector yVec = (*f)(xVec);
     
-    y = &yVec[0];
+    *y = yVec[0];
     
     catch_error(VecRestoreArray(X, &x));
     PetscFunctionReturn(0);
