@@ -83,7 +83,7 @@ script:
 
 # report coverage rate to coveralls
 after_success:
-  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp"))'
+  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R"))'
 
 # send e-mails if stuff changes
 notifications:
