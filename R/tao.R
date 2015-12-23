@@ -28,7 +28,6 @@
 #'        optimization method.
 #' @param hs A function to return the hessian, if using an algorithm which
 #'        uses the hessian.
-#' @param inequal A function which returns a constraint of the form g(x) >= 0.
 #' @param method The method to be used. See 'Details'.
 #' @param control A list of control parameters. See 'Details'.
 #' @param lb A vector with lower variable bounds (optional) 

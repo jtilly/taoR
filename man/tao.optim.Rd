@@ -4,9 +4,9 @@
 \alias{tao.optim}
 \title{R bindings for the TAO optimization library.}
 \usage{
-tao.optim(par, fn, gr = NULL, hs = NULL, inequal = NULL,
-  method = c("lmvm", "nls", "ntr", "ntl", "cg", "tron", "blmvm", "gpcg", "nm",
-  "pounders"), control = list(), n = 1, lb = NULL, ub = NULL)
+tao.optim(par, fn, gr = NULL, hs = NULL, method = c("lmvm", "nls", "ntr",
+  "ntl", "cg", "tron", "blmvm", "gpcg", "nm", "pounders"), control = list(),
+  n = 1, lb = NULL, ub = NULL)
 }
 \arguments{
 \item{par}{Initial values for the parameters to be optimized over.}
@@ -20,8 +20,6 @@ optimization method.}
 
 \item{hs}{A function to return the hessian, if using an algorithm which
 uses the hessian.}
-
-\item{inequal}{A function which returns a constraint of the form g(x) >= 0.}
 
 \item{method}{The method to be used. See 'Details'.}
 
