@@ -85,8 +85,11 @@ script:
 after_success:
   - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R"))'
 
-# send e-mails if stuff changes
+# send e-mails if stuff breaks / changes
 notifications:
   email:
+    recipients:
+      - jantilly@gmail.com
+      - nejanetos@gmail.com
     on_success: change
-    on_failure: change
+    on_failure: always
