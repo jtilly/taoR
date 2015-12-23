@@ -10,8 +10,8 @@
 #' @param method is a string that determines the type of optimizer to be used.
 #' @param options is a list containing option values for the optimizer
 #' @param n is the number of elements in the objective function.
-#' @param lb is a vector with lower bounds
-#' @param ub is a vector with upper bounds
+#' @param lower_bounds is a vector with lower bounds
+#' @param upper_bounds is a vector with upper bounds
 #' @return a list with the objective function and the final parameter values
 #' @examples
 #' # use pounders
@@ -20,7 +20,9 @@
 #'               start_values = c(1, 2), 
 #'               method = "pounders", 
 #'               options = list(), 
-#'               n = 2)
+#'               n = 2,
+#'               lower_bounds = c(-2, -2),
+#'               upper_bounds = c(5, 5))
 #' ret$x
 #'     
 #' # use Nelder-Mead
@@ -29,7 +31,9 @@
 #'                   start_values = c(1, 2), 
 #'                   method = "nm", 
 #'                   options = list(),
-#'                   n = 1)
+#'                   n = 1,
+#'                   lower_bounds = c(-2, -2),
+#'                   upper_bounds = c(5, 5))
 #' ret$x
 tao <- function(functions, start_values, method, options, n, lower_bounds, upper_bounds) {
     .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n, lower_bounds, upper_bounds)
