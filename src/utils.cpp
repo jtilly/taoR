@@ -148,3 +148,30 @@ PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
     PetscFunctionReturn(0);
   
 }
+
+PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k) {
+  
+    PetscReal *x;
+    
+    PetscFunctionBegin;
+    
+    // Read out arrays
+    catch_error(VecGetArray(X, &x));
+
+    // Write into Rcpp vector and evaluate
+    NumericVector xVec = get_vec(X, k);
+    NumericMatrix yMat = (*f)(xVec);
+    
+    // Assemble the matrix
+    for (int row = 0; row < k; ++row) {
+        for (int col = 0; col < k; ++col) {
+            MatSetValues(Y, 1, &row, 1, &col, &(yMat(row, col)), INSERT_VALUES);
+        }
+    }
+    
+    catch_error(MatAssemblyBegin(Y, MAT_FINAL_ASSEMBLY));
+    catch_error(MatAssemblyEnd(Y, MAT_FINAL_ASSEMBLY));
+    catch_error(VecRestoreArray(X, &x));
+    PetscFunctionReturn(0);
+  
+}

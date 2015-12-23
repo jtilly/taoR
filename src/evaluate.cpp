@@ -108,44 +108,17 @@ PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
     Problem *problem = (Problem *)ptr;
     Function grafun = *(problem->grafun);
     int k = problem->k;
-    
+
     return evaluate_function(X, G, &grafun, k);
 }
 
 // this function evaluates the hessian
 PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    
     Function hesfun = *(problem->hesfun);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    
-    NumericVector xVec(k);
-    NumericMatrix hMat(k, k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    hMat = hesfun(xVec);
-    
-    // Assemble the matrix
-    for (int row = 0; row < k; ++row) {
-        for (int col = 0; col < k; ++col) {
-            MatSetValues(H, 1, &row, 1, &col, &(hMat(row, col)), INSERT_VALUES);
-        }
-    }
-    
-    catch_error(MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY));
-    catch_error(MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY));
-    catch_error(VecRestoreArray(X, &x));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, H, &hesfun, k);
 }
 
 // this function evaluates the vector of inequalities
