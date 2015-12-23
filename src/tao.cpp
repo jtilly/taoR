@@ -46,11 +46,6 @@
 #include "utils.h"
 #include "evaluate.h"
 
-// Forward declarations
-PetscErrorCode my_monitor(Tao, void*);
-PetscErrorCode print_to_rcout(FILE*, const char*, va_list);
-NumericVector get_vec(Vec, int);
-
 //' Use TAO to minimize an objective function
 //'
 //' @param functions is a list of Rcpp functions. The first is always the objective 
@@ -135,7 +130,7 @@ List tao(List functions,
     }
     
     Vec x, f; // solution, function
-    Vec ub, lb; // upper and lower bounds
+    Vec ub, lb, ci; // upper and lower bounds
     Tao tao_context; // Tao solver context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
@@ -150,13 +145,26 @@ List tao(List functions,
     catch_error(TaoCreate(PETSC_COMM_SELF, &tao_context));
     catch_error(TaoSetType(tao_context, method.get_cstring()));
     
-    // Define starting values and define functions
+    // Form starting values and define functions
     catch_error(createVec(x, start_values));
     catch_error(TaoSetInitialVector(tao_context, x));
     
-    // Define lower bounds
+    // Form lower, upper bounds vectors
     catch_error(createVec(lb, lower_bounds));
     catch_error(createVec(ub, upper_bounds));
+    catch_error(createVec(ci, problem.k));
+    
+    // Check whether lower / upper bounds inequalities have been set
+    if (functions.containsElementNamed("inequal")) {
+        problem.inequal = functions["inequal"];
+        catch_error(TaoSetInequalityConstraintsRoutine(tao_context, ci, evaluate_inequalities, &problem));
+    }
+    
+    // Check whether lower / upper bounds equalities have been set
+    if (functions.containsElementNamed("equal")) {
+      problem.inequal = functions["equal"];
+      catch_error(TaoSetConstraintsRoutine(tao_context, ci, evaluate_equalities, &problem));
+    }
     
     // Create a matrix to hold hessians
     Mat H;
@@ -179,7 +187,7 @@ List tao(List functions,
         catch_error(TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem));
     }
     
-    // set variable bounds
+    // Set variable bounds
     catch_error(TaoSetVariableBounds(tao_context, lb, ub));
     
     // Define monitor

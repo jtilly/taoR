@@ -103,7 +103,6 @@ PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *pt
     PetscFunctionReturn(0);
 }
 
-
 // this function evaluates the gradient
 PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
     
@@ -172,6 +171,74 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
     PetscFunctionReturn(0);
 }
 
+// this function evaluates the vector of inequalities
+PetscErrorCode evaluate_inequalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
+  
+    Problem *problem = (Problem *)ptr;
+    PetscReal *x;
+    PetscReal *ci;
+    Function inequal = *(problem->inequal);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    
+    catch_error(VecGetArray(X, &x));
+    catch_error(VecGetArray(Ci, &ci));
+    
+    NumericVector xVec(k);
+    NumericVector ubVec(k);
+    
+    for (int i = 0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    ubVec = inequal(xVec);
+    
+    // Assemble the vector
+    for (int i = 0; i < k; i++) {
+        ci[i] = ubVec[i];
+    }
+    
+    catch_error(VecRestoreArray(X, &x));
+    catch_error(VecRestoreArray(Ci, &ci));
+    
+    PetscFunctionReturn(0);
+}
+
+
+// this function evaluates the vector of equalities
+PetscErrorCode evaluate_equalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
+    
+    Problem *problem = (Problem *)ptr;
+    PetscReal *x;
+    PetscReal *ci;
+    Function equal = *(problem->equal);
+    int k = problem->k;
+    
+    PetscFunctionBegin;
+    
+    catch_error(VecGetArray(X, &x));
+    catch_error(VecGetArray(Ci, &ci));
+    
+    NumericVector xVec(k);
+    NumericVector ubVec(k);
+    
+    for (int i = 0; i < k; i++) {
+        xVec[i] = x[i];
+    }
+    
+    ubVec = equal(xVec);
+    
+    // Assemble the vector
+    for (int i = 0; i < k; i++) {
+        ci[i] = ubVec[i];
+    }
+    
+    catch_error(VecRestoreArray(X, &x));
+    catch_error(VecRestoreArray(Ci, &ci));
+    
+    PetscFunctionReturn(0);
+}
 
 // this function set the starting value
 PetscErrorCode createVec(Vec X, NumericVector y) {
@@ -185,4 +252,18 @@ PetscErrorCode createVec(Vec X, NumericVector y) {
     }
     catch_error(VecRestoreArray(X,&x));
     PetscFunctionReturn(0);
+}
+
+// this function set the starting value to zero
+PetscErrorCode createVec(Vec X, int k) {
+  
+  PetscReal *x;
+  
+  PetscFunctionBegin;
+  catch_error(VecGetArray(X, &x));
+  for(int iX = 0; iX < k; iX++) {
+    x[iX] = 0;
+  }
+  catch_error(VecRestoreArray(X, &x));
+  PetscFunctionReturn(0);
 }

@@ -12,6 +12,8 @@ typedef struct {
   Function *objfun;
   Function *grafun;
   Function *hesfun;
+  Function *inequal;
+  Function *equal;
   int k;
   int n;
 } Problem;
