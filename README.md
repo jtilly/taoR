@@ -1,16 +1,17 @@
 # taoR [![Build Status](https://travis-ci.org/jtilly/taoR.svg?branch=master)](https://travis-ci.org/jtilly/taoR) [![Coverage Status](https://coveralls.io/repos/jtilly/taoR/badge.svg?branch=master&service=github)](https://coveralls.io/github/jtilly/taoR?branch=master)
+[![Project Status: Wip - Initial development is in progress, but there has not yet been a stable, usable release suitable for the public.](https://img.shields.io/badge/status-WIP-yellow.svg)](https://img.shields.io/badge/status-WIP-yellow.svg)
+
 
 Toolkit for Advanced Optimization ([TAO](http://www.mcs.anl.gov/petsc/petsc-current/docs/tao_manual.pdf)) bindings for R. TAO includes a range of different optimizers. Among them is [Pounders](http://www.mcs.anl.gov/papers/P5120-0414.pdf), a local derivative-free optimizer for non-linear least squares problems. Pounders can be a useful tool for economists who estimate structural models using indirect inference. In situations, where one would commonly use Nelder-Mead, Pounders may be a better choice if the objective function takes on the form of a non-linear least squares problem. In contrast to Nelder-Mead, Pounders exploits the specific shape of the objective function and therefore requires far fewer iterations to arrive at a local optimum than Nelder-Mead. 
 
-
-TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/), which needs to be built and installed before installing this package.
+TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you want to use taoR, you need to build and install PETSc first. The PETSc website contains detailed installation instructions, you can also see the section below for help getting started.
 
 This package is still at the "proof of concept" stage.
 
 ## Install
 
 #### Install [PETSc](http://www.mcs.anl.gov/petsc/)
-Our preferred way to install PETSc is `python-pip`, which works on both Linux and Mac OS:
+Our preferred way to install PETSc is to use the Python installer, `python-pip`, which works on both Linux and Mac OS:
 ```{bash}
 pip install petsc --allow-external petsc
 ```
