@@ -196,3 +196,14 @@ ret = tao.optim(c(1, 2),
                 ub = c(5, 5))
 
 expect_equal(ret$x, c(3, 0))
+
+# POUNDers
+objfun = function(x) c(x[1] - 3, x[2] + 1)
+confun = function(x) c(0, 0)
+  
+ret = tao.optim(c(1, 2), 
+                objfun,
+                method = "pounders",
+                control = list(),
+                inequal = confun,
+                n = 2)

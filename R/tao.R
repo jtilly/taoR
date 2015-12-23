@@ -28,6 +28,7 @@
 #'        optimization method.
 #' @param hs A function to return the hessian, if using an algorithm which
 #'        uses the hessian.
+#' @param inequal A function which returns a constraint of the form g(x) >= 0.
 #' @param method The method to be used. See 'Details'.
 #' @param control A list of control parameters. See 'Details'.
 #' @param lb A vector with lower variable bounds (optional) 
@@ -68,7 +69,7 @@
 #'                 method = "ntr")
 #' ret$x
 
-tao.optim = function(par, fn, gr = NULL, hs = NULL,
+tao.optim = function(par, fn, gr = NULL, hs = NULL, inequal = NULL,
                      method = c("lmvm", "nls", "ntr", "ntl", 
                                 "cg", "tron", "blmvm", "gpcg",
                                 "nm", "pounders"),
@@ -85,6 +86,10 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
     
     if (!is.null(hs)) {
         funclist = c(funclist, hesfun = hs)
+    }
+    
+    if (!is.null(inequal)) {
+      funclist = c(funclist, inequal = inequal)
     }
     
 
