@@ -155,15 +155,17 @@ List tao(List functions,
     catch_error(createVec(ci, problem.k));
     
     // Check whether lower / upper bounds inequalities have been set
+    Function inequal = functions["inequal"];
     if (functions.containsElementNamed("inequal")) {
-        problem.inequal = functions["inequal"];
+        problem.inequal = &inequal;
         catch_error(TaoSetInequalityConstraintsRoutine(tao_context, ci, evaluate_inequalities, &problem));
     }
     
     // Check whether lower / upper bounds equalities have been set
+    Function equal = functions["equal"];
     if (functions.containsElementNamed("equal")) {
-      problem.inequal = functions["equal"];
-      catch_error(TaoSetConstraintsRoutine(tao_context, ci, evaluate_equalities, &problem));
+        problem.equal = &equal;
+        catch_error(TaoSetConstraintsRoutine(tao_context, ci, evaluate_equalities, &problem));
     }
     
     // Create a matrix to hold hessians
