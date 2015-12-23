@@ -99,11 +99,6 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
         funclist = c(funclist, hesfun = hs)
     }
     
-    if (!is.null(inequal)) {
-      funclist = c(funclist, inequal = inequal)
-    }
-    
-
     # if method requires gradient and none was provided, make sure
     # that tao_fd_gradient is set, i.e. that finite differences are
     # computed
