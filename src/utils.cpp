@@ -121,3 +121,85 @@ PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
     }
     PetscFunctionReturn(0);
 }
+
+PetscErrorCode evaluate_function(Vec X, PetscReal *y, Function *f, int k) {
+    
+    PetscReal *x;
+
+    PetscFunctionBegin;
+    
+    // Read out arrays
+    catch_error(VecGetArray(X, &x));
+
+    // Write into Rcpp vector and evaluate
+    NumericVector xVec = get_vec(X, k);
+    NumericVector yVec = (*f)(xVec);
+    
+    *y = yVec[0];
+    
+    catch_error(VecRestoreArray(X, &x));
+    PetscFunctionReturn(0);
+    
+}
+
+PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
+    return evaluate_function(X, Y, f, k, k);
+}
+
+PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k, int n) {
+  
+    PetscReal *x;
+    PetscReal *y;
+  
+    PetscFunctionBegin;
+    
+    // Read out arrays
+    catch_error(VecGetArray(X, &x));
+    catch_error(VecGetArray(Y, &y));
+    
+    // Write into Rcpp vector and evaluate
+    NumericVector xVec = get_vec(X, k);
+    NumericVector yVec = (*f)(xVec);
+    
+    // Write back into array
+    
+    for (int i = 0; i < n; ++i) {
+      y[i] = yVec[i];
+    }
+    
+    catch_error(VecRestoreArray(X, &x));
+    catch_error(VecRestoreArray(Y, &y));
+    PetscFunctionReturn(0);
+  
+}
+
+PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k) {
+    return evaluate_function(X, Y, f, k, k);
+}
+
+PetscErrorCode evaluate_function(Vec X, Mat Y, Function *f, int k, int n) {
+  
+    PetscReal *x;
+    
+    PetscFunctionBegin;
+    
+    // Read out arrays
+    catch_error(VecGetArray(X, &x));
+
+    // Write into Rcpp vector and evaluate
+    NumericVector xVec = get_vec(X, k);
+    NumericMatrix yMat = (*f)(xVec);
+    
+    // Assemble the matrix
+    for (int row = 0; row < n; ++row) {
+        for (int col = 0; col < n; ++col) {
+            MatSetValues(Y, 1, &row, 1, &col, &(yMat(row, col)), INSERT_VALUES);
+        }
+    }
+    
+    catch_error(MatAssemblyBegin(Y, MAT_FINAL_ASSEMBLY));
+    catch_error(MatAssemblyEnd(Y, MAT_FINAL_ASSEMBLY));
+    catch_error(VecRestoreArray(X, &x));
+    PetscFunctionReturn(0);
+  
+}

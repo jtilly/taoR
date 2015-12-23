@@ -49,195 +49,58 @@
 // this function evaluates the separable objective function
 PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void *ptr) {
     Problem *problem = (Problem *)ptr;
-    PetscReal *x,*f;
     Function objfun = *(problem->objfun);
     int n = problem->n;
     int k = problem->k;
     
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(F, &f));
-    
-    NumericVector xVec(k);
-    NumericVector fVec(n);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    fVec = objfun(xVec);
-    
-    for (int i = 0; i < n; i++) {
-        f[i] = fVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(F, &f));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, F, &objfun, k, n);
 }
 
 // this function evaluates the objective function
 PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    
     Function objfun = *(problem->objfun);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    
-    NumericVector xVec = get_vec(X, k);
-    NumericVector fVec(1);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    fVec = objfun(xVec);
-    *f = fVec[0];
-    
-    catch_error(VecRestoreArray(X, &x));
-    PetscFunctionReturn(0);
+    return evaluate_function(X, f, &objfun, k);
 }
 
 // this function evaluates the gradient
 PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *g;
-    
     Function grafun = *(problem->grafun);
     int k = problem->k;
-    
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(G, &g));
-    
-    NumericVector xVec(k);
-    NumericVector gVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    gVec = grafun(xVec);
-    
-    for (int i = 0; i < k; i++) {
-        g[i] = gVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(G, &g));
-    PetscFunctionReturn(0);
+
+    return evaluate_function(X, G, &grafun, k);
 }
 
 // this function evaluates the hessian
 PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    
     Function hesfun = *(problem->hesfun);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    
-    NumericVector xVec(k);
-    NumericMatrix hMat(k, k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    hMat = hesfun(xVec);
-    
-    // Assemble the matrix
-    for (int row = 0; row < k; ++row) {
-        for (int col = 0; col < k; ++col) {
-            MatSetValues(H, 1, &row, 1, &col, &(hMat(row, col)), INSERT_VALUES);
-        }
-    }
-    
-    catch_error(MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY));
-    catch_error(MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY));
-    catch_error(VecRestoreArray(X, &x));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, H, &hesfun, k);
 }
 
 // this function evaluates the vector of inequalities
 PetscErrorCode evaluate_inequalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
-  
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *ci;
     Function inequal = *(problem->inequal);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(Ci, &ci));
-    
-    NumericVector xVec(k);
-    NumericVector ubVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    ubVec = inequal(xVec);
-    
-    // Assemble the vector
-    for (int i = 0; i < k; i++) {
-        ci[i] = ubVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(Ci, &ci));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, Ci, &inequal, k);
 }
 
 
 // this function evaluates the vector of equalities
 PetscErrorCode evaluate_equalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
-    
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *ci;
     Function equal = *(problem->equal);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(Ci, &ci));
-    
-    NumericVector xVec(k);
-    NumericVector ubVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    ubVec = equal(xVec);
-    
-    // Assemble the vector
-    for (int i = 0; i < k; i++) {
-        ci[i] = ubVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(Ci, &ci));
-    
-    PetscFunctionReturn(0);
+    return evaluate_function(X, Ci, &equal, k);
 }
 
 // this function set the starting value
