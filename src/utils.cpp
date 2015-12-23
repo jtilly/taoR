@@ -22,25 +22,25 @@ void initialize(Rcpp::List options) {
     char** argv = new char*[argc];
     
     // Read in the name
-    std::string name = "\0";
+    string name = "\0";
     argv[0] = new char[name.size() + 1];
     strcpy(argv[0], name.c_str());
     
     if(options.size() > 0) {
         
         // Get the list of the column names
-        Rcpp::CharacterVector names = options.names();
+        CharacterVector names = options.names();
         
         // internal counter
         int counter = 1;
         
         // Read List into vector of char arrays
         for (int i = 0; i < names.size(); ++i) {
-            std::string flag = "-" + names[i];
+            string flag = "-" + names[i];
             argv[counter] = new char[flag.size() + 1];
             strcpy(argv[counter++], flag.c_str());
             
-            std::string val = options[i];
+            string val = options[i];
             argv[counter] = new char[val.size() + 1];
             strcpy(argv[counter++], val.c_str());
         }
@@ -76,7 +76,7 @@ NumericVector get_vec(Vec X, int k) {
     for (int i = 0; i < k; i++) {
         xVec[i] = x[i];
     }
-    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    catch_error(VecRestoreArray(X, &x));
     return xVec;
 }
 
@@ -89,15 +89,15 @@ PetscErrorCode my_monitor(Tao tao_context, void *ptr) {
     PetscErrorCode error_code;
     
     PetscFunctionBegin;
-    error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, 0, 0, 0);
-    error_code = PetscViewerASCIIPrintf(viewer, "iter = %3D,", its); CHKERRQ(error_code);
-    error_code = PetscViewerASCIIPrintf(viewer, " Function value %g,", (double) fc); CHKERRQ(error_code);
+    catch_error(TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, 0, 0, 0));
+    catch_error(PetscViewerASCIIPrintf(viewer, "iter = %3D,", its));
+    catch_error(PetscViewerASCIIPrintf(viewer, " Function value %g,", (double) fc));
     if (gnorm > 1.e-6) {
-        error_code = PetscViewerASCIIPrintf(viewer, " Residual: %g \n", (double) gnorm); CHKERRQ(error_code);
+        catch_error(PetscViewerASCIIPrintf(viewer, " Residual: %g \n", (double) gnorm));
     } else if (gnorm > 1.e-11) {
-        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"); CHKERRQ(error_code);
+        catch_error(PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-6 \n"));
     } else {
-        error_code = PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"); CHKERRQ(error_code);
+        catch_error(PetscViewerASCIIPrintf(viewer, " Residual: < 1.0e-11 \n"));
     }
     PetscFunctionReturn(0);
 }
@@ -109,16 +109,16 @@ PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
     
     PetscFunctionBegin;
     if (file != stdout && file != stderr) {
-        error_code = PetscVFPrintfDefault(file, format, argp); CHKERRQ(error_code);
+        catch_error(PetscVFPrintfDefault(file, format, argp));
     } else if (file == stdout) {
         char buff[1024];
         size_t length;
-        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        catch_error(PetscVSNPrintf(buff, 1024, format, &length, argp));
         Rcout << buff;
     } else if (file == stderr) {
         char buff[1024];
         size_t length;
-        error_code = PetscVSNPrintf(buff, 1024, format, &length, argp); CHKERRQ(error_code);
+        catch_error(PetscVSNPrintf(buff, 1024, format, &length, argp));
         Rcerr << buff;
     }
     PetscFunctionReturn(0);
