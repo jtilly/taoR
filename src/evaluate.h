@@ -1,6 +1,7 @@
 #ifndef evaluate_h
 #define evaluate_h
 
+#include "common.h"
 #include "utils.h"
 
 PetscErrorCode createVec(Vec, NumericVector);

@@ -1,27 +1,12 @@
 #ifndef utils_h
 #define utils_h
 
-#define catch_error(operation) do { PetscErrorCode error_code = operation; CHKERRQ(error_code); } while (0)
+#include "common.h"
 
-#include <Rcpp.h>
-#include <petsctao.h>
-
-using namespace Rcpp;
-using namespace std;
-
-// problem structure
-typedef struct {
-    Function *objfun;
-    Function *grafun;
-    Function *hesfun;
-    int k;
-    int n;
-} Problem;
-
-//' Initializes petsc. Wraps messy command line parsing. Call me but once.
-//'
-//' @param options is the list to read. The column names are the flags, the values are
-//'        passed in as strings.
+// Initializes petsc. Wraps messy command line parsing. Call me but once.
+//
+// @param options is the list to read. The column names are the flags, the values are
+//        passed in as strings.
 void initialize(List options);
 
 NumericVector get_vec(Vec X, int k);
