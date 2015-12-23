@@ -141,22 +141,22 @@ List tao(List functions,
     PetscInt its;
 
     // Allocate vectors
-    error_code = VecCreateSeq(MPI_COMM_SELF, start_values.size(), &x); CHKERRQ(error_code);
-    error_code = VecCreateSeq(MPI_COMM_SELF, lower_bounds.size(), &lb); CHKERRQ(error_code);
-    error_code = VecCreateSeq(MPI_COMM_SELF, upper_bounds.size(), &ub); CHKERRQ(error_code);
-    error_code = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(error_code);
+    catch_error(VecCreateSeq(MPI_COMM_SELF, start_values.size(), &x));
+    catch_error(VecCreateSeq(MPI_COMM_SELF, lower_bounds.size(), &lb));
+    catch_error(VecCreateSeq(MPI_COMM_SELF, upper_bounds.size(), &ub));
+    catch_error(VecCreateSeq(MPI_COMM_SELF, n, &f));
     
     // Create TAO solver
-    error_code = TaoCreate(PETSC_COMM_SELF, &tao_context); CHKERRQ(error_code);
-    error_code = TaoSetType(tao_context, method.get_cstring()); CHKERRQ(error_code);
+    catch_error(TaoCreate(PETSC_COMM_SELF, &tao_context));
+    catch_error(TaoSetType(tao_context, method.get_cstring()));
     
     // Define starting values and define functions
-    error_code = createVec(x, start_values); CHKERRQ(error_code);
-    error_code = TaoSetInitialVector(tao_context, x); CHKERRQ(error_code);
+    catch_error(createVec(x, start_values));
+    catch_error(TaoSetInitialVector(tao_context, x));
     
     // Define lower bounds
-    error_code = createVec(lb, lower_bounds); CHKERRQ(error_code);
-    error_code = createVec(ub, upper_bounds); CHKERRQ(error_code);
+    catch_error(createVec(lb, lower_bounds));
+    catch_error(createVec(ub, upper_bounds));
     
     // Create a matrix to hold hessians
     Mat H;
@@ -166,43 +166,43 @@ List tao(List functions,
     
     // Define objective functions and gradients
     if(method == "pounders") {
-        error_code = TaoSetSeparableObjectiveRoutine(tao_context, f, evaluate_objective_separable, (void*)&problem); CHKERRQ(error_code);
+        catch_error(TaoSetSeparableObjectiveRoutine(tao_context, f, evaluate_objective_separable, (void*)&problem));
     } else {
-        error_code = TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem); CHKERRQ(error_code);
+        catch_error(TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem));
     }
     
     if (functions.containsElementNamed("grafun")) {
-        error_code = TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem); CHKERRQ(error_code);
+        catch_error(TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem));
     }
     
     if (functions.containsElementNamed("hesfun")) {
-        error_code = TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem); CHKERRQ(error_code);
+        catch_error(TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem));
     }
     
     // set variable bounds
-    error_code = TaoSetVariableBounds(tao_context, lb, ub); CHKERRQ(error_code);
+    catch_error(TaoSetVariableBounds(tao_context, lb, ub));
     
     // Define monitor
-    error_code = TaoSetMonitor(tao_context, my_monitor, &problem, NULL); CHKERRQ(error_code);
+    catch_error(TaoSetMonitor(tao_context, my_monitor, &problem, NULL));
     
     // Check for any TAO command line arguments 
-    error_code = TaoSetFromOptions(tao_context); CHKERRQ(error_code);
+    catch_error(TaoSetFromOptions(tao_context));
     
     // Perform the Solve
-    error_code = TaoSolve(tao_context); CHKERRQ(error_code);
-    error_code = TaoView(tao_context, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(error_code);
-    error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, &cnorm, &xdiff, 0);
+    catch_error(TaoSolve(tao_context));
+    catch_error(TaoView(tao_context, PETSC_VIEWER_STDOUT_SELF));
+    catch_error(TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, &cnorm, &xdiff, 0));
     
     // Free TAO data structures
-    error_code = TaoDestroy(&tao_context); CHKERRQ(error_code);
+    catch_error(TaoDestroy(&tao_context));
     NumericVector xVec(start_values.size());
     xVec = get_vec(x, start_values.size());
-    error_code = VecDestroy(&x); CHKERRQ(error_code);
+    catch_error(VecDestroy(&x));
     
     NumericVector fVec(n);
     if(method == "pounders") {
         fVec = get_vec(f, n);
-        error_code = VecDestroy(&f); CHKERRQ(error_code);
+        catch_error(VecDestroy(&f));
     } else {
         fVec[0] = fc;
     }
