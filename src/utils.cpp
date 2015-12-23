@@ -1,3 +1,4 @@
+#include <taoR.h>
 #include "utils.h"
 
 //' Initialize TAO
@@ -69,7 +70,6 @@ void initialize(Rcpp::List options) {
 // this function transforms a vector of type Vec to a vector of type
 // NumericVector
 NumericVector get_vec(Vec X, int k) {
-    PetscErrorCode error_code;
     PetscReal *x;
     VecGetArray(X, &x);
     NumericVector xVec(k);
@@ -86,7 +86,6 @@ PetscErrorCode my_monitor(Tao tao_context, void *ptr) {
     PetscReal fc, gnorm;
     PetscInt its;
     PetscViewer viewer = PETSC_VIEWER_STDOUT_SELF;
-    PetscErrorCode error_code;
     
     PetscFunctionBegin;
     catch_error(TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, 0, 0, 0));
@@ -105,8 +104,7 @@ PetscErrorCode my_monitor(Tao tao_context, void *ptr) {
 // Checks if output is going to stdout or stderr, if so, redirects to Rcout or Rcerr.
 // Overrides PetscVFPrintf.
 PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
-    PetscErrorCode error_code;
-    
+        
     PetscFunctionBegin;
     if (file != stdout && file != stderr) {
         catch_error(PetscVFPrintfDefault(file, format, argp));

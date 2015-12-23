@@ -42,7 +42,7 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-#include "common.h"
+#include <taoR.h>
 #include "utils.h"
 #include "evaluate.h"
 
@@ -134,7 +134,6 @@ List tao(List functions,
         problem.hesfun = &hesfun;
     }
     
-    PetscErrorCode error_code; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function
     Vec ub, lb; // upper and lower bounds
     Tao tao_context; // Tao solver context 

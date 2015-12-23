@@ -1,7 +1,5 @@
-#ifndef common_h
-#define common_h
-
-#define catch_error(operation) do { PetscErrorCode error_code = operation; CHKERRQ(error_code); } while (0)
+#ifndef taoR_h
+#define taoR_h
 
 #include <Rcpp.h>
 #include <petsctao.h>
@@ -17,5 +15,7 @@ typedef struct {
   int k;
   int n;
 } Problem;
+
+#define catch_error(operation) do { PetscErrorCode error_code = operation; CHKERRQ(error_code); } while (0)
 
 #endif

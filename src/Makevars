@@ -1,6 +1,12 @@
 # define PETSC_DIR default location
 ifeq ($(PETSC_DIR), )
-	PETSC_DIR=/usr/local/lib/python2.7/dist-packages/petsc
+	ifeq ($(findstring Darwin,$(shell uname -s)), Darwin)
+		PETSC_DIR=/usr/local/Cellar/petsc/3.6.3
+	endif
+	
+	ifeq ($(findstring Linux,$(shell uname -s)), Linux)
+		PETSC_DIR=/usr/local/lib/python2.7/dist-packages/petsc
+	endif
 endif
 
 # define MPI_INCLUDE default location
@@ -21,4 +27,4 @@ endif
 PKG_LIBS = -Wl,-rpath,$(PETSC_LIB) -L$(PETSC_LIB) -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lquadmath -lstdc++ -ldl
 
 # add include directories so that the c code can find the headers
-PKG_CXXFLAGS = $(PETSC_INCLUDE) -I$(MPI_INCLUDE)
+PKG_CXXFLAGS = -I../inst/include $(PETSC_INCLUDE) -I$(MPI_INCLUDE)

@@ -42,20 +42,21 @@
 // (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 // SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#include <taoR.h>
+#include "utils.h"
 #include "evaluate.h"
 
 // this function evaluates the separable objective function
 PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void *ptr) {
     Problem *problem = (Problem *)ptr;
     PetscReal *x,*f;
-    PetscErrorCode error_code;
     Function objfun = *(problem->objfun);
     int n = problem->n;
     int k = problem->k;
     
     PetscFunctionBegin;
-    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
-    error_code = VecGetArray(F, &f); CHKERRQ(error_code);
+    catch_error(VecGetArray(X, &x));
+    catch_error(VecGetArray(F, &f));
     
     NumericVector xVec(k);
     NumericVector fVec(n);
@@ -70,8 +71,8 @@ PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void 
         f[i] = fVec[i];
     }
     
-    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
-    error_code = VecRestoreArray(F, &f); CHKERRQ(error_code);
+    catch_error(VecRestoreArray(X, &x));
+    catch_error(VecRestoreArray(F, &f));
     
     PetscFunctionReturn(0);
 }
@@ -81,12 +82,12 @@ PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *pt
     
     Problem *problem = (Problem *)ptr;
     PetscReal *x;
-    PetscErrorCode error_code;
+    
     Function objfun = *(problem->objfun);
     int k = problem->k;
     
     PetscFunctionBegin;
-    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
+    catch_error(VecGetArray(X, &x));
     
     NumericVector xVec = get_vec(X, k);
     NumericVector fVec(1);
@@ -98,7 +99,7 @@ PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *pt
     fVec = objfun(xVec);
     *f = fVec[0];
     
-    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    catch_error(VecRestoreArray(X, &x));
     PetscFunctionReturn(0);
 }
 
@@ -109,13 +110,13 @@ PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
     Problem *problem = (Problem *)ptr;
     PetscReal *x;
     PetscReal *g;
-    PetscErrorCode error_code;
+    
     Function grafun = *(problem->grafun);
     int k = problem->k;
     
     PetscFunctionBegin;
-    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
-    error_code = VecGetArray(G, &g); CHKERRQ(error_code);
+    catch_error(VecGetArray(X, &x));
+    catch_error(VecGetArray(G, &g));
     
     NumericVector xVec(k);
     NumericVector gVec(k);
@@ -130,8 +131,8 @@ PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
         g[i] = gVec[i];
     }
     
-    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
-    error_code = VecRestoreArray(G, &g); CHKERRQ(error_code);
+    catch_error(VecRestoreArray(X, &x));
+    catch_error(VecRestoreArray(G, &g));
     PetscFunctionReturn(0);
 }
 
@@ -140,13 +141,13 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
     
     Problem *problem = (Problem *)ptr;
     PetscReal *x;
-    PetscErrorCode error_code;
+    
     Function hesfun = *(problem->hesfun);
     int k = problem->k;
     
     PetscFunctionBegin;
     
-    error_code = VecGetArray(X, &x); CHKERRQ(error_code);
+    catch_error(VecGetArray(X, &x));
     
     NumericVector xVec(k);
     NumericMatrix hMat(k, k);
@@ -164,9 +165,9 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
         }
     }
     
-    error_code =  MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY); CHKERRQ(error_code);
-    error_code =  MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY); CHKERRQ(error_code);
-    error_code = VecRestoreArray(X, &x); CHKERRQ(error_code);
+    catch_error(MatAssemblyBegin(H, MAT_FINAL_ASSEMBLY));
+    catch_error(MatAssemblyEnd(H, MAT_FINAL_ASSEMBLY));
+    catch_error(VecRestoreArray(X, &x));
     
     PetscFunctionReturn(0);
 }
@@ -176,13 +177,12 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
 PetscErrorCode createVec(Vec X, NumericVector y) {
     
     PetscReal *x;
-    PetscErrorCode error_code;
-    
+
     PetscFunctionBegin;
-    error_code = VecGetArray(X,&x); CHKERRQ(error_code);
+    catch_error(VecGetArray(X,&x));
     for(int iX=0; iX<y.size(); iX++) {
         x[iX] = y[iX];
     }
-    VecRestoreArray(X,&x); CHKERRQ(error_code);
+    catch_error(VecRestoreArray(X,&x));
     PetscFunctionReturn(0);
 }
