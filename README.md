@@ -5,7 +5,7 @@ Toolkit for Advanced Optimization ([TAO](http://www.mcs.anl.gov/petsc/petsc-curr
 
 TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you want to use taoR, you need to build and install PETSc first. The PETSc website contains detailed installation instructions, you can also see the section below for help getting started.
 
-This package is still at the "proof of concept" stage.
+Please note that this package is currently a work in progress.
 
 ## Install
 
