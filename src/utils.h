@@ -12,6 +12,6 @@ void initialize(List options);
 NumericVector get_vec(Vec X, int k);
 PetscErrorCode my_monitor(Tao tao_context, void *ptr);
 PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp);
-PetscErrorCode evaluate_function(Vec X, Vec Y, double (*f)(NumericVector X), int k);
+PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k);
 
 #endif

@@ -107,32 +107,10 @@ PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *pt
 PetscErrorCode evaluate_gradient(Tao tao_context, Vec X, Vec G, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    PetscReal *g;
-    
     Function grafun = *(problem->grafun);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    catch_error(VecGetArray(G, &g));
-    
-    NumericVector xVec(k);
-    NumericVector gVec(k);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    gVec = grafun(xVec);
-    
-    for (int i = 0; i < k; i++) {
-        g[i] = gVec[i];
-    }
-    
-    catch_error(VecRestoreArray(X, &x));
-    catch_error(VecRestoreArray(G, &g));
-    PetscFunctionReturn(0);
+    evaluate_function(X, G, grafun, k);
 }
 
 // this function evaluates the hessian

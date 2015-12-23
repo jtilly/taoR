@@ -122,7 +122,7 @@ PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
     PetscFunctionReturn(0);
 }
 
-PetscErrorCode evaluate_function(Vec X, Vec Y, double (*f)(NumericVector X), int k) {
+PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
   
     PetscReal *x;
     PetscReal *y;
@@ -135,7 +135,7 @@ PetscErrorCode evaluate_function(Vec X, Vec Y, double (*f)(NumericVector X), int
     
     // Write into Rcpp vector and evaluate
     NumericVector xVec = get_vec(X, k);
-    NumericVector yVec = f(xVec);
+    NumericVector yVec = (*f)(xVec);
     
     // Write back into array
     
