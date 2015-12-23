@@ -67,7 +67,6 @@ inequal = function(x) c(x[1] - 2, x[2] - 2)
 ret = tao.optim(c(1, 2), 
                 objfun,
                 gr = grafun,
-                inequal = inequal,
                 method = "blmvm")
 ret$x
 
