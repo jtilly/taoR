@@ -1,6 +1,8 @@
 #ifndef utils_h
 #define utils_h
 
+#define catch_error(operation) do { PetscErrorCode error_code = operation; CHKERRQ(error_code); } while (0)
+
 #include <Rcpp.h>
 #include <petsctao.h>
 
