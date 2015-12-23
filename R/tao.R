@@ -30,6 +30,8 @@
 #'        uses the hessian.
 #' @param method The method to be used. See 'Details'.
 #' @param control A list of control parameters. See 'Details'.
+#' @param lb A vector with lower variable bounds (optional) 
+#' @param ub A vector with upper variable bounds (optional)
 #' @param n The number of elements of objfun.
 #' @return A list with final parameter values, the objective function, and
 #'        information on why the optimizer stopped.
@@ -71,7 +73,9 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
                                 "cg", "tron", "blmvm", "gpcg",
                                 "nm", "pounders"),
                      control = list(),
-                     n = 1) {
+                     n = 1, 
+                     lb = NULL, 
+                     ub = NULL) {
     
     funclist = list(objfun = fn);
     
@@ -110,10 +114,26 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
         warning("method ", method, " does not make use user-defined hessian.")
     }
     
+    if(!is.null(lb) & length(lb) != length(par)) {
+        stop("If set, the vector with lower bounds lb must have the same length as the vector par.")
+    }
+    
+    if(!is.null(ub) & length(ub) != length(par)) {
+        stop("If set, the vector with upper bounds ub must have the same length as the vector par.")
+    }
+    
+    if(is.null(ub)) {
+        ub = rep(1e16, length(par))
+    }
+    
+    if(is.null(lb)) {
+        lb = rep(-1e16, length(par))
+    }
+    
     ret = tao(functions = funclist,
               start_values = par,
               method = method,
               options = control,
-              n)
+              n, lb, ub)
 
 }

@@ -6,8 +6,8 @@
 using namespace Rcpp;
 
 // tao
-List tao(List functions, NumericVector start_values, String method, List options, int n);
-RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP start_valuesSEXP, SEXP methodSEXP, SEXP optionsSEXP, SEXP nSEXP) {
+List tao(List functions, NumericVector start_values, String method, List options, int n, NumericVector lower_bounds, NumericVector upper_bounds);
+RcppExport SEXP taoR_tao(SEXP functionsSEXP, SEXP start_valuesSEXP, SEXP methodSEXP, SEXP optionsSEXP, SEXP nSEXP, SEXP lower_boundsSEXP, SEXP upper_boundsSEXP) {
 BEGIN_RCPP
     Rcpp::RObject __result;
     Rcpp::RNGScope __rngScope;
@@ -16,7 +16,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< String >::type method(methodSEXP);
     Rcpp::traits::input_parameter< List >::type options(optionsSEXP);
     Rcpp::traits::input_parameter< int >::type n(nSEXP);
-    __result = Rcpp::wrap(tao(functions, start_values, method, options, n));
+    Rcpp::traits::input_parameter< NumericVector >::type lower_bounds(lower_boundsSEXP);
+    Rcpp::traits::input_parameter< NumericVector >::type upper_bounds(upper_boundsSEXP);
+    __result = Rcpp::wrap(tao(functions, start_values, method, options, n, lower_bounds, upper_bounds));
     return __result;
 END_RCPP
 }

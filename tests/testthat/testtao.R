@@ -105,6 +105,14 @@ expect_error(tao.optim(c(1, 2),
                 gr = grafun,
                 method = "tron"))
 
+ret = tao.optim(c(1, 2), 
+                objfun,
+                gr = grafun,
+                hs = hesfun,
+                method = "tron", 
+                lb = c(0, 0), ub = c(5, 5))
+expect_equal(ret$x, c(3, 0))
+
 # TAOBLMVM
 ret = tao.optim(c(1, 2), 
                 objfun,
@@ -116,6 +124,13 @@ ret = tao.optim(c(1, 2),
                 objfun,
                 method = "blmvm")
 expect_equal(objfun(ret$x) < 0.01, TRUE)
+
+ret = tao.optim(c(1, 2), 
+                objfun,
+                method = "blmvm",
+                ub = c(5, 5), 
+                lb = c(0, 0))
+expect_equal(ret$x, c(3, 0))
 
 # TAOGPCG
 ret = tao.optim(c(1, 2), 
@@ -136,6 +151,14 @@ expect_error(tao.optim(c(1, 2),
                 gr = grafun,
                 method = "gpcg"))
 
+ret = tao.optim(c(1, 2), 
+                objfun,
+                gr = grafun,
+                hs = hesfun,
+                method = "gpcg", 
+                lb = c(0, 0), ub = c(5, 5))
+expect_equal(ret$x, c(3, 0))
+
 # TAONM
 ret = tao.optim(c(1, 2), 
                 objfun,
@@ -152,3 +175,24 @@ ret = tao.optim(c(1, 2),
                 n = 2)
 
 expect_equal(sum(objfun(ret$x)) < 0.01, TRUE)
+
+# POUNDers
+objfun = function(x) c(x[1] - 3, x[2] + 1)
+
+ret = tao.optim(c(1, 2), 
+                objfun,
+                method = "pounders",
+                control = list(),
+                n = 2)
+
+expect_equal(sum(objfun(ret$x)) < 0.01, TRUE)
+
+ret = tao.optim(c(1, 2), 
+                objfun,
+                method = "pounders",
+                control = list(),
+                n = 2,
+                lb = c(0, 0), 
+                ub = c(5, 5))
+
+expect_equal(ret$x, c(3, 0))

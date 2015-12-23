@@ -31,7 +31,6 @@
 PetscErrorCode my_monitor(Tao, void*);
 PetscErrorCode print_to_rcout(FILE*, const char*, va_list);
 NumericVector get_vec(Vec, int);
-Environment base("package:base");
 
 //' Use TAO to minimize an objective function
 //'
@@ -42,6 +41,8 @@ Environment base("package:base");
 //' @param method is a string that determines the type of optimizer to be used.
 //' @param options is a list containing option values for the optimizer
 //' @param n is the number of elements in the objective function.
+//' @param lb is a vector with lower bounds
+//' @param ub is a vector with upper bounds
 //' @return a list with the objective function and the final parameter values
 //' @examples
 //' # use pounders
@@ -62,10 +63,12 @@ Environment base("package:base");
 //' ret$x
 // [[Rcpp::export]]
 List tao(List functions,
-               NumericVector start_values, 
-               String method, 
-               List options, 
-               int n = 1) {
+         NumericVector start_values, 
+         String method, 
+         List options, 
+         int n, 
+         NumericVector lower_bounds,
+         NumericVector upper_bounds) {
 
     // Redirect output to the R console
     PetscVFPrintf = print_to_rcout;
@@ -93,7 +96,7 @@ List tao(List functions,
     
     // Check whether we need to read in the jacobian
     // to the problem context.
-    Function grafun = base["identity"]; 
+    Function grafun = functions["objfun"];
     if (functions.containsElementNamed("grafun")) {
         grafun = functions["grafun"];
         problem.grafun = &grafun;
@@ -101,7 +104,7 @@ List tao(List functions,
     
     // Check whether we need to read in the hessian
     // to the problem context.
-    Function hesfun = base["identity"];
+    Function hesfun = functions["objfun"];
     if (functions.containsElementNamed("hesfun")) {
         hesfun = functions["hesfun"];
         problem.hesfun = &hesfun;
@@ -109,12 +112,15 @@ List tao(List functions,
     
     PetscErrorCode error_code; // used to check for functions returning nonzeros 
     Vec x, f; // solution, function
+    Vec ub, lb; // upper and lower bounds
     Tao tao_context; // Tao solver context 
     PetscReal fc, gnorm, cnorm, xdiff;
     PetscInt its;
 
     // Allocate vectors
     error_code = VecCreateSeq(MPI_COMM_SELF, start_values.size(), &x); CHKERRQ(error_code);
+    error_code = VecCreateSeq(MPI_COMM_SELF, lower_bounds.size(), &lb); CHKERRQ(error_code);
+    error_code = VecCreateSeq(MPI_COMM_SELF, upper_bounds.size(), &ub); CHKERRQ(error_code);
     error_code = VecCreateSeq(MPI_COMM_SELF, n, &f); CHKERRQ(error_code);
     
     // Create TAO solver
@@ -122,8 +128,12 @@ List tao(List functions,
     error_code = TaoSetType(tao_context, method.get_cstring()); CHKERRQ(error_code);
     
     // Define starting values and define functions
-    error_code = form_starting_point(x, start_values); CHKERRQ(error_code);
+    error_code = createVec(x, start_values); CHKERRQ(error_code);
     error_code = TaoSetInitialVector(tao_context, x); CHKERRQ(error_code);
+    
+    // Define lower bounds
+    error_code = createVec(lb, lower_bounds); CHKERRQ(error_code);
+    error_code = createVec(ub, upper_bounds); CHKERRQ(error_code);
     
     // Create a matrix to hold hessians
     Mat H;
@@ -132,11 +142,23 @@ List tao(List functions,
     MatSetUp(H);
     
     // Define objective functions and gradients
-    error_code = TaoSetSeparableObjectiveRoutine(tao_context, f, evaluate_objective_separable, (void*)&problem); CHKERRQ(error_code);
-    error_code = TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem); CHKERRQ(error_code);
-    error_code = TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem); CHKERRQ(error_code);
-    error_code = TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem); CHKERRQ(error_code);
-
+    if(method == "pounders") {
+        error_code = TaoSetSeparableObjectiveRoutine(tao_context, f, evaluate_objective_separable, (void*)&problem); CHKERRQ(error_code);
+    } else {
+        error_code = TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem); CHKERRQ(error_code);
+    }
+    
+    if (functions.containsElementNamed("grafun")) {
+        error_code = TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem); CHKERRQ(error_code);
+    }
+    
+    if (functions.containsElementNamed("hesfun")) {
+        error_code = TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem); CHKERRQ(error_code);
+    }
+    
+    // set variable bounds
+    error_code = TaoSetVariableBounds(tao_context, lb, ub); CHKERRQ(error_code);
+    
     // Define monitor
     error_code = TaoSetMonitor(tao_context, my_monitor, &problem, NULL); CHKERRQ(error_code);
     
@@ -144,8 +166,6 @@ List tao(List functions,
     error_code = TaoSetFromOptions(tao_context); CHKERRQ(error_code);
     
     // Perform the Solve
-    // The Solve is here
-    // Yes yes here is the Solve rejoice!
     error_code = TaoSolve(tao_context); CHKERRQ(error_code);
     error_code = TaoView(tao_context, PETSC_VIEWER_STDOUT_SELF); CHKERRQ(error_code);
     error_code = TaoGetSolutionStatus(tao_context, &its, &fc, &gnorm, &cnorm, &xdiff, 0);

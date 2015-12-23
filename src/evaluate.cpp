@@ -129,7 +129,7 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
 
 
 // this function set the starting value
-PetscErrorCode form_starting_point(Vec X, NumericVector start_values) {
+PetscErrorCode createVec(Vec X, NumericVector start_values) {
     
     PetscReal *x;
     PetscErrorCode error_code;

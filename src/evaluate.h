@@ -3,7 +3,7 @@
 
 #include "utils.h"
 
-PetscErrorCode form_starting_point(Vec, NumericVector);
+PetscErrorCode createVec(Vec, NumericVector);
 PetscErrorCode evaluate_objective_separable(Tao, Vec, Vec, void *);
 PetscErrorCode evaluate_objective(Tao, Vec, PetscReal*, void *);
 PetscErrorCode evaluate_gradient(Tao, Vec, Vec, void *);
