@@ -122,6 +122,26 @@ PetscErrorCode print_to_rcout(FILE *file, const char format[], va_list argp) {
     PetscFunctionReturn(0);
 }
 
+PetscErrorCode evaluate_function(Vec X, PetscReal *y, Function *f, int k) {
+    
+    PetscReal *x;
+
+    PetscFunctionBegin;
+    
+    // Read out arrays
+    catch_error(VecGetArray(X, &x));
+
+    // Write into Rcpp vector and evaluate
+    NumericVector xVec = get_vec(X, k);
+    NumericVector yVec = (*f)(xVec);
+    
+    y = &yVec[0];
+    
+    catch_error(VecRestoreArray(X, &x));
+    PetscFunctionReturn(0);
+    
+}
+
 PetscErrorCode evaluate_function(Vec X, Vec Y, Function *f, int k) {
     return evaluate_function(X, Y, f, k, k);
 }

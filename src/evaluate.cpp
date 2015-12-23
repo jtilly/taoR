@@ -81,26 +81,10 @@ PetscErrorCode evaluate_objective_separable(Tao tao_context, Vec X, Vec F, void 
 PetscErrorCode evaluate_objective(Tao tao_context, Vec X, PetscReal *f, void *ptr) {
     
     Problem *problem = (Problem *)ptr;
-    PetscReal *x;
-    
     Function objfun = *(problem->objfun);
     int k = problem->k;
     
-    PetscFunctionBegin;
-    catch_error(VecGetArray(X, &x));
-    
-    NumericVector xVec = get_vec(X, k);
-    NumericVector fVec(1);
-    
-    for (int i = 0; i < k; i++) {
-        xVec[i] = x[i];
-    }
-    
-    fVec = objfun(xVec);
-    *f = fVec[0];
-    
-    catch_error(VecRestoreArray(X, &x));
-    PetscFunctionReturn(0);
+    return evaluate_function(X, f, &objfun, k);
 }
 
 // this function evaluates the gradient
