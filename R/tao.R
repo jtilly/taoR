@@ -47,7 +47,7 @@
 #'                 n = 2)
 #' ret$x
 #' 
-#' # Gradient-based method
+#' # Gradient-based method: Limited memory variable metric method
 #' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #'     
@@ -57,7 +57,19 @@
 #'                 method = "lmvm")
 #' ret$x
 #' 
-#' # Hessian
+#' # Gradient-based method: Limited memory variable metric method with bounds
+#' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
+#' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
+#' inequal = function(x) c(x[1] - 2, x[2] - 2)
+#'     
+#' ret = tao.optim(c(1, 2), 
+#'                 objfun,
+#'                 gr = grafun,
+#'                 inequal = inequal,
+#'                 method = "blmvm")
+#' ret$x
+#' 
+#' # Hessian (Newton Trust Region)
 #' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #' hesfun = function(x) matrix(c(2, 0, 0, 2), nrow = 2, ncol = 2)

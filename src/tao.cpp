@@ -102,6 +102,9 @@ List tao(List functions,
     problem.n = n;
     problem.k = start_values.size();
     
+    // use_grafun, use_hesfun
+    bool use_grafun = false, use_hesfun = false;
+    
     if(method != "pounders") {
         if(n > 1)  {
             stop("n must be equal 1 unless you are using Pounders.");
@@ -118,6 +121,7 @@ List tao(List functions,
     Function grafun = functions["objfun"];
     if (functions.containsElementNamed("grafun")) {
         grafun = functions["grafun"];
+        use_grafun = true;
         problem.grafun = &grafun;
     }
     
@@ -126,6 +130,7 @@ List tao(List functions,
     Function hesfun = functions["objfun"];
     if (functions.containsElementNamed("hesfun")) {
         hesfun = functions["hesfun"];
+        use_hesfun = true;
         problem.hesfun = &hesfun;
     }
     
@@ -139,6 +144,7 @@ List tao(List functions,
     catch_error(VecCreateSeq(MPI_COMM_SELF, start_values.size(), &x));
     catch_error(VecCreateSeq(MPI_COMM_SELF, lower_bounds.size(), &lb));
     catch_error(VecCreateSeq(MPI_COMM_SELF, upper_bounds.size(), &ub));
+    catch_error(VecCreateSeq(MPI_COMM_SELF, start_values.size(), &ci));
     catch_error(VecCreateSeq(MPI_COMM_SELF, n, &f));
     
     // Create TAO solver
@@ -155,15 +161,17 @@ List tao(List functions,
     catch_error(createVec(ci, problem.k));
     
     // Check whether lower / upper bounds inequalities have been set
-    Function inequal = functions["inequal"];
+    Function inequal = functions["objfun"];
     if (functions.containsElementNamed("inequal")) {
+        inequal = functions["inequal"];
         problem.inequal = &inequal;
         catch_error(TaoSetInequalityConstraintsRoutine(tao_context, ci, evaluate_inequalities, &problem));
     }
     
     // Check whether lower / upper bounds equalities have been set
-    Function equal = functions["equal"];
+    Function equal = functions["objfun"];
     if (functions.containsElementNamed("equal")) {
+        equal = functions["equal"];
         problem.equal = &equal;
         catch_error(TaoSetConstraintsRoutine(tao_context, ci, evaluate_equalities, &problem));
     }
@@ -181,11 +189,11 @@ List tao(List functions,
         catch_error(TaoSetObjectiveRoutine(tao_context, evaluate_objective, (void*)&problem));
     }
     
-    if (functions.containsElementNamed("grafun")) {
+    if (use_grafun) {
         catch_error(TaoSetGradientRoutine(tao_context, evaluate_gradient, (void*)&problem));
     }
     
-    if (functions.containsElementNamed("hesfun")) {
+    if (use_hesfun) {
         catch_error(TaoSetHessianRoutine(tao_context, H, H, evaluate_hessian, (void*)&problem));
     }
     
