@@ -109,11 +109,11 @@ PetscErrorCode create_vec(Vec X, NumericVector y) {
     PetscReal *x;
 
     PetscFunctionBegin;
-    catch_error(VecGetArray(X,&x));
-    for(int iX=0; iX<y.size(); iX++) {
+    catch_error(VecGetArray(X, &x));
+    for(int iX = 0; iX < y.size(); iX++) {
         x[iX] = y[iX];
     }
-    catch_error(VecRestoreArray(X,&x));
+    catch_error(VecRestoreArray(X, &x));
     PetscFunctionReturn(0);
 }
 
