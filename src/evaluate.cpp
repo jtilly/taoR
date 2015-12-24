@@ -104,7 +104,7 @@ PetscErrorCode evaluate_equalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
 }
 
 // this function set the starting value
-PetscErrorCode createVec(Vec X, NumericVector y) {
+PetscErrorCode create_vec(Vec X, NumericVector y) {
     
     PetscReal *x;
 
@@ -118,7 +118,7 @@ PetscErrorCode createVec(Vec X, NumericVector y) {
 }
 
 // this function set the starting value to zero
-PetscErrorCode createVec(Vec X, int k) {
+PetscErrorCode create_vec(Vec X, int k) {
   
   PetscReal *x;
   

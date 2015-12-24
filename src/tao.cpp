@@ -152,13 +152,13 @@ List tao(List functions,
     catch_error(TaoSetType(tao_context, method.get_cstring()));
     
     // Form starting values and define functions
-    catch_error(createVec(x, start_values));
+    catch_error(create_vec(x, start_values));
     catch_error(TaoSetInitialVector(tao_context, x));
     
     // Form lower, upper bounds vectors
-    catch_error(createVec(lb, lower_bounds));
-    catch_error(createVec(ub, upper_bounds));
-    catch_error(createVec(ci, problem.k));
+    catch_error(create_vec(lb, lower_bounds));
+    catch_error(create_vec(ub, upper_bounds));
+    catch_error(create_vec(ci, problem.k));
     
     // Check whether lower / upper bounds inequalities have been set
     Function inequal = functions["objfun"];

@@ -1,7 +1,7 @@
 #ifndef evaluate_h
 #define evaluate_h
 
-PetscErrorCode createVec(Vec, NumericVector);
+PetscErrorCode create_vec(Vec, NumericVector);
 PetscErrorCode evaluate_objective_separable(Tao, Vec, Vec, void *);
 PetscErrorCode evaluate_objective(Tao, Vec, PetscReal*, void *);
 PetscErrorCode evaluate_gradient(Tao, Vec, Vec, void *);
