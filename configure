@@ -2,35 +2,27 @@
 
 ## stolen from Rblapi
 
-## Check that we are on Unix
-uname=$(type -P uname)
-if [ "${uname}" = "" ]; then
-    echo "You do not have uname so this is unlikely to be a Unix system. Exiting."
-    exit -1
-fi
-
-## Check for Linux or OSX
 : ${R_HOME=$(R RHOME)}
-sysname=$(${R_HOME}/bin/Rscript -e 'cat(Sys.info()["sysname"])')
+SYSNAME=$(${R_HOME}/bin/Rscript -e 'cat(Sys.info()["sysname"])')
 
 # check if PETSC_DIR is already set
-default_petsc=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_DIR")[1]=="")')
+DEFAULT_PETSC=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_DIR")[1]=="")')
 
-if [ ${default_petsc} == "TRUE" ]; then
-    if [ ${sysname} == "Linux" ]; then
+if [ ${DEFAULT_PETSC} == "TRUE" ]; then
+    if [ ${SYSNAME} == "Linux" ]; then
         PETSC_DIR="/usr/local/lib/python2.7/dist-packages/petsc"
-    elif [ ${sysname} == "Darwin" ]; then
-        PETSC_DIR="/usr/local/Cellar/petsc/3.6.3"    
+    elif [ ${SYSNAME} == "Darwin" ]; then
+        PETSC_DIR="/usr/local/Cellar/petsc/3.6.3"
     else
-        echo "Unsupported platform: $sysname"
+        echo "Unsupported platform: $SYSNAME"
         exit -1
     fi
 fi
 
 # check if PETSC_ARCH is set
-default_petsc_arch=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_ARCH")[1]=="")')
+DEFAULT_PETSC_ARCH=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_ARCH")[1]=="")')
 
-if [ ${default_petsc} == "TRUE" ]; then
+if [ ${DEFAULT_PETSC_ARCH} == "TRUE" ]; then
     PETSC_INCLUDE=-I${PETSC_DIR}/include
     PETSC_LIB=${PETSC_DIR}/lib 
 else
@@ -38,12 +30,26 @@ else
     PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib 
 fi
 
+export PETSC_LIB=${PETSC_LIB}
+
 # check if MPI_INCLUDE is  set
-default_mpi=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("MPI_INCLUDE")[1]=="")')
-if [ ${default_petsc} == "TRUE" ]; then
+DEFAULT_MPI=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("MPI_INCLUDE")[1]=="")')
+if [ ${DEFAULT_MPI} == "TRUE" ]; then
     MPI_INCLUDE=-I${PETSC_DIR}/include/petsc/mpiuni
 else
     MPI_INCLUDE=-I${MPI_INCLUDE}
+fi
+
+# check if we have the libraries installed
+if [ ${SYSNAME} == "Darwin" ]; then
+    CHECK_PETSC=$(${R_HOME}/bin/Rscript -e 'cat(file.exists(file.path(Sys.getenv("PETSC_LIB"), "libpetsc.dylib")))')
+elif [ ${SYSNAME} == "Linux" ]; then
+    CHECK_PETSC=$(${R_HOME}/bin/Rscript -e 'cat(file.exists(file.path(Sys.getenv("PETSC_LIB"), "libpetsc.so")))')
+fi
+
+if [ ${CHECK_PETSC} == FALSE ]; then
+    echo "Cannot find libpetsc.$ext. Please make sure PETSc is installed and PETSC_LIB is appropriately set."
+    exit -1
 fi
 
 ## create Makevars
