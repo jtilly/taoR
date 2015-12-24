@@ -2,6 +2,10 @@
 # Generator token: 10BE3573-1514-4C36-9D1C-5A225CD40393
 
 #' Use TAO to minimize an objective function
+#' 
+#' \code{tao_cpp} is an internal function of this package. It is recommended that
+#' users call \code{\link{tao}} instead, which has a more convenient syntax and performs
+#' thorough input checking.
 #'
 #' @param functions is a list of Rcpp functions. The first is always the objective 
 #'        function. The second and third are optionally the Jacobian and the Hessian 
@@ -16,7 +20,7 @@
 #' @examples
 #' # use pounders
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-#' ret = tao(functions = list(objfun = objfun), 
+#' ret = tao_cpp(functions = list(objfun = objfun), 
 #'               start_values = c(1, 2), 
 #'               method = "pounders", 
 #'               options = list(), 
@@ -27,7 +31,7 @@
 #'     
 #' # use Nelder-Mead
 #' objfun = function(x) sum(c((x[1] - 3)^2, (x[2] + 1))^2)
-#' ret = tao(functions = list(objfun = objfun), 
+#' ret = tao_cpp(functions = list(objfun = objfun), 
 #'                   start_values = c(1, 2), 
 #'                   method = "nm", 
 #'                   options = list(),
@@ -35,8 +39,8 @@
 #'                   lower_bounds = c(-2, -2),
 #'                   upper_bounds = c(5, 5))
 #' ret$x
-tao <- function(functions, start_values, method, options, n, lower_bounds, upper_bounds) {
-    .Call('taoR_tao', PACKAGE = 'taoR', functions, start_values, method, options, n, lower_bounds, upper_bounds)
+tao_cpp <- function(functions, start_values, method, options, n, lower_bounds, upper_bounds) {
+    .Call('taoR_tao_cpp', PACKAGE = 'taoR', functions, start_values, method, options, n, lower_bounds, upper_bounds)
 }
 
 #' Initialize TAO

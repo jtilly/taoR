@@ -39,7 +39,7 @@
 #' @examples
 #' # Gradient-free method
 #' objfun = function(x) c((x[1] - 3), (x[2] + 1))
-#' ret = tao.optim(c(1, 2), 
+#' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
 #'                 control = list(tao_pounders_delta="0.1"),
@@ -50,7 +50,7 @@
 #' objfun = function(x) (x[1] - 3)^2 + (x[2] + 1)^2
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #'     
-#' ret = tao.optim(c(1, 2), 
+#' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 gr = grafun,
 #'                 method = "lmvm")
@@ -61,7 +61,7 @@
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #' inequal = function(x) c(x[1] - 2, x[2] - 2)
 #'     
-#' ret = tao.optim(c(1, 2), 
+#' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 gr = grafun,
 #'                 method = "blmvm")
@@ -72,14 +72,13 @@
 #' grafun = function(x) c(2*(x[1] - 3), 2*(x[2] + 1))
 #' hesfun = function(x) matrix(c(2, 0, 0, 2), nrow = 2, ncol = 2)
 #'     
-#' ret = tao.optim(c(1, 2), 
+#' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 gr = grafun,
 #'                 hs = hesfun,
 #'                 method = "ntr")
 #' ret$x
-
-tao.optim = function(par, fn, gr = NULL, hs = NULL,
+tao = function(par, fn, gr = NULL, hs = NULL,
                      method = c("lmvm", "nls", "ntr", "ntl", 
                                 "cg", "tron", "blmvm", "gpcg",
                                 "nm", "pounders"),
@@ -140,7 +139,7 @@ tao.optim = function(par, fn, gr = NULL, hs = NULL,
         lb = rep(-1e16, length(par))
     }
     
-    ret = tao(functions = funclist,
+    ret = tao_cpp(functions = funclist,
               start_values = par,
               method = method,
               options = control,

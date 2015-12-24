@@ -39,7 +39,7 @@ library("taoR")
 
 # use pounders
 objfun = function(x) c((x[1] - 3), (x[2] + 1))
-ret = tao.optim(par = c(1, 2),
+ret = tao(par = c(1, 2),
                 fn = objfun, 
                 method = "pounders", 
                 control = list(tao_pounders_delta = "0.2"), 
@@ -52,7 +52,7 @@ ret$iterations
     
 # use Nelder-Mead
 objfun = function(x) sum(c((x[1] - 3), (x[2] + 1))^2)
-ret = tao.optim(par = c(1, 2),
+ret = tao(par = c(1, 2),
                 fn = objfun, 
                 method = "nm", 
                 control = list())
