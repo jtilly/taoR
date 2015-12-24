@@ -20,7 +20,8 @@ RUN apt-get install -y --no-install-recommends \
         gcc \
         gfortran \
         make \
-        valgrind
+        valgrind \
+        git
 
 ## Add lapack / blas 
 RUN apt-get install -y --no-install-recommends \
