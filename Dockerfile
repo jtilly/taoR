@@ -30,9 +30,7 @@ RUN apt-get install -y --no-install-recommends \
         liblapack-dev
 
 ## Install python-dev and python-pip
-RUN apt-get install -y --no-install-recommends \
-        python-dev \
-        python-pip
+RUN apt-get install -y --no-install-recommends python-pip
 
 ## Install petsc
 RUN pip install petsc --allow-external petsc
