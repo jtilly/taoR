@@ -6,7 +6,7 @@ Date: 2015-12-19
 Author: Jan Tilly and Nick Janetos
 Maintainer: Jan Tilly <jantilly@gmail.com>
 URL: https://github.com/jtilly/taoR/
-Description: Provides Toolbox for Advanced Optimization (TAO)
+Description: Provides Toolkit for Advanced Optimization (TAO)
     bindings for R using Rcpp. This package requires a working
     installation of the Portable, Extensible Toolkit for
     Scientific Computation (PETSc).
@@ -16,6 +16,4 @@ Imports:
     Rcpp
 LinkingTo: Rcpp
 Suggests: testthat
-SystemRequirements: petsc, GNU Make
-OS_type: unix
-RoxygenNote: 5.0.1
+SystemRequirements: PETSc
