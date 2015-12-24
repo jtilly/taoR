@@ -19,3 +19,4 @@ vignettes/*.pdf
 src/*.o
 src/*.so
 *.Rproj
+src/Makevars

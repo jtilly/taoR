@@ -18,9 +18,9 @@ default_petsc=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_DIR")[1]=="")')
 
 if [ ${default_petsc} == "TRUE" ]; then
     if [ ${sysname} == "Linux" ]; then
-        PETSC_DIR="/usr/local/Cellar/petsc/3.6.3"    
-    elif [ ${sysname} == "Darwin" ]; then
         PETSC_DIR="/usr/local/lib/python2.7/dist-packages/petsc"
+    elif [ ${sysname} == "Darwin" ]; then
+        PETSC_DIR="/usr/local/Cellar/petsc/3.6.3"    
     else
         echo "Unsupported platform: $sysname"
         exit -1
