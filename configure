@@ -19,7 +19,7 @@ if [ ${DEFAULT_PETSC} == "TRUE" ]; then
     fi
 fi
 
-# check if PETSC_ARCH is set
+# check if PETSC_ARCH is set and set PETSC_INCLUDE and PETSC_LIB
 DEFAULT_PETSC_ARCH=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("PETSC_ARCH")[1]=="")')
 
 if [ ${DEFAULT_PETSC_ARCH} == "TRUE" ]; then
@@ -32,24 +32,48 @@ fi
 
 export PETSC_LIB=${PETSC_LIB}
 
-# check if MPI_INCLUDE is  set
+# check if MPI_INCLUDE is set
 DEFAULT_MPI=$(${R_HOME}/bin/Rscript -e 'cat(Sys.getenv("MPI_INCLUDE")[1]=="")')
+
 if [ ${DEFAULT_MPI} == "TRUE" ]; then
-    MPI_INCLUDE=-I${PETSC_DIR}/include/petsc/mpiuni
+
+    # check if mpi.h lives on the system path
+    MPI_NOT_ON_PATH=$(${R_HOME}/bin/Rscript -e 'cat(any(file.exists(file.path(strsplit(Sys.getenv("PATH")[1], ":")[[1]], "mpi.h")))==FALSE)')
+    
+    # if mpi.h does not live on the system path, use mpi.h that comes with PETSC
+    if [ ${MPI_NOT_ON_PATH} == "TRUE" ]; then    
+        MPI_INCLUDE=-I${PETSC_DIR}/include/petsc/mpiuni
+    fi
+    
 else
+    
+    # MPI_INCLUDE was explicitly set, then let's use it
     MPI_INCLUDE=-I${MPI_INCLUDE}
+
 fi
 
 # check if we have the libraries installed
 if [ ${SYSNAME} == "Darwin" ]; then
+    
+    # see if we can find libpetsc.dylib
     CHECK_PETSC=$(${R_HOME}/bin/Rscript -e 'cat(file.exists(file.path(Sys.getenv("PETSC_LIB"), "libpetsc.dylib")))')
+    
+    # this would be the place to download the binaries for osx
+    if [ ${CHECK_PETSC} == FALSE ]; then
+        echo "Cannot find libpetsc.$ext. Please make sure PETSc is installed and PETSC_LIB is appropriately set."
+        exit -1
+    fi
+    
 elif [ ${SYSNAME} == "Linux" ]; then
+    
+    # see if we can find libpetsc.so
     CHECK_PETSC=$(${R_HOME}/bin/Rscript -e 'cat(file.exists(file.path(Sys.getenv("PETSC_LIB"), "libpetsc.so")))')
-fi
-
-if [ ${CHECK_PETSC} == FALSE ]; then
-    echo "Cannot find libpetsc.$ext. Please make sure PETSc is installed and PETSC_LIB is appropriately set."
-    exit -1
+    
+    # this would be the place to download the headers and binaries for linux
+    if [ ${CHECK_PETSC} == FALSE ]; then
+        echo "Cannot find libpetsc.$ext. Please make sure PETSc is installed and PETSC_LIB is appropriately set."
+        exit -1
+    fi
 fi
 
 ## create Makevars
