@@ -17,17 +17,17 @@ pip install petsc --allow-external petsc
 ```
 Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.gov/petsc/documentation/installation.html) or use your system's package manager. On Mac OS, you can use [homebrew](http://brew.sh/): `brew install petsc` (recommended). On Debian-based systems, you can use `apt-get` and install from [sid] (https://packages.debian.org/sid/libpetsc3.6) (not recommended). 
 
-#### Install this package
-You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
-```{r}
-# install.packages("devtools")
-install_github("jtilly/taoR")
-```
-There are three environmental variables that ensure that R can find your installation of PETSc. You may have to set some of them by hand, *before* running `install_github()`.
+There are three environmental variables that ensure that R can find your installation of PETSc. You may have to set some of them by hand, *before* installing taoR.
 * **PETSC_DIR**: This variable points to your PETSc installation. To change it, run `Sys.setenv("PETSC_DIR"="/where/is/petsc")`
 * **PETSC_ARCH**: In case you compiled PETSc by hand, then this is the name of the directory where all the PETSc binaries are installed. To change it, run `Sys.setenv("PETSC_ARCH"="linux-debug-c")`
 * **MPI_INCLUDE**: If you have an MPI library on your system, you may need to tell R where to look for the header file `mpi.h`. To change it, run `Sys.setenv("MPI_INCLUDE"="/where/is/mpi")`
 
+#### Install this package
+Once PETSc is installed and the environmental variables are set, you can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
+```{r}
+# install.packages("devtools")
+install_github("jtilly/taoR")
+```
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. 
