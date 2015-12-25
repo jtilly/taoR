@@ -1,7 +1,5 @@
 #!/bin/bash
 
-## stolen from Rblapi
-
 : ${R_HOME=$(R RHOME)}
 SYSNAME=$(${R_HOME}/bin/Rscript -e 'cat(Sys.info()["sysname"])')
 
