@@ -30,7 +30,8 @@ install_github("jtilly/taoR")
 ```
 
 ## Example
-We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. 
+We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. The syntax is very similar to Rs `optim` function.
+
 ```{r}
 library("taoR")
 
