@@ -15,5 +15,7 @@ LazyData: TRUE
 Imports:
     Rcpp
 LinkingTo: Rcpp
-Suggests: testthat
+Suggests:
+    testthat
 SystemRequirements: PETSc
+RoxygenNote: 5.0.1
