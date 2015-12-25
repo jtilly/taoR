@@ -1,7 +1,7 @@
 #ifndef evaluate_h
 #define evaluate_h
 
-#include "tao.h"
+#include "taoR.h"
 
 // Evaluates a separable function of the form f1(X), f2(X)... Used for
 // Pounders, which minimizes f1(X)^2 + f2(X)^2 + ...
