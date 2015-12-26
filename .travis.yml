@@ -21,9 +21,6 @@ env:
    
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
-  - export PYTHONPATH=$HOME/python
-  - export PYTHONUSERBASE=$HOME/python
-  - export PREFIX_PATH=$HOME/python
 
 # install r-base-dev:
 # use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) as source
@@ -40,12 +37,6 @@ addons:
     - lmodern
     - qpdf
     - valgrind
-    - libblas3gf
-    - libblas-dev
-    - liblapack3gf
-    - liblapack-dev
-    - python-dev
-    - python-pip
 
 # cache local R libraries directory:
 cache:
@@ -53,14 +44,10 @@ cache:
     - $HOME/Rlib
     - $HOME/texlive
     - $HOME/bin
-    - $HOME/python
 
 # install the package and dependencies:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
-  - mkdir -p $HOME/python
-  - pip install petsc --allow-external petsc --install-option="--prefix=$PREFIX_PATH"
-  - export PETSC_DIR=$PREFIX_PATH/lib/python2.7/site-packages/petsc
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-pandoc | bash"
