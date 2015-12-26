@@ -24,7 +24,7 @@ if [ ${DEFAULT_PETSC_ARCH} == "TRUE" ]; then
     PETSC_INCLUDE=-I${PETSC_DIR}/include
     PETSC_LIB=${PETSC_DIR}/lib 
 else
-    PETSC_INCLUDE=-I${PETSC_DIR}/include -I${PETSC_DIR}/${PETSC_ARCH}/include
+    PETSC_INCLUDE="-I${PETSC_DIR}/include -I${PETSC_DIR}/${PETSC_ARCH}/include"
     PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib 
 fi
 
@@ -74,7 +74,8 @@ elif [ ${SYSNAME} == "Linux" ]; then
     fi
 fi
 
+
 ## create Makevars
-sed -e"s|@PETSC_LIB@|"${PETSC_LIB}"|g" -e"s|@PETSC_INCLUDE@|"${PETSC_INCLUDE}"|g" -e"s|@MPI_INCLUDE@|"${MPI_INCLUDE}"|g" src/Makevars.in > src/Makevars
+sed -e"s:@PETSC_LIB@:${PETSC_LIB}:g" -e"s:@PETSC_INCLUDE@:${PETSC_INCLUDE}:g" -e"s:@MPI_INCLUDE@:${MPI_INCLUDE}:g" src/Makevars.in > src/Makevars
 
 exit 0
