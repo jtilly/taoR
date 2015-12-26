@@ -1,8 +1,0 @@
-#!/bin/bash
-
-rm -f src/*.o 
-rm -f src/*.rds
-rm -f src/taoR.so 
-rm -f src/taoR.dylib 
-rm -f src/Makevars 
-rm -f .Rhistory
