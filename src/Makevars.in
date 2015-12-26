@@ -1,5 +1,5 @@
 # link to PETSC, lapack, blas and a few more libraries
-PKG_LIBS = -Wl,-rpath,../inst/lib -L../inst/lib -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lquadmath -lstdc++ -ldl
+PKG_LIBS = -Wl,-rpath,@rpath@ -L../inst/lib -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lquadmath -lstdc++ -ldl
 
 # add include directories so that the c code can find the headers
 PKG_CXXFLAGS = -I../inst/include
