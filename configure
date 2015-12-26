@@ -1,6 +1,14 @@
 #!/bin/bash
 
+# all header files come with the package
+
+# check if libpetsc lives on the (DY)LD_LIBRARY_PATH; in that case, 
+# use it together with whatever mpi.h lives on the search path
+
+# if we can't find libpetsc, then install the binaries as part of the R package
 rpath=$(${R_HOME}/bin/Rscript -e 'cat(file.path(.libPaths()[1], "taoR", "lib"))')
-sed -e"s|@rpath@|"${rpath}"|" src/Makevars.in > src/Makevars
+libpath=../inst/lib
+
+sed -e"s|@rpath@|"${rpath}"|" -e"s|@libpath@|"${libpath}"|" src/Makevars.in > src/Makevars
 
 exit 0
