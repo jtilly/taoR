@@ -67,6 +67,7 @@ install:
 # build, check, and install package
 # run all examples through valgrind
 script:
+  - export LD_LIBRARY_PATH=$(PWD)/inst/lib:$(LD_LIBRARY_PATH)
   - R CMD build . 
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
