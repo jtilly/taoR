@@ -3,3 +3,6 @@ PKG_LIBS = -Wl,-rpath,@rpath@ -L@libpath@ -lpetsc -llapack -lblas -lpthread -lm 
 
 # add include directories so that the c code can find the headers
 PKG_CXXFLAGS = -I../inst/include
+
+all: $(SHLIB)
+	@if command -v install_name_tool; then echo "fixing search path on osx"; install_name_tool -change /Users/jtilly/petsc-3.6.3/arch-darwin-c-opt/lib/libpetsc.3.6.dylib '@rpath/libpetsc.3.6.3.dylib' taoR.so; fi
