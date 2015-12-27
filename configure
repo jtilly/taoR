@@ -50,7 +50,7 @@ fi
 if [ ${platform} == "linux" ]; then
     tar xfz petsc-3.6.3.tar.gz  --strip=1 -C inst/lib taoR-petsc-3.6.3/libpetsc.so
     cd inst/lib
-    ln -s libpetsc.so.3.6
+    ln -s libpetsc.so libpetsc.so.3.6
     cd ../..
 fi
 
