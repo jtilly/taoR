@@ -1,5 +1,5 @@
-# link to PETSC, lapack, blas and a few more libraries
-PKG_LIBS = -Wl,-rpath,@rpath@ -L@libpath@ -lpetsc -llapack -lblas -lpthread -lm -lgfortran -lquadmath -lstdc++ -ldl
+# link to petsc
+PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -Wl,-rpath,@rpath@ -L@libpath@ -lpetsc
 
 # add include directories so that the c code can find the headers
 PKG_CXXFLAGS = -I../inst/include
