@@ -15,10 +15,11 @@ branches:
 env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
+    - PETSC_DIR="$HOME/taoR-petsc-3.6.3"
   matrix:
     - FLAGS = -O0 -g -Wall -Werror -pedantic -ftrapv
     - FLAGS = -O2
-   
+
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
 
@@ -63,6 +64,10 @@ install:
   - mkdir -p ~/.R
   - echo "CCFLAGS = ${FLAGS}" > ~/.R/Makevars
   - echo "CXXFLAGS = ${FLAGS}" >> ~/.R/Makevars
+  - wget https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
+  - tar xfz petsc-3.6.3.tar.gz  --strip=1 -C $HOME/taoR-petsc-3.6.3/libpetsc.so
+  - ln -s $HOME/taoR-petsc-3.6.3/libpetsc.so $HOME/taoR-petsc-3.6.3/libpetsc.so.3.6.3
+  - rm petsc-3.6.3.tar.gz
 
 # build, check, and install package
 # run all examples through valgrind

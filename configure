@@ -28,39 +28,99 @@ else
     exit -1
 fi
 
-# all header files come with the package
+# Check if PETSC_DIR is set, and the libraries exist. If so copy them over.
+PETSC=0
 
-# check if libpetsc lives on the (DY)LD_LIBRARY_PATH; in that case, 
-# use it together with whatever mpi.h lives on the search path
+if [ ! ${PETSC_DIR} == "" ]; then
 
-# tbc
+    PETSC_LIB=${PETSC_DIR}
 
-# if we can't find libpetsc, create the binaries and store them in /inst/lib
-echo "Downloading and installing PETSc: this may take a while"
-cd inst
-download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz
-echo "* Download completed"
-tar xvf petsc-lite-3.6.3.tar.gz && rm petsc-lite-3.6.3.tar.gz && cd petsc-3.6.3
-unset PETSC_DIR && unset PETSC_ARCH
-PETSC_ARCH=arch-petscR
-export PETSC_ARCH
-CC=$(R CMD config CC)
-CXX=$(R CMD config CXX)
-FC=$(R CMD config FC)
-./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
-echo "* configure step completed"
-PETSC_DIR=$(${R_HOME}/bin/Rscript -e 'cat(getwd())')
-make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
-echo "* make step completed"
-mkdir -p ../lib
-mv ${PETSC_ARCH}/lib/libpetsc* ../lib
-cd ..
-rm -rf petsc-3.6.3
-cd ..
+    if [ ${PETSC_ARCH} == "" ]; then
+        PETSC_LIB=${PETSC_DIR}/lib
+    else
+        PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
+    fi
 
+    if [ ${platform} == "linux" ] && [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
+        
+        PETSC=1
+        mkdir -p inst/lib
+        cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib
+        cd inst/lib
+        ln -s libpetsc.so.3.6.3 libpetsc.so
+        cd ../..
+
+    fi
+
+    if [ ${platform} == "osx" ] && [ -e ${PETSC_LIB}/libpetsc.3.6.dylib ]; then
+
+        PETSC=1
+        mkdir -p inst/lib
+        cp -L ${PETSC_LIB}/libpetsc.3.6.dylib inst/lib
+        cd inst/lib
+        ln -s libpetsc.3.6.dylib libpetsc.dylib
+        cd ../..
+
+    fi
+
+fi
+
+if [ ${PETSC} == 0]; then
+
+    # if we can't find libpetsc, create the binaries and store them in /inst/lib
+    echo "Downloading and installing PETSc: this may take a while"
+    cd inst
+    
+    download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz
+    
+    if [ ! -e petsc-lite-3.6.3.tar.gz ] 
+        echo "Download failed"
+        exit -1
+    fi
+    
+    echo "* Download completed"
+    tar xvf petsc-lite-3.6.3.tar.gz && rm petsc-lite-3.6.3.tar.gz && cd petsc-3.6.3
+    
+    # define PETSC_ARCH and export it so that ./configure can find it
+    PETSC_ARCH=arch-petscR
+    export PETSC_ARCH
+
+    # get compilers from R
+    CC=$(R CMD config CC)
+    CXX=$(R CMD config CXX)
+    FC=$(R CMD config FC)
+
+    # configure
+    ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
+    echo "* configure step completed"
+    
+    # set PETSC_DIR to the current folder
+    PETSC_DIR=$(${R_HOME}/bin/Rscript -e 'cat(getwd())')
+    make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
+    echo "* make step completed"
+
+    # check if the binaries exist
+    if [ ! -e ${PETSC_ARCH}/lib/libpetsc.so ] && [ ! -e ${PETSC_ARCH}/lib/libpetsc.dylib ] 
+        echo "Build failed"
+        exit -1
+    fi
+
+    # move the binaries to ../lib
+    mkdir -p ../lib
+    mv ${PETSC_ARCH}/lib/libpetsc* ../lib
+    cd ..
+    rm -rf petsc-3.6.3
+    cd ..
+
+fi
+
+# store absolute path to /lib in rpath
 rpath=$(${R_HOME}/bin/Rscript -e 'cat(file.path(.libPaths()[1], "taoR", "lib"))')
+
+# store relative path in libpath
 libpath=../inst/lib
 
+# create Makevars
 sed -e"s|@rpath@|"${rpath}"|" -e"s|@libpath@|"${libpath}"|" -e"s|@petscarch@|"${PETSC_ARCH}"|" -e"s|@petscdir@|"${PETSC_DIR}"|" src/Makevars.in > src/Makevars
 
 exit 0
