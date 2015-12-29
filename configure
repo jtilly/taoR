@@ -33,14 +33,7 @@ PETSC="0"
 
 if [ ! -z ${PETSC_DIR} ]; then
     
-    PETSC_LIB=${PETSC_DIR}
-
-    if [ ! -z ${PETSC_ARCH} ]; then
-        PETSC_LIB=${PETSC_DIR}/lib
-    else
-        PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
-    fi
-
+    PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
     
     if [ ${platform} == "linux" ]; then
 
@@ -49,11 +42,7 @@ if [ ! -z ${PETSC_DIR} ]; then
         if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
             PETSC="1"
             mkdir -p inst/lib
-            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib
-            cd inst/lib
-            ln -s libpetsc.so.3.6.3 libpetsc.so
-            ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
-            cd ../..
+            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/libpets.so
         fi
 
     fi
@@ -65,11 +54,7 @@ if [ ! -z ${PETSC_DIR} ]; then
         if [ -e ${PETSC_LIB}/libpetsc.3.6.3.dylib ]; then
             PETSC="1"
             mkdir -p inst/lib
-            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib
-            cd inst/lib
-            ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
-            ln -s libpetsc.3.6.3.dylib libpetsc.dylib
-            cd ../..
+            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib/libpetsc.dylib
         fi
 
     fi
@@ -118,7 +103,14 @@ if [ ${PETSC} == "0" ]; then
 
     # move the binaries to ../lib
     mkdir -p ../lib
-    mv ${PETSC_ARCH}/lib/libpetsc* ../lib
+    if [ ${platform} == "osx" ]; then
+        cp -L ${PETSC_ARCH}/lib/libpetsc.dylib ../lib
+    fi
+    
+    if [ ${platform} == "linux" ]; then
+        cp -L ${PETSC_ARCH}/lib/libpetsc.so ../lib
+    fi
+    
     cd ..
     rm -rf petsc-3.6.3
     cd ..
@@ -128,16 +120,14 @@ fi
 # store absolute path to /lib in rpath
 rpath=$(${R_HOME}/bin/Rscript -e 'cat(file.path(.libPaths()[1], "taoR", "lib"))')
 
-# store relative path in libpath
-libpath=../inst/lib
 
 # set linker for Mac OS
 if [ ${platform} == "osx" ]; then
-    linker=$(otool -L inst/lib/libpetsc.3.6.3.dylib | sed -n 2p | sed 's/[[:space:]]//g' | sed 's/(.*//')
+    linker=$(otool -L inst/lib/libpetsc.dylib | sed -n 2p | sed 's/[[:space:]]//g' | sed 's/(.*//')
 fi
 
 
 # create Makevars
-sed -e"s|@rpath@|"${rpath}"|" -e"s|@libpath@|"${libpath}"|" -e"s|@linker@|"${linker}"|" -e"s|@petscdir@|"${PETSC_DIR}"|" src/Makevars.in > src/Makevars
+sed -e"s|@rpath@|"${rpath}"|" -e"s|@linker@|"${linker}"|" -e"s|@platform@|"${platform}"|" src/Makevars.in > src/Makevars
 
 exit 0

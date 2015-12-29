@@ -1,8 +1,19 @@
+# path to taoR/lib of the installed package
+rpath = @rpath@
+
+# platform
+platform = @platform@
+
 # link to petsc
-PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -Wl,-rpath,@rpath@ -L@libpath@ -lpetsc
+PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -Wl,-rpath,${rpath} -L../inst/lib -lpetsc
 
 # add include directories so that the c code can find the headers
 PKG_CXXFLAGS = -I../inst/include
 
 all: $(SHLIB)
-	@if command -v install_name_tool; then echo "fixing search path on osx"; install_name_tool -change @linker@ '@rpath/libpetsc.3.6.dylib' taoR.so; fi
+	@if command -v install_name_tool; then echo "fixing search path on osx"; install_name_tool -change @linker@ '@rpath/libpetsc.dylib' taoR.so; fi
+
+.PHONY: symlinks
+
+symlinks:
+	@ln -s ${rpath}/libpetsc.dylib ${rpath}/libpetsc.3.6.dylib; @ln -s ${rpath}/libpetsc.so ${rpath}/libpetsc.3.6.3.so
