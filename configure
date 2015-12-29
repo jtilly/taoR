@@ -93,8 +93,10 @@ if [ ${PETSC} == "0" ]; then
     tar xvf petsc-lite-3.6.3.tar.gz && rm petsc-lite-3.6.3.tar.gz && cd petsc-3.6.3
     
     # define PETSC_ARCH and export it so that ./configure can find it
-    PETSC_ARCH=arch-petscR
-    export PETSC_ARCH
+    export PETSC_ARCH=arch-petscR
+
+    # set PETSC_DIR to the current folder
+    export PETSC_DIR=$(${R_HOME}/bin/Rscript -e 'cat(getwd())')
 
     # get compilers from R
     CC=$(R CMD config CC)
@@ -105,8 +107,6 @@ if [ ${PETSC} == "0" ]; then
     ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
     echo "* configure step completed"
     
-    # set PETSC_DIR to the current folder
-    PETSC_DIR=$(${R_HOME}/bin/Rscript -e 'cat(getwd())')
     make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
     echo "* make step completed"
 
