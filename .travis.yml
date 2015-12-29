@@ -64,9 +64,11 @@ install:
   - mkdir -p ~/.R
   - echo "CCFLAGS = ${FLAGS}" > ~/.R/Makevars
   - echo "CXXFLAGS = ${FLAGS}" >> ~/.R/Makevars
+  - mkdir -p $HOME/taoR-petsc-3.6.3
+  - mkdir -p $HOME/taoR-petsc-3.6.3/lib
   - wget https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
-  - tar xfz petsc-3.6.3.tar.gz  --strip=1 -C $HOME/taoR-petsc-3.6.3/libpetsc.so
-  - ln -s $HOME/taoR-petsc-3.6.3/libpetsc.so $HOME/taoR-petsc-3.6.3/libpetsc.so.3.6.3
+  - tar xfz petsc-3.6.3.tar.gz  --strip=1 -C $HOME/taoR-petsc-3.6.3/lib taoR-petsc-3.6.3/libpetsc.so
+  - ln -s $HOME/taoR-petsc-3.6.3/lib/libpetsc.so $HOME/taoR-petsc-3.6.3/lib/libpetsc.so.3.6.3
   - rm petsc-3.6.3.tar.gz
 
 # build, check, and install package
