@@ -15,10 +15,11 @@ branches:
 env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
-    - PETSC_DIR="$HOME/taoR-petsc-3.6.3"
   matrix:
-    - FLAGS = -O0 -g -Wall -Werror -pedantic -ftrapv
-    - FLAGS = -O2
+    - FLAGS="-O0 -g -Wall -Werror -pedantic -ftrapv" 
+    - FLAGS="-O2"
+    - PETSC_DIR="$HOME/taoR-petsc-3.6.3"
+    - PETSC_DIR=""
 
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
