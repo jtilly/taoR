@@ -29,43 +29,53 @@ else
 fi
 
 # Check if PETSC_DIR is set, and the libraries exist. If so copy them over.
-PETSC=0
+PETSC="0"
 
-if [ ! ${PETSC_DIR} == "" ]; then
-
+if [ ! -z ${PETSC_DIR} ]; then
+    
     PETSC_LIB=${PETSC_DIR}
 
-    if [ ${PETSC_ARCH} == "" ]; then
+    if [ ! -z ${PETSC_ARCH} ]; then
         PETSC_LIB=${PETSC_DIR}/lib
     else
         PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
     fi
 
-    if [ ${platform} == "linux" ] && [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
-        
-        PETSC=1
-        mkdir -p inst/lib
-        cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib
-        cd inst/lib
-        ln -s libpetsc.so.3.6.3 libpetsc.so
-        cd ../..
+    
+    if [ ${platform} == "linux" ]; then
+
+        echo "Looking for ${PETSC_LIB}/libpetsc.so.3.6.3"
+
+        if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
+            PETSC="1"
+            mkdir -p inst/lib
+            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib
+            cd inst/lib
+            ln -s libpetsc.so.3.6.3 libpetsc.so
+            cd ../..
+        fi
 
     fi
 
-    if [ ${platform} == "osx" ] && [ -e ${PETSC_LIB}/libpetsc.3.6.dylib ]; then
+    if [ ${platform} == "osx" ]; then
 
-        PETSC=1
-        mkdir -p inst/lib
-        cp -L ${PETSC_LIB}/libpetsc.3.6.dylib inst/lib
-        cd inst/lib
-        ln -s libpetsc.3.6.dylib libpetsc.dylib
-        cd ../..
+        echo "Looking for ${PETSC_LIB}/libpetsc.3.6.3.dylib"
+
+        if [ -e ${PETSC_LIB}/libpetsc.3.6.3.dylib ]; then
+            PETSC="1"
+            mkdir -p inst/lib
+            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib
+            cd inst/lib
+            ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
+            ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+            cd ../..
+        fi
 
     fi
 
 fi
 
-if [ ${PETSC} == 0]; then
+if [ ${PETSC} == "0" ]; then
 
     # if we can't find libpetsc, create the binaries and store them in /inst/lib
     echo "Downloading and installing PETSc: this may take a while"
@@ -73,7 +83,7 @@ if [ ${PETSC} == 0]; then
     
     download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz
     
-    if [ ! -e petsc-lite-3.6.3.tar.gz ] 
+    if [ ! -e "petsc-lite-3.6.3.tar.gz" ]; then
         echo "Download failed"
         exit -1
     fi
@@ -100,7 +110,7 @@ if [ ${PETSC} == 0]; then
     echo "* make step completed"
 
     # check if the binaries exist
-    if [ ! -e ${PETSC_ARCH}/lib/libpetsc.so ] && [ ! -e ${PETSC_ARCH}/lib/libpetsc.dylib ] 
+    if [ ! -e ${PETSC_ARCH}/lib/libpetsc.so ] && [ ! -e ${PETSC_ARCH}/lib/libpetsc.dylib ]; then
         echo "Build failed"
         exit -1
     fi
