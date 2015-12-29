@@ -15,7 +15,7 @@ branches:
 env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
-    - FLAGS="-O0 -g -Wall -Werror -pedantic -ftrapv" 
+    - FLAGS="-O0 -g -Wall -pedantic -ftrapv" 
   matrix:
     - PETSC_DIR="$HOME/taoR-petsc-3.6.3"
     - PETSC_DIR=""
