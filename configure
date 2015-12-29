@@ -52,6 +52,7 @@ if [ ! -z ${PETSC_DIR} ]; then
             cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib
             cd inst/lib
             ln -s libpetsc.so.3.6.3 libpetsc.so
+            ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
             cd ../..
         fi
 
