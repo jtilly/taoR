@@ -22,6 +22,7 @@ devtools::install_github("jtilly/taoR")
 PETSc will be compiled using the same set of compilers that R uses. Building the PETSc binaries will take several minutes.
 ```{r}
 # install.packages("devtools")
+Sys.setenv("DOWNLOAD_PETSC_BINARIES"=0)
 devtools::install_github("jtilly/taoR")
 ```
 
