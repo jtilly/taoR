@@ -11,4 +11,6 @@ PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -Wl,-rpath,${rpath} -L.
 PKG_CXXFLAGS = -I../inst/include
 
 all: $(SHLIB)
-	@if command -v install_name_tool; then echo "fixing search path on osx"; install_name_tool -change @linker@ '@rpath/libpetsc.3.6.3.dylib' taoR.so; fi
+	@if command -v install_name_tool; then install_name_tool -change @linker@ '@rpath/libpetsc.3.6.3.dylib' taoR.so; fi
+	@if [ ${platform} == "osx" ]; then rm ../inst/lib/libpetsc.dylib; rm ../inst/lib/libpetsc.3.6.dylib; fi
+	@if [ ${platform} == "linux" ]; then rm ../inst/lib/libpetsc.so; rm ../inst/lib/libpetsc.so.3.6; fi 
