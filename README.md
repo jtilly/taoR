@@ -19,14 +19,14 @@ install_github("jtilly/taoR")
 ```
 
 ### Build PETSc binaries as part of package installation
-This should generally work. PETSc will be compiled using the same compilers as used by R.
+PETSc will be compiled using the same compilers as used by R.
 ```{r}
 # install.packages("devtools")
 install_github("jtilly/taoR")
 ```
 
 ## Use existing PETSc installation
-See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for 
+See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for detailed instructions on how to install PETSc.
 ```{r}
 # install.packages("devtools")
 Sys.setenv("PETSC_DIR"="/path/to/petsc")
