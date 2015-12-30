@@ -28,9 +28,11 @@ else
     exit -1
 fi
 
-# Check if DOWNLOAD_PETSC_BINARIES is set
+# Check if DOWNLOAD_PETSC_BINARIES is set to something other than 0
 # see if we can download the binaries for osx
-if [ ${DOWNLOAD_PETSC_BINARIES}=="1" ]; then
+if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
+    echo "Downloading binaries."
+    
     wget https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
     mkdir petsc_temp && mkdir petsc_temp/lib
     if [ ${platform} == "linux" ]; then
@@ -84,7 +86,7 @@ if [ ! -z ${PETSC_DIR} ]; then
 
     fi
 
-    if [ ${DOWNLOAD_PETSC_BINARIES}=="1" ]; then
+    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
         rm -rf "petsc_temp"
     fi
 
