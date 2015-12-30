@@ -8,9 +8,9 @@ Please note that this package is currently a work in progress.
 
 ## Install
 
-TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R.
+TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). To use this package, you need to have a working installation of PETSc on your system. If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R. There are three different ways to install taoR.
 
-#### Use pre-built PETSc binaries
+#### 1. Use pre-built PETSc binaries
 This may or may not work depending on how your system is set up. 
 ```{r}
 # install.packages("devtools")
@@ -18,14 +18,14 @@ Sys.setenv("DOWNLOAD_PETSC_BINARIES"=1)
 install_github("jtilly/taoR")
 ```
 
-#### Build PETSc binaries as part of package installation
+#### 2. Build PETSc binaries as part of package installation
 PETSc will be compiled using the same set of compilers that R uses. 
 ```{r}
 # install.packages("devtools")
 install_github("jtilly/taoR")
 ```
 
-#### Use existing PETSc installation
+#### 3. Use existing PETSc installation
 See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for detailed instructions on how to install PETSc.
 ```{r}
 # install.packages("devtools")
