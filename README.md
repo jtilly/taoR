@@ -8,10 +8,10 @@ Please note that this package is currently a work in progress.
 
 ## Install
 
-TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. There are three different ways to install taoR:
+TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. There are three different ways to install taoR.
 
 #### 1. Use pre-built PETSc binaries
-This may or may not work depending on how your system is set up. This is the fastest way to install taoR.
+We compiled [PETSc binaries](https://github.com/jtilly/taoR/releases/tag/petsc-3.6.3) for Linux and OS X. These may or may not work depending on how your system is set up. This is the fastest way to install taoR.
 ```{r}
 # install.packages("devtools")
 Sys.setenv("DOWNLOAD_PETSC_BINARIES"=1)
@@ -22,6 +22,7 @@ devtools::install_github("jtilly/taoR")
 PETSc will be compiled using the same set of compilers that R uses. Building the PETSc binaries will take several minutes.
 ```{r}
 # install.packages("devtools")
+Sys.setenv("DOWNLOAD_PETSC_BINARIES"=0)
 devtools::install_github("jtilly/taoR")
 ```
 
@@ -33,7 +34,7 @@ Sys.setenv("PETSC_DIR"="/path/to/petsc")
 Sys.setenv("PETSC_ARCH"="...")
 devtools::install_github("jtilly/taoR")
 ```
-Note that taoR copies the PETSc binary into the R package directory. Therefore, `PETSC_DIR` and `PETSC_ARCH` only need to be set temporarily during the package installation.
+Note that taoR copies the PETSc binary into the R package directory. 
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. The syntax is similar to R's `optim` function.

@@ -12,10 +12,12 @@ Description: Provides Toolkit for Advanced Optimization (TAO)
     Scientific Computation (PETSc).
 License: GPL-2
 LazyData: TRUE
-Imports:
-    Rcpp
+Imports: Rcpp
 LinkingTo: Rcpp
-Suggests:
-    testthat
-SystemRequirements: PETSc
+Suggests: testthat
+SystemRequirements: Portable, Extensible Toolkit for Scientific 
+    Computation (PETSc) libraries. This package attempts to 
+    install PETSc during the build step if not already
+    available on the system.
+OS_type: unix
 RoxygenNote: 5.0.1
