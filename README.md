@@ -4,30 +4,36 @@
 
 taoR is an R package which lets you use the [TAO library](http://www.mcs.anl.gov/petsc/petsc-current/docs/tao_manual.pdf) from R. TAO is a library of optimization algorithms. Among them is [Pounders](http://www.mcs.anl.gov/papers/P5120-0414.pdf). Pounders can be a useful tool for economists who estimate structural models using indirect inference, because unlike commonly used algorithms such as Nelder-Mead, Pounders is tailored for minimizing a non-linear sum of squares objective function, and therefore may require fewer iterations to arrive at a local optimum than Nelder-Mead. For more details, see [here](http://arxiv.org/pdf/1406.5464.pdf) and [here](http://ftp.iza.org/dp8548.pdf).
 
-TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you want to use taoR, you need to build and install PETSc first. The PETSc website contains detailed [installation instructions](http://www.mcs.anl.gov/petsc/documentation/installation.html), you can also see the section below for help getting started.
-
 Please note that this package is currently a work in progress.
 
 ## Install
 
-#### Install [PETSc](http://www.mcs.anl.gov/petsc/)
-Our preferred way to install PETSc is to use the Python installer, `python-pip`, which works on both Linux and Mac OS:
-```{bash}
-pip install petsc --allow-external petsc
+TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). To use this package, you need to have a working installation of PETSc on your system. If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R. There are three different ways to install taoR.
+
+#### 1. Use pre-built PETSc binaries
+This may or may not work depending on how your system is set up. 
+```{r}
+# install.packages("devtools")
+Sys.setenv("DOWNLOAD_PETSC_BINARIES"=1)
+install_github("jtilly/taoR")
 ```
-Alternatively, you can install the PETSc libraries [by hand](http://www.mcs.anl.gov/petsc/documentation/installation.html) or use your system's package manager. On Mac OS, you can use [homebrew](http://brew.sh/): `brew install petsc` (recommended). On Debian-based systems, you can use `apt-get` and install from [sid] (https://packages.debian.org/sid/libpetsc3.6) (not recommended). 
 
-There are three environmental variables that ensure that R can find your installation of PETSc. You may have to set some of them by hand, *before* installing taoR.
-* **PETSC_DIR**: This variable points to your PETSc installation. To change it, run `Sys.setenv("PETSC_DIR"="/where/is/petsc")`
-* **PETSC_ARCH**: In case you compiled PETSc by hand, then this is the name of the directory where all the PETSc binaries are installed. To change it, run `Sys.setenv("PETSC_ARCH"="linux-debug-c")`
-* **MPI_INCLUDE**: If you have an MPI library on your system, you may need to tell R where to look for the header file `mpi.h`. To change it, run `Sys.setenv("MPI_INCLUDE"="/where/is/mpi")`
-
-#### Install this package
-Once PETSc is installed and the environmental variables are set, you can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R:
+#### 2. Build PETSc binaries as part of package installation
+PETSc will be compiled using the same set of compilers that R uses. 
 ```{r}
 # install.packages("devtools")
 install_github("jtilly/taoR")
 ```
+
+#### 3. Use existing PETSc installation
+See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for detailed instructions on how to install PETSc.
+```{r}
+# install.packages("devtools")
+Sys.setenv("PETSC_DIR"="/path/to/petsc")
+Sys.setenv("PETSC_ARCH"="...")
+install_github("jtilly/taoR")
+```
+Note that taoR copies the PETSc binary into the R package directory. Therefore, `PETSC_DIR` and `PETSC_ARCH` only need to be set temporarily during the package installation.
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. The syntax is similar to R's `optim` function.

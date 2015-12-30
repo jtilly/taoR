@@ -15,15 +15,13 @@ branches:
 env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
+    - FLAGS="-O0 -g -Wall -pedantic -ftrapv" 
   matrix:
-    - FLAGS = -O0 -g -Wall -Werror -pedantic -ftrapv
-    - FLAGS = -O2
-   
+    - DOWNLOAD_PETSC_BINARIES=0
+    - DOWNLOAD_PETSC_BINARIES=1
+
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
-  - export PYTHONPATH=$HOME/python
-  - export PYTHONUSERBASE=$HOME/python
-  - export PREFIX_PATH=$HOME/python
 
 # install r-base-dev:
 # use r-packages-precise (https://cran.r-project.org/bin/linux/ubuntu/precise/) as source
@@ -40,12 +38,6 @@ addons:
     - lmodern
     - qpdf
     - valgrind
-    - libblas3gf
-    - libblas-dev
-    - liblapack3gf
-    - liblapack-dev
-    - python-dev
-    - python-pip
 
 # cache local R libraries directory:
 cache:
@@ -53,14 +45,10 @@ cache:
     - $HOME/Rlib
     - $HOME/texlive
     - $HOME/bin
-    - $HOME/python
 
 # install the package and dependencies:
 # use Yihue's compiled texlive and pandoc versions (https://github.com/yihui/knitR/blob/master/.travis.yml)
 install:
-  - mkdir -p $HOME/python
-  - pip install petsc --allow-external petsc --install-option="--prefix=$PREFIX_PATH"
-  - export PETSC_DIR=$PREFIX_PATH/lib/python2.7/site-packages/petsc
   - "[ ! -d ~/bin ] && mkdir ~/bin || true"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-texlive | bash"
   - "wget -q -O - https://github.com/yihui/crandalf/raw/master/inst/scripts/install-pandoc | bash"
@@ -82,14 +70,16 @@ install:
 script:
   - R CMD build . 
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-  - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R CMD INSTALL "${PKG_FILE_NAME}"
+  - export PETSC_DIR="${HOME}/Rlib/taoR"
+  - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
 
-# report coverage rate to coveralls
+# report coverage rate to coveralls and remove the taoR package
 after_success:
   - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R"))'
+  - rm -rf ${HOME}/Rlib/taoR
 
 # send e-mails if stuff breaks / changes
 notifications:
