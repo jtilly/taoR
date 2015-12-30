@@ -120,7 +120,12 @@ if [ ${PETSC} == "0" ]; then
     FC=$(R CMD config FC)
 
     # configure
-    ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
+    if [ ${platform} == "linux"]; then
+        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
+    else 
+        # to avoid issues on osx, install without fortran
+        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=0 --download-f2cblaslapack --with-debugging=0 --with-mpi=0
+    fi
     echo "* configure step completed"
     
     make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
@@ -135,14 +140,21 @@ if [ ${PETSC} == "0" ]; then
     # move the binaries to ../lib
     mkdir -p ../lib
     if [ ${platform} == "osx" ]; then
-        cp -L ${PETSC_ARCH}/lib/libpetsc.dylib ../lib
+        cp -L ${PETSC_ARCH}/lib/libpetsc.3.6.3.dylib ../lib/libpetsc.3.6.3.dylib
+        cd ../lib 
+        ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
+        ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+        cd ..
     fi
     
     if [ ${platform} == "linux" ]; then
-        cp -L ${PETSC_ARCH}/lib/libpetsc.so ../lib
+        cp -L ${PETSC_ARCH}/lib/libpetsc.so.3.6.3 ../lib/libpetsc.so.3.6.3
+        cd ../lib 
+        ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
+        ln -s libpetsc.so.3.6.3 libpetsc.so
+        cd ..
     fi
     
-    cd ..
     rm -rf petsc-3.6.3
     cd ..
 
