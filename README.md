@@ -10,22 +10,22 @@ Please note that this package is currently a work in progress.
 
 TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. You can install this package using [devtools](https://cran.r-project.org/web/packages/devtools/index.html) from inside R.
 
-### Use pre-built PETSc binaries
-This may or may not work depending on how your system is set up.
+#### Use pre-built PETSc binaries
+This may or may not work depending on how your system is set up. 
 ```{r}
 # install.packages("devtools")
 Sys.setenv("DOWNLOAD_PETSC_BINARIES"=1)
 install_github("jtilly/taoR")
 ```
 
-### Build PETSc binaries as part of package installation
-PETSc will be compiled using the same compilers as used by R.
+#### Build PETSc binaries as part of package installation
+PETSc will be compiled using the same set of compilers that R uses. 
 ```{r}
 # install.packages("devtools")
 install_github("jtilly/taoR")
 ```
 
-## Use existing PETSc installation
+#### Use existing PETSc installation
 See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for detailed instructions on how to install PETSc.
 ```{r}
 # install.packages("devtools")
@@ -33,6 +33,7 @@ Sys.setenv("PETSC_DIR"="/path/to/petsc")
 Sys.setenv("PETSC_ARCH"="...")
 install_github("jtilly/taoR")
 ```
+Note that taoR copies the PETSc binary into the R package directory. Therefore, `PETSC_DIR` and `PETSC_ARCH` only need to be set temporarily during the package installation.
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. The syntax is similar to R's `optim` function.
