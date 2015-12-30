@@ -33,7 +33,7 @@ fi
 if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
     echo "Downloading binaries."
     
-    wget https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
+    download https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
     mkdir petsc_temp && mkdir petsc_temp/lib
     if [ ${platform} == "linux" ]; then
         tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.so.3.6.3
