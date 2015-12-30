@@ -28,6 +28,23 @@ else
     exit -1
 fi
 
+# Check if DOWNLOAD_PETSC_BINARIES is set
+# see if we can download the binaries for osx
+if [ ${DOWNLOAD_PETSC_BINARIES}=="1" ]; then
+    wget https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
+    mkdir petsc_temp && mkdir petsc_temp/lib
+    if [ ${platform} == "linux" ]; then
+        tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.so
+        mv petsc_temp/lib/libpetsc.so petsc_temp/lib/libpetsc.so.3.6.3
+    fi
+
+    if [ ${platform} == "osx" ]; then
+        tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.3.6.3.dylib
+    fi
+    rm petsc-3.6.3.tar.gz
+    PETSC_DIR="petsc_temp"
+fi
+
 # Check if PETSC_DIR is set, and the libraries exist. If so copy them over.
 PETSC="0"
 
@@ -65,6 +82,10 @@ if [ ! -z ${PETSC_DIR} ]; then
 			cd ../..
         fi
 
+    fi
+
+    if [ ${DOWNLOAD_PETSC_BINARIES}=="1" ]; then
+        rm -rf "petsc_temp"
     fi
 
 fi
