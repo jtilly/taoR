@@ -42,7 +42,11 @@ if [ ! -z ${PETSC_DIR} ]; then
         if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
             PETSC="1"
             mkdir -p inst/lib
-            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/libpets.so
+            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/
+			cd inst/lib 
+			ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
+			ln -s libpetsc.so.3.6.3 libpetsc.so
+			cd ../..
         fi
 
     fi
@@ -54,7 +58,11 @@ if [ ! -z ${PETSC_DIR} ]; then
         if [ -e ${PETSC_LIB}/libpetsc.3.6.3.dylib ]; then
             PETSC="1"
             mkdir -p inst/lib
-            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib/libpetsc.dylib
+            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib/
+			cd inst/lib 
+			ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
+			ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+			cd ../..
         fi
 
     fi

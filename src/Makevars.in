@@ -12,12 +12,3 @@ PKG_CXXFLAGS = -I../inst/include
 
 all: $(SHLIB)
 	@if command -v install_name_tool; then echo "fixing search path on osx"; install_name_tool -change @linker@ '@rpath/libpetsc.dylib' taoR.so; fi
-
-.PHONY: symlinks_osx
-.PHONY: symlinks_linux
-
-symlinks_osx:
-	@ln -s ${rpath}/libpetsc.dylib ${rpath}/libpetsc.3.6.dylib
-
-symlinks_linux:
-	@ln -s ${rpath}/libpetsc.so ${rpath}/libpetsc.3.6.3.so
