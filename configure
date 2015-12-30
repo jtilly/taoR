@@ -1,8 +1,7 @@
 #!/bin/bash
 
-# This script was taken from Rblapi. All the credit goes to
-# Dirk Eddelbuettel and Jeroen Ooms.
-#
+# This script was mostly pilfered from Rblpapi. All credit goes 
+# to Dirk Eddelbuettel and Jeroen Ooms. See 
 # https://github.com/Rblp/Rblpapi/blob/master/configure
 
 # helper function for downloads
@@ -24,17 +23,34 @@ if [ ${sysname} == "Linux" ]; then
 elif [ ${sysname} == "Darwin" ]; then
     platform="osx"
 else
-    echo "Unsupported platform: $sysname"
+    echo "... ERROR: Unsupported platform: $sysname"
     exit -1
 fi
 
+if [ ! -z ${PETSC_DIR} ] && [ -e ${PETSC_DIR} ]; then
+
+    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
+
+        echo "... WARNING: PETSC_DIR is set and DOWNLOAD_PETSC_BINARIES=1."
+        echo "............ No binaries will be downloaded. PETSC_DIR will be used instead."
+
+        DOWNLOAD_PETSC_BINARIES="0"
+
+    fi
+
+fi
+
 # Check if DOWNLOAD_PETSC_BINARIES is set to something other than 0
-# see if we can download the binaries for osx
+# If so, download the binaries.
 if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-    echo "Downloading binaries."
+    
+    echo "... Downloading PETSc binaries."
     
     download https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
+    
+    # make a temporary directory with a lib folder and extract the archive
     mkdir petsc_temp && mkdir petsc_temp/lib
+
     if [ ${platform} == "linux" ]; then
         tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.so.3.6.3
     fi
@@ -42,7 +58,11 @@ if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" 
     if [ ${platform} == "osx" ]; then
         tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.3.6.3.dylib
     fi
+
+    # clean up
     rm petsc-3.6.3.tar.gz
+
+    # set PETSC_DIR to point to the temporary folder
     PETSC_DIR="petsc_temp"
 fi
 
@@ -50,14 +70,20 @@ fi
 PETSC="0"
 
 if [ ! -z ${PETSC_DIR} ]; then
-    
-    PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
+
+    # Assemble path to petsc libraries based on PETSC_DIR and PETSC_ARCH
+    if [ ! -z ${PETSC_ARCH} ] && [ ! ${PETSC_ARCH} == "" ]; then
+        PETSC_LIB=${PETSC_DIR}/${PETSC_ARCH}/lib
+    else
+        PETSC_LIB=${PETSC_DIR}/lib
+    fi
     
     if [ ${platform} == "linux" ]; then
 
-        echo "Looking for ${PETSC_LIB}/libpetsc.so.3.6.3"
+        echo "... Looking for libraries in ${PETSC_LIB}."
 
         if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
+            echo "... Found libpetsc.so.3.6.3."
             PETSC="1"
             mkdir -p inst/lib
             cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/
@@ -65,15 +91,27 @@ if [ ! -z ${PETSC_DIR} ]; then
 			ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
 			ln -s libpetsc.so.3.6.3 libpetsc.so
 			cd ../..
+        elif [ -e ${PETSC_LIB}/libpetsc.so ]; then
+            echo "... Found libpetsc.so."
+            PETSC="1"
+            mkdir -p inst/lib
+            cp -L ${PETSC_LIB}/libpetsc.so inst/lib/libpetsc.so.3.6.3
+            cd inst/lib 
+            ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
+            ln -s libpetsc.so.3.6.3 libpetsc.so
+            cd ../..
+        else 
+            echo "... NOTE: Could not find libpetsc.so.3.6.3 or libpetsc.so."
         fi
 
     fi
 
     if [ ${platform} == "osx" ]; then
 
-        echo "Looking for ${PETSC_LIB}/libpetsc.3.6.3.dylib"
+        echo "... Looking for libraries in ${PETSC_LIB}."
 
         if [ -e ${PETSC_LIB}/libpetsc.3.6.3.dylib ]; then
+            echo "... Found libpetsc.3.6.3.dylib."
             PETSC="1"
             mkdir -p inst/lib
             cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/lib/
@@ -81,6 +119,17 @@ if [ ! -z ${PETSC_DIR} ]; then
 			ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
 			ln -s libpetsc.3.6.3.dylib libpetsc.dylib
 			cd ../..
+        elif [ -e ${PETSC_LIB}/libpetsc.dylib ]; then
+            echo "... Found libpetsc.dylib."
+            PETSC="1"
+            mkdir -p inst/lib
+            cp -L ${PETSC_LIB}/libpetsc.dylib inst/lib/libpetsc.3.6.3.dylib
+            cd inst/lib 
+            ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
+            ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+            cd ../..
+        else 
+            echo "... NOTE: Could not find libpetsc.3.6.3.dylib or libpetsc.dylib."
         fi
 
     fi
@@ -94,17 +143,19 @@ fi
 if [ ${PETSC} == "0" ]; then
 
     # if we can't find libpetsc, create the binaries and store them in /inst/lib
-    echo "Downloading and installing PETSc: this may take a while"
+    echo "... Could not find a valid installation of PETSc libraries."
+    echo "... Downloading and installing PETSc from source."
+    echo "... This may take several minutes."
     cd inst
     
     download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz
     
     if [ ! -e "petsc-lite-3.6.3.tar.gz" ]; then
-        echo "Download failed"
+        echo "... ERROR: Download failed"
         exit -1
     fi
     
-    echo "* Download completed"
+    echo "... Download completed"
     tar xvf petsc-lite-3.6.3.tar.gz && rm petsc-lite-3.6.3.tar.gz && cd petsc-3.6.3
     
     # define PETSC_ARCH and export it so that ./configure can find it
@@ -125,14 +176,15 @@ if [ ${PETSC} == "0" ]; then
         # to avoid issues on osx, install without fortran
         ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=0 --download-f2cblaslapack --with-debugging=0 --with-mpi=0
     fi
-    echo "* configure step completed"
+
+    echo "... PETSc configure step completed"
     
     make PETSC_DIR=${PETSC_DIR} PETSC_ARCH=${PETSC_ARCH} all
-    echo "* make step completed"
+    echo "... PETSc make step completed"
 
     # check if the binaries exist
     if [ ! -e ${PETSC_ARCH}/lib/libpetsc.so ] && [ ! -e ${PETSC_ARCH}/lib/libpetsc.dylib ]; then
-        echo "Build failed"
+        echo "... ERROR: PETSc build failed. Please compile PETSc manually."
         exit -1
     fi
 
@@ -156,6 +208,8 @@ if [ ${PETSC} == "0" ]; then
     
     rm -rf petsc-3.6.3
     cd ..
+
+    echo "... PETSc installation completed."
 
 fi
 
