@@ -120,7 +120,7 @@ if [ ${PETSC} == "0" ]; then
     FC=$(R CMD config FC)
 
     # configure
-    if [ ${platform} == "linux"]; then
+    if [ ${platform} == "linux" ]; then
         ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
     else 
         # to avoid issues on osx, install without fortran
