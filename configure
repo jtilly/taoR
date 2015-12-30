@@ -60,10 +60,10 @@ if [ ! -z ${PETSC_DIR} ]; then
         if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
             PETSC="1"
             mkdir -p inst/lib
-            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/
+            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/lib/libpetsc.so.3.6
 			cd inst/lib 
-			ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
-			ln -s libpetsc.so.3.6.3 libpetsc.so
+			ln -s libpetsc.so.3.6 libpetsc.so.3.6.3
+			ln -s libpetsc.so.3.6 libpetsc.so
 			cd ../..
         fi
 
@@ -147,10 +147,10 @@ if [ ${PETSC} == "0" ]; then
     fi
     
     if [ ${platform} == "linux" ]; then
-        cp -L ${PETSC_ARCH}/lib/libpetsc.so.3.6.3 ../lib/libpetsc.so.3.6.3
+        cp -L ${PETSC_ARCH}/lib/libpetsc.so.3.6.3 ../lib/libpetsc.so.3.6
         cd ../lib 
-        ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
-        ln -s libpetsc.so.3.6.3 libpetsc.so
+        ln -s libpetsc.so.3.6 libpetsc.so.3.6.3
+        ln -s libpetsc.so.3.6 libpetsc.so
         cd ..
     fi
     
