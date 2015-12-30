@@ -70,8 +70,9 @@ install:
 script:
   - R CMD build . 
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
-  - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R CMD INSTALL "${PKG_FILE_NAME}"
+  - export PETSC_DIR="${HOME}/Rlib/taoR/lib"
+  - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
 
