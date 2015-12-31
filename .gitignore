@@ -19,3 +19,5 @@ vignettes/*.pdf
 src/*.o
 src/*.so
 *.Rproj
+src/Makevars
+inst/bin/libpetsc*
