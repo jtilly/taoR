@@ -84,6 +84,7 @@ PetscErrorCode evaluate_hessian(Tao tao_context, Vec X, Mat H, Mat Hpre, void *p
     return evaluate_function(X, H, &hesfun, k);
 }
 
+/*
 // this function evaluates the vector of inequalities
 PetscErrorCode evaluate_inequalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
     Problem *problem = (Problem *)ptr;
@@ -102,7 +103,7 @@ PetscErrorCode evaluate_equalities(Tao tao_context, Vec X, Vec Ci, void *ptr) {
     
     return evaluate_function(X, Ci, &equal, k);
 }
-
+*/
 // this function set the starting value
 PetscErrorCode create_vec(Vec X, NumericVector y) {
     
@@ -115,18 +116,4 @@ PetscErrorCode create_vec(Vec X, NumericVector y) {
     }
     catch_error(VecRestoreArray(X, &x));
     PetscFunctionReturn(0);
-}
-
-// this function set the starting value to zero
-PetscErrorCode create_vec(Vec X, int k) {
-  
-  PetscReal *x;
-  
-  PetscFunctionBegin;
-  catch_error(VecGetArray(X, &x));
-  for(int iX = 0; iX < k; iX++) {
-    x[iX] = 0;
-  }
-  catch_error(VecRestoreArray(X, &x));
-  PetscFunctionReturn(0);
 }
