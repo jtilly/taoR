@@ -161,9 +161,24 @@ expect_equal(ret$x, c(3, 0))
 
 # TAONM
 ret = tao(c(1, 2), 
-                objfun,
-                method = "nm")
+          objfun,
+          method = "nm")
 expect_equal(objfun(ret$x) < 0.01, TRUE)
+
+expect_warning(tao(c(1, 2), 
+          objfun,
+          method = "nm",
+          gr = grafun))
+
+expect_warning(tao(c(1, 2), 
+          objfun,
+          method = "nm",
+          gr = grafun,
+          hs = hesfun))
+
+expect_error(tao(c(1, 2), 
+          objfun,
+          method = "nm", n = 2))
 
 # POUNDers
 objfun = function(x) c(x[1] - 3, x[2] + 1)
@@ -196,3 +211,19 @@ ret = tao(c(1, 2),
                 ub = c(5, 5))
 
 expect_equal(ret$x, c(3, 0))
+
+expect_error(tao(c(1, 2), 
+                 objfun,
+                 method = "pounders",
+                 control = list(),
+                 n = 2,
+                 lb = c(0, 0), 
+                 ub = c(5)))
+
+expect_error(tao(c(1, 2), 
+                 objfun,
+                 method = "pounders",
+                 control = list(),
+                 n = 2,
+                 lb = c(0), 
+                 ub = c(5, 5)))
