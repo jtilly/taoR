@@ -163,7 +163,8 @@ List tao_cpp(List functions,
     catch_error(create_vec(lb, lower_bounds));
     catch_error(create_vec(ub, upper_bounds));
     catch_error(create_vec(ci, problem.k));
-    
+
+/*        
     // Check whether lower / upper bounds inequalities have been set
     Function inequal = functions["objfun"];
     if (functions.containsElementNamed("inequal")) {
@@ -179,7 +180,7 @@ List tao_cpp(List functions,
         problem.equal = &equal;
         catch_error(TaoSetConstraintsRoutine(tao_context, ci, evaluate_equalities, &problem));
     }
-    
+*/    
     // Create a matrix to hold hessians
     Mat H;
     MatCreate(PETSC_COMM_WORLD, &H);
