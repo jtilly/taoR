@@ -78,11 +78,11 @@ script:
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
+  - rm -rf ${HOME}/Rlib/taoR
 
 # report coverage rate to coveralls and remove the taoR package
 after_success:
-  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R"))'
-  - rm -rf ${HOME}/Rlib/taoR
+  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R", "R/RcppExports.R"))'
 
 # send e-mails if stuff breaks / changes
 notifications:
