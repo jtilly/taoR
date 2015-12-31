@@ -125,7 +125,8 @@ if [ ! -z ${PETSC_DIR} ]; then
             ln -s libpetsc.3.6.3.dylib libpetsc.dylib
             cd ../..
         else 
-            echo "... NOTE: Could not find libpetsc.3.6.3.dylib or libpetsc.dylib."
+            echo "... NOTE: Could not find libpetsc.3.6.3.dylib or libpetsc.dylib in"
+            echo "....${PETSC_LIB}."
         fi
 
     fi
