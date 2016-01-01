@@ -13,25 +13,25 @@ TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc 
 #### 1. Use pre-built PETSc binaries
 We compiled [PETSc binaries](https://github.com/jtilly/taoR/releases/tag/petsc-3.6.3) for Linux and OS X. These may or may not work depending on how your system is set up. This is the fastest way to install taoR.
 ```{r}
-source("http://jtilly.io/install_github/install_github.R")
 Sys.setenv("DOWNLOAD_PETSC_BINARIES"=1)
+source("http://jtilly.io/install_github/install_github.R")
 install_github("jtilly/taoR")
 ```
 
 #### 2. Build PETSc binaries as part of package installation
 PETSc will be compiled using the same set of compilers that R uses. Building the PETSc binaries will take several minutes.
 ```{r}
-source("http://jtilly.io/install_github/install_github.R")
 Sys.setenv("DOWNLOAD_PETSC_BINARIES"=0)
+source("http://jtilly.io/install_github/install_github.R")
 install_github("jtilly/taoR")
 ```
 
 #### 3. Use existing PETSc installation
 See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for detailed instructions on how to install PETSc.
 ```{r}
-source("http://jtilly.io/install_github/install_github.R")
 Sys.setenv("PETSC_DIR"="/path/to/petsc")
 Sys.setenv("PETSC_ARCH"="...")
+source("http://jtilly.io/install_github/install_github.R")
 install_github("jtilly/taoR")
 ```
 Note that taoR copies the PETSc binary into the R package directory. 
