@@ -46,21 +46,20 @@ if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" 
     
     echo "... Downloading PETSc binaries."
     
-    download https://github.com/jtilly/taoR/archive/petsc-3.6.3.tar.gz
     
-    # make a temporary directory with a lib folder and extract the archive
+    # make a temporary directory with a lib folder and download the libaries
     mkdir petsc_temp && mkdir petsc_temp/lib
+    cd petsc_temp/lib
 
     if [ ${platform} == "linux" ]; then
-        tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.so.3.6.3
+        download https://github.com/jtilly/taoR/blob/petsc-3.6.3/libpetsc.so.3.6.3
     fi
 
     if [ ${platform} == "osx" ]; then
-        tar xfz petsc-3.6.3.tar.gz  --strip=1 -C petsc_temp/lib taoR-petsc-3.6.3/libpetsc.3.6.3.dylib
+        download https://github.com/jtilly/taoR/raw/petsc-3.6.3/libpetsc.3.6.3.dylib
     fi
 
-    # clean up
-    rm petsc-3.6.3.tar.gz
+    cd ../..
 
     # set PETSC_DIR to point to the temporary folder
     PETSC_DIR="petsc_temp"
