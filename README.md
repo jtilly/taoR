@@ -77,4 +77,4 @@ The parameter `method` can be set to one of the following optimizers.
 * `tron`: Newton Trust Region method for bound constrained minimization
 * `gpcg`: Newton Trust Region method for quadratic bound constrained minimization
 * `blmvm`: Limited memory variable metric method for bound constrained minimization
-* `pounders`: Derivate-free model-based algorithm for nonlinear least squares
+* `pounders`: Derivative-free model-based algorithm for nonlinear least squares
