@@ -7,18 +7,13 @@
 # helper function for downloads
 download() {
     url=${1}
-    dest=${2}
     libcurl=$(${R_HOME}/bin/Rscript -e 'cat(capabilities()[["libcurl"]])')
-    file=$(basename ${url})
     # when we have libcurl in R, use it -- else fall back to curl
     if [ ${libcurl} == "TRUE" ]; then
+        file=$(basename ${url})
         ${R_HOME}/bin/Rscript -e "download.file(\"${url}\", \"${file}\", quiet=TRUE, method='libcurl')"
     else
         curl -s -k -L -O ${url}
-    fi
-
-    if [ ! ${dest} == "" ]; then        
-        mv ${file} ${dest}
     fi
 }
 
@@ -51,16 +46,17 @@ if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" 
     
     echo "... Downloading PETSc binaries."
     
+    
     # make a temporary directory with a lib folder and download the libaries
     mkdir petsc_temp && mkdir petsc_temp/lib
     cd petsc_temp/lib
 
     if [ ${platform} == "linux" ]; then
-        download https://github.com/jtilly/taoR/blob/petsc-3.6.3/libpetsc.so.3.6.3?raw=true libpetsc.so.3.6.3
+        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.so.3.6.3
     fi
 
     if [ ${platform} == "osx" ]; then
-        download https://github.com/jtilly/taoR/raw/petsc-3.6.3/libpetsc.3.6.3.dylib?raw=true libpetsc.3.6.3.dylib
+        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.3.6.3.dylib
     fi
 
     cd ../..
