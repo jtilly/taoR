@@ -54,5 +54,11 @@ install_taoR = function(download_binaries = TRUE,
         Sys.setenv("PETSC_ARCH"="")
     }
     
+
     install_github("jtilly/taoR")
+
+    # clean up
+    Sys.unsetenv("DOWNLOAD_PETSC_BINARIES")
+    Sys.unsetenv("PETSC_DIR")
+    Sys.unsetenv("PETSC_ARCH")
 }
