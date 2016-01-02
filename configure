@@ -52,11 +52,11 @@ if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" 
     cd petsc_temp/lib
 
     if [ ${platform} == "linux" ]; then
-        download https://github.com/jtilly/taoR/blob/petsc-3.6.3/libpetsc.so.3.6.3
+        download https://github.com/jtilly/taoR/blob/petsc-3.6.3/libpetsc.so.3.6.3?raw=true
     fi
 
     if [ ${platform} == "osx" ]; then
-        download https://github.com/jtilly/taoR/raw/petsc-3.6.3/libpetsc.3.6.3.dylib
+        download https://github.com/jtilly/taoR/raw/petsc-3.6.3/libpetsc.3.6.3.dylib?raw=true
     fi
 
     cd ../..
