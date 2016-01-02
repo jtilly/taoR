@@ -168,10 +168,10 @@ if [ ${PETSC} == "0" ]; then
 
     # configure
     if [ ${platform} == "linux" ]; then
-        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0
+        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=${FC} --download-fblaslapack --with-debugging=0 --with-mpi=0 --with-x=0
     else 
         # to avoid issues on osx, install without fortran
-        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=0 --download-f2cblaslapack --with-debugging=0 --with-mpi=0
+        ./configure --with-cc=${CC} --with-cxx=${CXX} --with-fc=0 --download-f2cblaslapack --with-debugging=0 --with-mpi=0 --with-x=0
     fi
 
     echo "... PETSc configure step completed"
