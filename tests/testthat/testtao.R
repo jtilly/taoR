@@ -176,10 +176,6 @@ expect_warning(tao(c(1, 2),
           gr = grafun,
           hs = hesfun))
 
-expect_error(tao(c(1, 2), 
-          objfun,
-          method = "nm", n = 2))
-
 # POUNDers
 objfun = function(x) c(x[1] - 3, x[2] + 1)
 
