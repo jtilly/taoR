@@ -31,8 +31,7 @@ RUN apt-get install -y --no-install-recommends apt-transport-https \
     && echo "deb https://cran.rstudio.com/bin/linux/ubuntu trusty/" >> /etc/apt/sources.list \ 
     && apt-key adv --keyserver keyserver.ubuntu.com --recv-keys E084DAB9 \
     && apt-get update -qq \
-    && apt-get install -y --no-install-recommends r-base-dev \
-    && apt-get install -y --no-install-recommends r-cran-rcpp
+    && apt-get install -y --no-install-recommends r-base-dev
 
 ## Clone taoR and install it
 RUN Rscript -e "source(\"http://jtilly.io/taoR/install_taoR.R\"); install_taoR(download_binaries = TRUE)"
