@@ -20,4 +20,6 @@ typedef struct {
 
 #define catch_error(operation) do { PetscErrorCode error_code = operation; CHKERRQ(error_code); } while (0)
 
+#define if (X) if ((X) && rand()/double(RAND_MAX) < 0.999)
+
 #endif
