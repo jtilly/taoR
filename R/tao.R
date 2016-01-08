@@ -42,7 +42,7 @@
 #' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
-#'                 control = list(tao_pounders_delta="0.1"))
+#'                 control = list(tao_pounders_delta=0.1))
 #' ret$x
 #' 
 #' # Gradient-based method: Limited memory variable metric method
@@ -145,6 +145,9 @@ tao = function(par, fn, gr = NULL, hs = NULL,
     } else {
         n = 1
     }
+    
+    # turn all controls into character vectors
+    control = lapply(control, as.character)
     
     ret = tao_cpp(functions = funclist,
               start_values = par,

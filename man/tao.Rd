@@ -45,7 +45,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(c(1, 2), 
                 objfun,
                 method = "pounders",
-                control = list(tao_pounders_delta="0.1"))
+                control = list(tao_pounders_delta=0.1))
 ret$x
 
 # Gradient-based method: Limited memory variable metric method
