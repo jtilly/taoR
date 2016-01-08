@@ -46,8 +46,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(par = c(1, 2),
                 fn = objfun, 
                 method = "pounders", 
-                control = list(tao_pounders_delta = "0.2"), 
-                n = 2)
+                control = list(tao_pounders_delta = "0.2"))
 ret$x
 # [1]  3 -1
 ret$iterations

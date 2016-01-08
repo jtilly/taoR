@@ -184,10 +184,19 @@ expect_error(tao(c(1, 2),
 objfun = function(x) c(x[1] - 3, x[2] + 1)
 
 ret = tao(c(1, 2), 
-                objfun,
-                method = "pounders",
-                control = list(),
-                n = 2)
+          objfun,
+          method = "pounders",
+          control = list())
+
+expect_equal(sum(objfun(ret$x)) < 0.01, TRUE)
+
+objfun = function(x) c(x[1] - 3, x[2] + 1)
+
+ret = tao(c(1, 2), 
+          objfun,
+          method = "pounders",
+          control = list(),
+          n = 2)
 
 expect_equal(sum(objfun(ret$x)) < 0.01, TRUE)
 

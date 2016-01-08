@@ -5,8 +5,8 @@
 \title{R bindings for the TAO optimization library.}
 \usage{
 tao(par, fn, gr = NULL, hs = NULL, method = c("lmvm", "nls", "ntr", "ntl",
-  "cg", "tron", "blmvm", "gpcg", "nm", "pounders"), control = list(), n = 1,
-  lb = NULL, ub = NULL)
+  "cg", "tron", "blmvm", "gpcg", "nm", "pounders"), control = list(),
+  n = NULL, lb = NULL, ub = NULL)
 }
 \arguments{
 \item{par}{Initial values for the parameters to be optimized over.}
@@ -25,7 +25,7 @@ uses the hessian.}
 
 \item{control}{A list of control parameters. See 'Details'.}
 
-\item{n}{The number of elements of objfun.}
+\item{n}{The number of elements of objfun (optional).}
 
 \item{lb}{A vector with lower variable bounds (optional)}
 
@@ -45,8 +45,7 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(c(1, 2), 
                 objfun,
                 method = "pounders",
-                control = list(tao_pounders_delta="0.1"),
-                n = 2)
+                control = list(tao_pounders_delta="0.1"))
 ret$x
 
 # Gradient-based method: Limited memory variable metric method

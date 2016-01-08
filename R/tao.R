@@ -32,7 +32,7 @@
 #' @param control A list of control parameters. See 'Details'.
 #' @param lb A vector with lower variable bounds (optional) 
 #' @param ub A vector with upper variable bounds (optional)
-#' @param n The number of elements of objfun.
+#' @param n The number of elements of objfun (optional).
 #' @return A list with final parameter values, the objective function, and
 #'        information on why the optimizer stopped.
 #'
@@ -42,8 +42,7 @@
 #' ret = tao(c(1, 2), 
 #'                 objfun,
 #'                 method = "pounders",
-#'                 control = list(tao_pounders_delta="0.1"),
-#'                 n = 2)
+#'                 control = list(tao_pounders_delta="0.1"))
 #' ret$x
 #' 
 #' # Gradient-based method: Limited memory variable metric method
@@ -83,7 +82,7 @@ tao = function(par, fn, gr = NULL, hs = NULL,
                                 "cg", "tron", "blmvm", "gpcg",
                                 "nm", "pounders"),
                      control = list(),
-                     n = 1, 
+                     n = NULL, 
                      lb = NULL, 
                      ub = NULL) {
     
@@ -137,6 +136,14 @@ tao = function(par, fn, gr = NULL, hs = NULL,
     
     if(is.null(lb)) {
         lb = rep(-1e16, length(par))
+    }
+    
+    if(method == "pounders" ) {
+        if(is.null(n)) {
+            n = length(fn(par))
+        }
+    } else {
+        n = 1
     }
     
     ret = tao_cpp(functions = funclist,
