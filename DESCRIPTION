@@ -19,4 +19,5 @@ SystemRequirements: Portable, Extensible Toolkit for Scientific
     Computation (PETSc) libraries. This package attempts to 
     install PETSc during the build step if not already
     available on the system.
+OS_type: unix
 RoxygenNote: 5.0.1
