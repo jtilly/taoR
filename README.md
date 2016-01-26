@@ -30,7 +30,7 @@ See [here](http://www.mcs.anl.gov/petsc/documentation/installation.html) for det
 source("http://jtilly.io/taoR/install_taoR.R")
 install_taoR(PETSC_DIR = "/path/to/petsc", PETSC_ARCH = "...")
 ```
-Note that taoR copies the PETSc binary into the R package directory. 
+Note that taoR copies the PETSc binary into the R package directory. Installing the package this way may require manual adjustment of the flags in [`src/Makevars.in`](https://github.com/jtilly/taoR/blob/master/src/Makevars.in) before installation.
 
 ## Example
 We minimize the objective function `(x[1] - 3) ^ 2 + (x[2] + 1) ^ 2` with respect to `x`. The syntax is similar to R's `optim` function.
