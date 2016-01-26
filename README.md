@@ -11,7 +11,7 @@ Please note that this package is currently a work in progress.
 TAO is part of [PETSc](http://www.mcs.anl.gov/petsc/). If you do not have PETSc installed on your system, then taoR will attempt to install PETSc for you. There are three different ways to install taoR.
 
 #### 1. Use pre-built PETSc binaries
-We compiled [PETSc binaries](https://github.com/jtilly/taoR/releases/tag/petsc-3.6.3) for Linux and OS X. These may or may not work depending on how your system is set up. This is the fastest way to install taoR.
+We compiled [PETSc binaries](https://github.com/jtilly/taoR/tree/binaries) for Linux and OS X. These may or may not work depending on how your system is set up. This is the fastest way to install taoR.
 ```{r}
 source("http://jtilly.io/taoR/install_taoR.R")
 install_taoR(download_binaries = TRUE)
