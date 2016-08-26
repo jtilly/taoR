@@ -46,11 +46,11 @@ objfun = function(x) c((x[1] - 3), (x[2] + 1))
 ret = tao(par = c(1, 2),
                 fn = objfun, 
                 method = "pounders", 
-                control = list("tao_pounders_gqt" = "", "tao_pounders_delta" = 0.01))
+                control = list("tao_pounders_gqt" = ""))
 ret$x
 # [1]  3 -1
 ret$iterations
-# [1] 5
+# [1] 7
 
     
 # use Nelder-Mead
