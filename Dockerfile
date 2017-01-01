@@ -34,7 +34,7 @@ RUN apt-get install -y --no-install-recommends apt-transport-https \
     && apt-get install -y --no-install-recommends r-base-dev
 
 ## Clone taoR and install it
-RUN Rscript -e "source(\"http://jtilly.io/taoR/install_taoR.R\"); install_taoR(download_binaries = TRUE)"
+RUN Rscript -e "source(\"http://jtilly.io/taoR/install_taoR.R\"); install_taoR()"
 
 ## Clean-up
 RUN rm -rf /tmp/* && rm -rf /var/lib/apt/lists/*
