@@ -15,7 +15,7 @@ branches:
 env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
-    - FLAGS="-O0 -g -Wall -pedantic -ftrapv" 
+    - FLAGS="-O0 -g -Wall -pedantic -ftrapv"
   matrix:
     - DOWNLOAD_PETSC_BINARIES=0
     - DOWNLOAD_PETSC_BINARIES=1
@@ -68,21 +68,21 @@ install:
 # build, check, and install package
 # run all examples through valgrind
 script:
-  - R CMD build . 
+  - R CMD build .
   - PKG_FILE_NAME=$(ls -1t *.tar.gz | head -n 1)
   - R CMD INSTALL "${PKG_FILE_NAME}"
   - ln -s ${HOME}/Rlib/taoR/bin ${HOME}/Rlib/taoR/lib
   - export PETSC_DIR="${HOME}/Rlib/taoR"
   - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.7 ${PETSC_DIR}/bin/libpetsc.so
   - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.7 ${PETSC_DIR}/bin/libpetsc.so.3.7.5
-  - R CMD check "${PKG_FILE_NAME}" --as-cran 
+  - R CMD check "${PKG_FILE_NAME}" --as-cran
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
   - rm -rf ${HOME}/Rlib/taoR
 
 # report coverage rate to coveralls and remove the taoR package
 after_success:
-  - Rscript -e 'covr::coveralls(exclusions = list("src/RcppExports.cpp", "R/zzz.R", "R/RcppExports.R"))'
+  - Rscript -e 'covr::coveralls(line_exclusions = list("src/RcppExports.cpp", "R/zzz.R", "R/RcppExports.R"))'
 
 # send e-mails if stuff breaks / changes
 notifications:
