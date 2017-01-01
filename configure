@@ -27,43 +27,6 @@ else
     exit -1
 fi
 
-if [ ! -z ${PETSC_DIR} ] && [ -e ${PETSC_DIR} ]; then
-
-    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-
-        echo "... WARNING: PETSC_DIR is set and DOWNLOAD_PETSC_BINARIES=1."
-        echo "............ No binaries will be downloaded. PETSC_DIR will be used instead."
-
-        DOWNLOAD_PETSC_BINARIES="0"
-
-    fi
-
-fi
-
-# Check if DOWNLOAD_PETSC_BINARIES is set to something other than 0
-# If so, download the binaries.
-if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-    
-    echo "... Downloading PETSc binaries."
-    
-    
-    # make a temporary directory with a lib folder and download the libaries
-    mkdir petsc_temp && mkdir petsc_temp/lib
-    cd petsc_temp/lib
-
-    if [ ${platform} == "linux" ]; then
-        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.so.3.7.5
-    fi
-
-    if [ ${platform} == "osx" ]; then
-        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.3.7.5.dylib
-    fi
-
-    cd ../..
-
-    # set PETSC_DIR to point to the temporary folder
-    PETSC_DIR="petsc_temp"
-fi
 
 # Check if PETSC_DIR is set, and the libraries exist. If so copy them over.
 PETSC="0"
@@ -130,9 +93,7 @@ if [ ! -z ${PETSC_DIR} ]; then
 
     fi
 
-    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-        rm -rf "petsc_temp"
-    fi
+    rm -rf "petsc_temp"
 
 fi
 

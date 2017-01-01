@@ -16,9 +16,6 @@ env:
   global:
     - _R_CHECK_CRAN_INCOMING_=FALSE
     - FLAGS="-O0 -g -Wall -pedantic -ftrapv"
-  matrix:
-    - DOWNLOAD_PETSC_BINARIES=0
-    - DOWNLOAD_PETSC_BINARIES=1
 
 before_install:
   - export PATH=$HOME/bin:$HOME/texlive/bin/x86_64-linux:$PATH
