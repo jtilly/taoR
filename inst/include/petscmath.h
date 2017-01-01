@@ -21,7 +21,6 @@
 
 */
 
-#define PetscExpPassiveScalar(a) PetscExpScalar()
 #if defined(PETSC_USE_REAL_SINGLE)
 #define MPIU_REAL   MPI_FLOAT
 typedef float PetscReal;
@@ -117,6 +116,10 @@ typedef __float128 PetscReal;
 #if defined(PETSC_HAVE_CUSP)
 #define complexlib cusp
 #include <cusp/complex.h>
+#elif defined(PETSC_HAVE_VECCUDA) && __CUDACC_VER_MAJOR__ > 6
+/* complex headers in thrust only available in CUDA 7.0 and above */
+#define complexlib thrust
+#include <thrust/complex.h>
 #else
 #define complexlib std
 #include <complex>
@@ -134,15 +137,51 @@ typedef __float128 PetscReal;
 #define PetscCosComplex(a)           complexlib::cos(a)
 #define PetscAsinComplex(a)          complexlib::asin(a)
 #define PetscAcosComplex(a)          complexlib::acos(a)
+#if defined(PETSC_HAVE_TANCOMPLEX)
 #define PetscTanComplex(a)           complexlib::tan(a)
+#else
+#define PetscTanComplex(a)           PetscSinComplex(a)/PetscCosComplex(a)
+#endif
 #define PetscSinhComplex(a)          complexlib::sinh(a)
 #define PetscCoshComplex(a)          complexlib::cosh(a)
+#if defined(PETSC_HAVE_TANHCOMPLEX)
 #define PetscTanhComplex(a)          complexlib::tanh(a)
+#else
+#define PetscTanhComplex(a)          PetscSinhComplex(a)/PetscCoshComplex(a)
+#endif
 
 #if defined(PETSC_USE_REAL_SINGLE)
 typedef complexlib::complex<float> PetscComplex;
+#if defined(PETSC_USE_CXX_COMPLEX_FLOAT_WORKAROUND)
+static inline PetscComplex operator+(const PetscComplex& lhs, const double& rhs) { return lhs + float(rhs); }
+static inline PetscComplex operator+(const double& lhs, const PetscComplex& rhs) { return float(lhs) + rhs; }
+static inline PetscComplex operator-(const PetscComplex& lhs, const double& rhs) { return lhs - float(rhs); }
+static inline PetscComplex operator-(const double& lhs, const PetscComplex& rhs) { return float(lhs) - rhs; }
+static inline PetscComplex operator*(const PetscComplex& lhs, const double& rhs) { return lhs * float(rhs); }
+static inline PetscComplex operator*(const double& lhs, const PetscComplex& rhs) { return float(lhs) * rhs; }
+static inline PetscComplex operator/(const PetscComplex& lhs, const double& rhs) { return lhs / float(rhs); }
+static inline PetscComplex operator/(const double& lhs, const PetscComplex& rhs) { return float(lhs) / rhs; }
+static inline bool operator==(const PetscComplex& lhs, const double& rhs) { return lhs.imag() == float(0) && lhs.real() == float(rhs); }
+static inline bool operator==(const double& lhs, const PetscComplex& rhs) { return rhs.imag() == float(0) && rhs.real() == float(lhs); }
+static inline bool operator!=(const PetscComplex& lhs, const double& rhs) { return lhs.imag() != float(0) || lhs.real() != float(rhs); }
+static inline bool operator!=(const double& lhs, const PetscComplex& rhs) { return rhs.imag() != float(0) || rhs.real() != float(lhs); }
+#endif  /* PETSC_USE_CXX_COMPLEX_FLOAT_WORKAROUND */
 #elif defined(PETSC_USE_REAL_DOUBLE)
 typedef complexlib::complex<double> PetscComplex;
+#if defined(PETSC_USE_CXX_COMPLEX_FLOAT_WORKAROUND)
+static inline PetscComplex operator+(const PetscComplex& lhs, const PetscInt& rhs) { return lhs + double(rhs); }
+static inline PetscComplex operator+(const PetscInt& lhs, const PetscComplex& rhs) { return double(lhs) + rhs; }
+static inline PetscComplex operator-(const PetscComplex& lhs, const PetscInt& rhs) { return lhs - double(rhs); }
+static inline PetscComplex operator-(const PetscInt& lhs, const PetscComplex& rhs) { return double(lhs) - rhs; }
+static inline PetscComplex operator*(const PetscComplex& lhs, const PetscInt& rhs) { return lhs * double(rhs); }
+static inline PetscComplex operator*(const PetscInt& lhs, const PetscComplex& rhs) { return double(lhs) * rhs; }
+static inline PetscComplex operator/(const PetscComplex& lhs, const PetscInt& rhs) { return lhs / double(rhs); }
+static inline PetscComplex operator/(const PetscInt& lhs, const PetscComplex& rhs) { return double(lhs) / rhs; }
+static inline bool operator==(const PetscComplex& lhs, const PetscInt& rhs) { return lhs.imag() == double(0) && lhs.real() == double(rhs); }
+static inline bool operator==(const PetscInt& lhs, const PetscComplex& rhs) { return rhs.imag() == double(0) && rhs.real() == double(lhs); }
+static inline bool operator!=(const PetscComplex& lhs, const PetscInt& rhs) { return lhs.imag() != double(0) || lhs.real() != double(rhs); }
+static inline bool operator!=(const PetscInt& lhs, const PetscComplex& rhs) { return rhs.imag() != double(0) || rhs.real() != double(lhs); }
+#endif  /* PETSC_USE_CXX_COMPLEX_FLOAT_WORKAROUND */
 #elif defined(PETSC_USE_REAL___FLOAT128)
 typedef complexlib::complex<__float128> PetscComplex; /* Notstandard and not expected to work, use __complex128 */
 PETSC_EXTERN MPI_Datatype MPIU___COMPLEX128;
@@ -313,6 +352,7 @@ PETSC_STATIC_INLINE PetscReal PetscAbsScalar(PetscScalar a) {return a < 0.0 ? -a
 #endif /* PETSC_USE_COMPLEX */
 
 #define PetscSign(a) (((a) >= 0) ? ((a) == 0 ? 0 : 1) : -1)
+#define PetscSignReal(a) (((a) >= 0.0) ? ((a) == 0.0 ? 0.0 : 1.0) : -1.0)
 #define PetscAbs(a)  (((a) >= 0) ? (a) : -(a))
 
 /* --------------------------------------------------------------------------*/
@@ -491,21 +531,19 @@ M*/
 #  define PETSC_MAX_REAL                FLT128_MAX
 #  define PETSC_MIN_REAL                -FLT128_MAX
 #  define PETSC_MACHINE_EPSILON         FLT128_EPSILON
-#  define PETSC_SQRT_MACHINE_EPSILON    1.38777878078e-17
-#  define PETSC_SMALL                   1.e-20
+#  define PETSC_SQRT_MACHINE_EPSILON    1.38777878078e-17q
+#  define PETSC_SMALL                   1.e-20q
 #endif
 
 #define PETSC_INFINITY                PETSC_MAX_REAL/4.0
 #define PETSC_NINFINITY              -PETSC_INFINITY
 
 PETSC_EXTERN PetscErrorCode PetscIsInfOrNanReal(PetscReal);
+PETSC_EXTERN PetscErrorCode PetscIsNanReal(PetscReal);
 PETSC_EXTERN PetscBool PetscIsNormalReal(PetscReal);
 PETSC_STATIC_INLINE PetscErrorCode PetscIsInfOrNanScalar(PetscScalar v) {return PetscIsInfOrNanReal(PetscAbsScalar(v));}
+PETSC_STATIC_INLINE PetscErrorCode PetscIsNanScalar(PetscScalar v) {return PetscIsNanReal(PetscAbsScalar(v));}
 PETSC_STATIC_INLINE PetscErrorCode PetscIsNormalScalar(PetscScalar v) {return PetscIsNormalReal(PetscAbsScalar(v));}
-
-/* ----------------------------------------------------------------------------*/
-#define PassiveReal   PetscReal
-#define PassiveScalar PetscScalar
 
 /*
     These macros are currently hardwired to match the regular data types, so there is no support for a different
@@ -540,7 +578,7 @@ PETSC_STATIC_INLINE PetscReal PetscPowRealInt(PetscReal base,PetscInt power)
   PetscReal result = 1;
   if (power < 0) {
     power = -power;
-    if (base != 0.0) base  = 1./base;
+    base  = ((PetscReal)1)/base;
   }
   while (power) {
     if (power & 1) result *= base;
@@ -555,7 +593,7 @@ PETSC_STATIC_INLINE PetscScalar PetscPowScalarInt(PetscScalar base,PetscInt powe
   PetscScalar result = 1;
   if (power < 0) {
     power = -power;
-    if (base != 0.0) base  = 1./base;
+    base  = ((PetscReal)1)/base;
   }
   while (power) {
     if (power & 1) result *= base;
@@ -574,7 +612,7 @@ PETSC_STATIC_INLINE PetscScalar PetscPowScalarReal(PetscScalar base,PetscReal po
 #ifndef PETSC_HAVE_LOG2
 PETSC_STATIC_INLINE PetscReal PetscLog2Real(PetscReal n)
 {
-  return PetscLogReal(n)/PetscLogReal(2);
+  return PetscLogReal(n)/PetscLogReal(2.0);
 }
 #endif
 #endif

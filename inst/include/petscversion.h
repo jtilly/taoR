@@ -3,18 +3,18 @@
 
 #define PETSC_VERSION_RELEASE    1
 #define PETSC_VERSION_MAJOR      3
-#define PETSC_VERSION_MINOR      6
-#define PETSC_VERSION_SUBMINOR   3
+#define PETSC_VERSION_MINOR      7
+#define PETSC_VERSION_SUBMINOR   5
 #define PETSC_VERSION_PATCH      0
-#define PETSC_RELEASE_DATE       "Jun, 9, 2015"
-#define PETSC_VERSION_DATE       "Dec, 03, 2015"
+#define PETSC_RELEASE_DATE       "Apr, 25, 2016"
+#define PETSC_VERSION_DATE       "Jan, 01, 2017"
 
 #if !defined (PETSC_VERSION_GIT)
-#define PETSC_VERSION_GIT        "v3.6.2-37-g6fc57b5"
+#define PETSC_VERSION_GIT        "v3.7.5"
 #endif
 
 #if !defined(PETSC_VERSION_DATE_GIT)
-#define PETSC_VERSION_DATE_GIT   "2015-12-03 23:02:05 -0600"
+#define PETSC_VERSION_DATE_GIT   "2017-01-01 09:58:23 -0600"
 #endif
 
 #define PETSC_VERSION_(MAJOR,MINOR,SUBMINOR) \

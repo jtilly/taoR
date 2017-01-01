@@ -27,43 +27,6 @@ else
     exit -1
 fi
 
-if [ ! -z ${PETSC_DIR} ] && [ -e ${PETSC_DIR} ]; then
-
-    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-
-        echo "... WARNING: PETSC_DIR is set and DOWNLOAD_PETSC_BINARIES=1."
-        echo "............ No binaries will be downloaded. PETSC_DIR will be used instead."
-
-        DOWNLOAD_PETSC_BINARIES="0"
-
-    fi
-
-fi
-
-# Check if DOWNLOAD_PETSC_BINARIES is set to something other than 0
-# If so, download the binaries.
-if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-    
-    echo "... Downloading PETSc binaries."
-    
-    
-    # make a temporary directory with a lib folder and download the libaries
-    mkdir petsc_temp && mkdir petsc_temp/lib
-    cd petsc_temp/lib
-
-    if [ ${platform} == "linux" ]; then
-        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.so.3.6.3
-    fi
-
-    if [ ${platform} == "osx" ]; then
-        download https://github.com/jtilly/taoR/raw/binaries/libpetsc.3.6.3.dylib
-    fi
-
-    cd ../..
-
-    # set PETSC_DIR to point to the temporary folder
-    PETSC_DIR="petsc_temp"
-fi
 
 # Check if PETSC_DIR is set, and the libraries exist. If so copy them over.
 PETSC="0"
@@ -81,24 +44,24 @@ if [ ! -z ${PETSC_DIR} ]; then
 
         echo "... Looking for libraries in ${PETSC_LIB}."
 
-        if [ -e ${PETSC_LIB}/libpetsc.so.3.6.3 ]; then
-            echo "... Found libpetsc.so.3.6.3."
+        if [ -e ${PETSC_LIB}/libpetsc.so.3.7.5 ]; then
+            echo "... Found libpetsc.so.3.7.5."
             PETSC="1"
-            cp -L ${PETSC_LIB}/libpetsc.so.3.6.3 inst/bin/libpetsc.so.3.6
+            cp -L ${PETSC_LIB}/libpetsc.so.3.7.5 inst/bin/libpetsc.so.3.7
 			cd inst/bin 
-			ln -s libpetsc.so.3.6 libpetsc.so.3.6.3
-			ln -s libpetsc.so.3.6 libpetsc.so
+			ln -s libpetsc.so.3.7 libpetsc.so.3.7.5
+			ln -s libpetsc.so.3.7 libpetsc.so
 			cd ../..
         elif [ -e ${PETSC_LIB}/libpetsc.so ]; then
             echo "... Found libpetsc.so."
             PETSC="1"
-            cp -L ${PETSC_LIB}/libpetsc.so inst/bin/libpetsc.so.3.6.3
+            cp -L ${PETSC_LIB}/libpetsc.so inst/bin/libpetsc.so.3.7.5
             cd inst/bin 
-            ln -s libpetsc.so.3.6.3 libpetsc.so.3.6
-            ln -s libpetsc.so.3.6.3 libpetsc.so
+            ln -s libpetsc.so.3.7.5 libpetsc.so.3.7
+            ln -s libpetsc.so.3.7.5 libpetsc.so
             cd ../..
         else 
-            echo "... NOTE: Could not find libpetsc.so.3.6.3 or libpetsc.so."
+            echo "... NOTE: Could not find libpetsc.so.3.7.5 or libpetsc.so."
         fi
 
     fi
@@ -107,32 +70,30 @@ if [ ! -z ${PETSC_DIR} ]; then
 
         echo "... Looking for libraries in ${PETSC_LIB}."
 
-        if [ -e ${PETSC_LIB}/libpetsc.3.6.3.dylib ]; then
-            echo "... Found libpetsc.3.6.3.dylib."
+        if [ -e ${PETSC_LIB}/libpetsc.3.7.5.dylib ]; then
+            echo "... Found libpetsc.3.7.5.dylib."
             PETSC="1"
-            cp -L ${PETSC_LIB}/libpetsc.3.6.3.dylib inst/bin/
+            cp -L ${PETSC_LIB}/libpetsc.3.7.5.dylib inst/bin/
 			cd inst/bin 
-			ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
-			ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+			ln -s libpetsc.3.7.5.dylib libpetsc.3.7.dylib
+			ln -s libpetsc.3.7.5.dylib libpetsc.dylib
 			cd ../..
         elif [ -e ${PETSC_LIB}/libpetsc.dylib ]; then
             echo "... Found libpetsc.dylib."
             PETSC="1"
-            cp -L ${PETSC_LIB}/libpetsc.dylib inst/bin/libpetsc.3.6.3.dylib
+            cp -L ${PETSC_LIB}/libpetsc.dylib inst/bin/libpetsc.3.7.5.dylib
             cd inst/bin 
-            ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
-            ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+            ln -s libpetsc.3.7.5.dylib libpetsc.3.7.dylib
+            ln -s libpetsc.3.7.5.dylib libpetsc.dylib
             cd ../..
         else 
-            echo "... NOTE: Could not find libpetsc.3.6.3.dylib or libpetsc.dylib in"
+            echo "... NOTE: Could not find libpetsc.3.7.5.dylib or libpetsc.dylib in"
             echo "....${PETSC_LIB}."
         fi
 
     fi
 
-    if [ ! -z ${DOWNLOAD_PETSC_BINARIES} ] && [ ! ${DOWNLOAD_PETSC_BINARIES} == "0" ]; then
-        rm -rf "petsc_temp"
-    fi
+    rm -rf "petsc_temp"
 
 fi
 
@@ -144,15 +105,15 @@ if [ ${PETSC} == "0" ]; then
     echo "... This may take several minutes."
     cd inst
     
-    download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.6.3.tar.gz
+    download http://ftp.mcs.anl.gov/pub/petsc/release-snapshots/petsc-lite-3.7.5.tar.gz
     
-    if [ ! -e "petsc-lite-3.6.3.tar.gz" ]; then
+    if [ ! -e "petsc-lite-3.7.5.tar.gz" ]; then
         echo "... ERROR: Download failed"
         exit -1
     fi
     
     echo "... Download completed"
-    tar xvf petsc-lite-3.6.3.tar.gz && rm petsc-lite-3.6.3.tar.gz && cd petsc-3.6.3
+    tar xvf petsc-lite-3.7.5.tar.gz && rm petsc-lite-3.7.5.tar.gz && cd petsc-3.7.5
     
     # define PETSC_ARCH and export it so that ./configure can find it
     export PETSC_ARCH=arch-petscR
@@ -186,22 +147,22 @@ if [ ${PETSC} == "0" ]; then
 
     # move the binaries to ../bin
     if [ ${platform} == "osx" ]; then
-        cp -L ${PETSC_ARCH}/lib/libpetsc.3.6.3.dylib ../bin/libpetsc.3.6.3.dylib
+        cp -L ${PETSC_ARCH}/lib/libpetsc.3.7.5.dylib ../bin/libpetsc.3.7.5.dylib
         cd ../bin 
-        ln -s libpetsc.3.6.3.dylib libpetsc.3.6.dylib
-        ln -s libpetsc.3.6.3.dylib libpetsc.dylib
+        ln -s libpetsc.3.7.5.dylib libpetsc.3.7.dylib
+        ln -s libpetsc.3.7.5.dylib libpetsc.dylib
         cd ..
     fi
     
     if [ ${platform} == "linux" ]; then
-        cp -L ${PETSC_ARCH}/lib/libpetsc.so.3.6.3 ../bin/libpetsc.so.3.6
+        cp -L ${PETSC_ARCH}/lib/libpetsc.so.3.7.5 ../bin/libpetsc.so.3.7
         cd ../bin 
-        ln -s libpetsc.so.3.6 libpetsc.so.3.6.3
-        ln -s libpetsc.so.3.6 libpetsc.so
+        ln -s libpetsc.so.3.7 libpetsc.so.3.7.5
+        ln -s libpetsc.so.3.7 libpetsc.so
         cd ..
     fi
     
-    rm -rf petsc-3.6.3
+    rm -rf petsc-3.7.5
     cd ..
 
     echo "... PETSc installation completed."
@@ -214,7 +175,7 @@ rpath=$(${R_HOME}/bin/Rscript -e 'cat(file.path(.libPaths()[1], "taoR", "bin"))'
 
 # set linker for Mac OS
 if [ ${platform} == "osx" ]; then
-    linker=$(otool -L inst/bin/libpetsc.3.6.3.dylib | sed -n 2p | sed 's/[[:space:]]//g' | sed 's/(.*//')
+    linker=$(otool -L inst/bin/libpetsc.3.7.5.dylib | sed -n 2p | sed 's/[[:space:]]//g' | sed 's/(.*//')
 fi
 
 

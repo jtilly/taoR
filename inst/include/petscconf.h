@@ -66,11 +66,11 @@
 #endif
 
 #ifndef PETSC_DIR
-#define PETSC_DIR "/root/petsc-3.6.3"
+#define PETSC_DIR "/root/petsc-3.7.5"
 #endif
 
 #ifndef PETSC_LIB_DIR
-#define PETSC_LIB_DIR "/root/petsc-3.6.3/arch-linux2-c-opt/lib"
+#define PETSC_LIB_DIR "/root/petsc-3.7.5/arch-linux2-c-opt/lib"
 #endif
 
 #ifndef PETSC_HAVE_FORTRAN
