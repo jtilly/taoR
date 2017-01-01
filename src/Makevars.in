@@ -8,9 +8,9 @@ platform = @platform@
 PKG_LIBS = `$(R_HOME)/bin/Rscript -e "Rcpp:::LdFlags()"` -Wl,-rpath,${rpath} -L../inst/bin -lpetsc
 
 # add include directories so that the c code can find the headers
-PKG_CXXFLAGS = -I../inst/include
+PKG_CXXFLAGS = -I../inst/include -Wno-long-long
 
 all: $(SHLIB)
-	@if command -v install_name_tool; then install_name_tool -change @linker@ '@rpath/libpetsc.3.6.3.dylib' taoR.so; fi
-	@if [ ${platform} == "osx" ]; then rm ../inst/bin/libpetsc.dylib; rm ../inst/bin/libpetsc.3.6.dylib; fi
-	@if [ ${platform} == "linux" ]; then rm ../inst/bin/libpetsc.so; rm ../inst/bin/libpetsc.so.3.6.3; fi 
+	@if command -v install_name_tool; then install_name_tool -change @linker@ '@rpath/libpetsc.3.7.5.dylib' taoR.so; fi
+	@if [ ${platform} == "osx" ]; then rm ../inst/bin/libpetsc.dylib; rm ../inst/bin/libpetsc.3.7.dylib; fi
+	@if [ ${platform} == "linux" ]; then rm ../inst/bin/libpetsc.so; rm ../inst/bin/libpetsc.so.3.7.5; fi 

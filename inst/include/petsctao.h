@@ -71,8 +71,6 @@ PETSC_EXTERN PetscFunctionList TaoList;
     include/petsc/finclude/petsctao.h
 */
 typedef enum {/* converged */
-  TAO_CONVERGED_FATOL          =  1, /* f(X)-f(X*) <= fatol */
-  TAO_CONVERGED_FRTOL          =  2, /* |F(X) - f(X*)|/|f(X)| < frtol */
   TAO_CONVERGED_GATOL          =  3, /* ||g(X)|| < gatol */
   TAO_CONVERGED_GRTOL          =  4, /* ||g(X)|| / f(X)  < grtol */
   TAO_CONVERGED_GTTOL          =  5, /* ||g(X)|| / ||g(X0)|| < gttol */
@@ -118,11 +116,17 @@ PETSC_EXTERN PetscErrorCode TaoSetConvergedReason(Tao,TaoConvergedReason);
 PETSC_EXTERN PetscErrorCode TaoSetInitialVector(Tao, Vec);
 PETSC_EXTERN PetscErrorCode TaoGetSolutionVector(Tao, Vec*);
 PETSC_EXTERN PetscErrorCode TaoGetGradientVector(Tao, Vec*);
+PETSC_EXTERN PetscErrorCode TaoSetGradientNorm(Tao, Mat);
+PETSC_EXTERN PetscErrorCode TaoGetGradientNorm(Tao, Mat*);
+PETSC_EXTERN PetscErrorCode TaoLMVMSetH0(Tao, Mat);
+PETSC_EXTERN PetscErrorCode TaoLMVMGetH0(Tao, Mat*);
+PETSC_EXTERN PetscErrorCode TaoLMVMGetH0KSP(Tao, KSP*);
 PETSC_EXTERN PetscErrorCode TaoSetObjectiveRoutine(Tao, PetscErrorCode(*)(Tao, Vec, PetscReal*,void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetGradientRoutine(Tao, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetObjectiveAndGradientRoutine(Tao, PetscErrorCode(*)(Tao, Vec, PetscReal*, Vec, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetHessianRoutine(Tao,Mat,Mat,PetscErrorCode(*)(Tao,Vec, Mat, Mat, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetSeparableObjectiveRoutine(Tao, Vec, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
+PETSC_EXTERN PetscErrorCode TaoSetSeparableObjectiveWeights(Tao, Vec, PetscInt, PetscInt*, PetscInt*, PetscReal*);
 PETSC_EXTERN PetscErrorCode TaoSetConstraintsRoutine(Tao, Vec, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetInequalityConstraintsRoutine(Tao, Vec, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoSetEqualityConstraintsRoutine(Tao, Vec, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
@@ -165,8 +169,8 @@ PETSC_EXTERN PetscErrorCode TaoGetInequalityBounds(Tao, Vec*, Vec*);
 PETSC_EXTERN PetscErrorCode TaoSetVariableBoundsRoutine(Tao, PetscErrorCode(*)(Tao, Vec, Vec, void*), void*);
 PETSC_EXTERN PetscErrorCode TaoComputeVariableBounds(Tao);
 
-PETSC_EXTERN PetscErrorCode TaoGetTolerances(Tao, PetscReal*, PetscReal*, PetscReal*, PetscReal*, PetscReal*);
-PETSC_EXTERN PetscErrorCode TaoSetTolerances(Tao, PetscReal, PetscReal, PetscReal, PetscReal, PetscReal);
+PETSC_EXTERN PetscErrorCode TaoGetTolerances(Tao, PetscReal*, PetscReal*, PetscReal*);
+PETSC_EXTERN PetscErrorCode TaoSetTolerances(Tao, PetscReal, PetscReal, PetscReal);
 PETSC_EXTERN PetscErrorCode TaoGetConstraintTolerances(Tao, PetscReal*, PetscReal*);
 PETSC_EXTERN PetscErrorCode TaoSetConstraintTolerances(Tao, PetscReal, PetscReal);
 PETSC_EXTERN PetscErrorCode TaoSetFunctionLowerBound(Tao, PetscReal);

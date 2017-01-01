@@ -57,8 +57,8 @@ void initialize(Rcpp::List options) {
         PetscInitialize(&argc, &argv, (char *)0, (char *) 0);
     } else { 
         // Re-set the options
-        PetscOptionsClear();
-        PetscOptionsInsert(&argc, &argv, (char *) 0);
+        PetscOptionsClear(NULL);
+        PetscOptionsInsert(NULL, &argc, &argv, (char *) 0);
     }
     
     for(int i = 0; i < argc; ++i)

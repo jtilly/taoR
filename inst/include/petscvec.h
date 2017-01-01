@@ -103,10 +103,10 @@ typedef const char* VecType;
 #define VECSEQVIENNACL "seqviennacl"
 #define VECMPIVIENNACL "mpiviennacl"
 #define VECVIENNACL    "viennacl"   /* seqviennacl on one process and mpiviennacl on several */
+#define VECSEQCUDA     "seqcuda"
+#define VECMPICUDA     "mpicuda"
+#define VECCUDA        "cuda"       /* seqcuda on one process and mpicuda on several */
 #define VECNEST        "nest"
-#define VECSEQPTHREAD  "seqpthread"
-#define VECMPIPTHREAD  "mpipthread"
-#define VECPTHREAD     "pthread"    /* seqpthread on one process and mpipthread on several */
 
 
 /* Logging support */
@@ -413,7 +413,7 @@ PETSC_EXTERN PetscErrorCode VecMTDotEnd(Vec,PetscInt,const Vec[],PetscScalar[]);
 PETSC_EXTERN PetscErrorCode PetscCommSplitReductionBegin(MPI_Comm);
 
 
-typedef enum {VEC_IGNORE_OFF_PROC_ENTRIES,VEC_IGNORE_NEGATIVE_INDICES} VecOption;
+typedef enum {VEC_IGNORE_OFF_PROC_ENTRIES,VEC_IGNORE_NEGATIVE_INDICES,VEC_SUBSET_OFF_PROC_ENTRIES} VecOption;
 PETSC_EXTERN PetscErrorCode VecSetOption(Vec,VecOption,PetscBool );
 
 PETSC_EXTERN PetscErrorCode VecGetArray(Vec,PetscScalar**);
@@ -466,13 +466,11 @@ PETSC_EXTERN PetscErrorCode VecLockPop(Vec);
 
 PETSC_EXTERN PetscErrorCode VecValidValues(Vec,PetscInt,PetscBool);
 
-PETSC_EXTERN PetscErrorCode VecContourScale(Vec,PetscReal,PetscReal);
-
 /*
     These numbers need to match the entries in
   the function table in vecimpl.h
 */
-typedef enum { VECOP_VIEW = 33, VECOP_LOAD = 41, VECOP_DUPLICATE = 0} VecOperation;
+typedef enum { VECOP_DUPLICATE = 0, VECOP_VIEW = 33, VECOP_LOAD = 41, VECOP_VIEWNATIVE = 68, VECOP_LOADNATIVE = 69 } VecOperation;
 PETSC_EXTERN PetscErrorCode VecSetOperation(Vec,VecOperation,void(*)(void));
 
 /*
@@ -545,11 +543,7 @@ PETSC_EXTERN PetscErrorCode VecScatterInitializeForGPU(VecScatter,Vec,ScatterMod
 PETSC_EXTERN PetscErrorCode VecScatterFinalizeForGPU(VecScatter);
 PETSC_EXTERN PetscErrorCode VecCreateSeqCUSP(MPI_Comm,PetscInt,Vec*);
 PETSC_EXTERN PetscErrorCode VecCreateMPICUSP(MPI_Comm,PetscInt,PetscInt,Vec*);
-PETSC_EXTERN PetscErrorCode VecCUSPGetCUDAArray(Vec,PetscScalar**);
-PETSC_EXTERN PetscErrorCode VecCUSPRestoreCUDAArray(Vec,PetscScalar**);
-#endif
-
-#if defined(PETSC_HAVE_VIENNACL)
+#elif defined(PETSC_HAVE_VIENNACL)
 typedef struct _p_PetscViennaCLIndices* PetscViennaCLIndices;
 PETSC_EXTERN PetscErrorCode PetscViennaCLIndicesCreate(PetscInt, PetscInt*,PetscInt, PetscInt*,PetscViennaCLIndices*);
 PETSC_EXTERN PetscErrorCode PetscViennaCLIndicesDestroy(PetscViennaCLIndices*);
@@ -557,6 +551,16 @@ PETSC_EXTERN PetscErrorCode VecViennaCLCopyToGPUSome_Public(Vec,PetscViennaCLInd
 PETSC_EXTERN PetscErrorCode VecViennaCLCopyFromGPUSome_Public(Vec,PetscViennaCLIndices);
 PETSC_EXTERN PetscErrorCode VecCreateSeqViennaCL(MPI_Comm,PetscInt,Vec*);
 PETSC_EXTERN PetscErrorCode VecCreateMPIViennaCL(MPI_Comm,PetscInt,PetscInt,Vec*);
+#elif defined(PETSC_HAVE_VECCUDA)
+typedef struct _p_PetscCUDAIndices* PetscCUDAIndices;
+typedef struct _p_VecScatterCUDAIndices_StoS* VecScatterCUDAIndices_StoS;
+typedef struct _p_VecScatterCUDAIndices_PtoP* VecScatterCUDAIndices_PtoP;
+PETSC_EXTERN PetscErrorCode VecCUDACopyToGPUSome_Public(Vec,PetscCUDAIndices);
+PETSC_EXTERN PetscErrorCode VecCUDACopyFromGPUSome_Public(Vec,PetscCUDAIndices);
+PETSC_EXTERN PetscErrorCode VecScatterInitializeForGPU(VecScatter,Vec,ScatterMode);
+PETSC_EXTERN PetscErrorCode VecScatterFinalizeForGPU(VecScatter);
+PETSC_EXTERN PetscErrorCode VecCreateSeqCUDA(MPI_Comm,PetscInt,Vec*);
+PETSC_EXTERN PetscErrorCode VecCreateMPICUDA(MPI_Comm,PetscInt,PetscInt,Vec*);
 #endif
 
 PETSC_EXTERN PetscErrorCode VecNestGetSubVecs(Vec,PetscInt*,Vec**);
@@ -566,7 +570,7 @@ PETSC_EXTERN PetscErrorCode VecNestSetSubVec(Vec,PetscInt,Vec);
 PETSC_EXTERN PetscErrorCode VecCreateNest(MPI_Comm,PetscInt,IS*,Vec*,Vec*);
 PETSC_EXTERN PetscErrorCode VecNestGetSize(Vec,PetscInt*);
 
-PETSC_EXTERN PetscErrorCode PetscOptionsGetVec(const char[],const char[],Vec,PetscBool*);
+PETSC_EXTERN PetscErrorCode PetscOptionsGetVec(PetscOptions,const char[],const char[],Vec,PetscBool*);
 PETSC_EXTERN PetscErrorCode VecChop(Vec,PetscReal);
 
 PETSC_EXTERN PetscErrorCode VecGetLayout(Vec,PetscLayout*);
@@ -576,6 +580,8 @@ PETSC_EXTERN PetscErrorCode PetscSectionVecView(PetscSection, Vec, PetscViewer);
 PETSC_EXTERN PetscErrorCode VecGetValuesSection(Vec, PetscSection, PetscInt, PetscScalar **);
 PETSC_EXTERN PetscErrorCode VecSetValuesSection(Vec, PetscSection, PetscInt, PetscScalar [], InsertMode);
 PETSC_EXTERN PetscErrorCode PetscSectionVecNorm(PetscSection, PetscSection, Vec, NormType, PetscReal []);
+
+PETSC_EXTERN PetscErrorCode PetscSFCreateFromZero(MPI_Comm,Vec,PetscSF*);
 
 #endif
 

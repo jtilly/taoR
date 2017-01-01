@@ -73,8 +73,8 @@ script:
   - R CMD INSTALL "${PKG_FILE_NAME}"
   - ln -s ${HOME}/Rlib/taoR/bin ${HOME}/Rlib/taoR/lib
   - export PETSC_DIR="${HOME}/Rlib/taoR"
-  - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.6 ${PETSC_DIR}/bin/libpetsc.so
-  - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.6 ${PETSC_DIR}/bin/libpetsc.so.3.6.3
+  - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.7 ${PETSC_DIR}/bin/libpetsc.so
+  - ln -s ${PETSC_DIR}/bin/libpetsc.so.3.7 ${PETSC_DIR}/bin/libpetsc.so.3.7.5
   - R CMD check "${PKG_FILE_NAME}" --as-cran 
   - R -d valgrind --no-save < taoR.Rcheck/taoR-Ex.R
   - R -d valgrind --no-save < demo/test.R
